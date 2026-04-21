@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Read Together</title>
+  <style>
+    /* 导入字体 */
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Bubblegum+Sans&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #f0f9f0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 顶部装饰 */
+    .top-decoration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, #4CAF50, #2e7d32);
+      z-index: -1;
+      box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    /* 登录容器 */
+    .auth-container {
+      max-width: 400px;
+      width: 90%;
+      background-color: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 16px rgba(76, 175, 80, 0.2);
+      text-align: center;
+      margin: 20px;
+    }
+
+    .auth-title {
+      font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+      font-size: 28px;
+      color: #4CAF50;
+      margin-bottom: 30px;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #a5d6a7;
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: 'Nunito', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #4CAF50;
+      box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.2);
+    }
+
+    .auth-btn {
+      padding: 12px 24px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+      transition: all 0.3s ease;
+      font-family: 'Nunito', sans-serif;
+    }
+
+    .auth-btn:hover {
+      background-color: #388e3c;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(76, 175, 80, 0.4);
+    }
+
+    .auth-link {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .auth-link a {
+      color: #4CAF50;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部装饰 -->
+  <div class="top-decoration"></div>
+
+  <!-- 登录容器 -->
+  <div class="auth-container">
+    <h1 class="auth-title">Read It. See It. Live It.</h1>
+    
+    <form class="auth-form" id="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="请输入邮箱">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="请输入密码">
+      </div>
+      <button type="submit" class="auth-btn">Login</button>
+      <div class="auth-link">
+        还没有账号？ <a href="#" id="register-link">立即注册</a>
+      </div>
+      <div class="error-message" id="error-message"></div>
+    </form>
+
+    <form class="auth-form" id="register-form" style="display: none;">
+      <div class="form-group">
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" name="email" required placeholder="请输入邮箱">
+      </div>
+      <div class="form-group">
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" name="password" required placeholder="请输入密码">
+      </div>
+      <button type="submit" class="auth-btn">Register</button>
+      <div class="auth-link">
+        已有账号？ <a href="#" id="login-link">立即登录</a>
+      </div>
+      <div class="error-message" id="register-error-message"></div>
+    </form>
+  </div>
+
+  <script>
+    // DOM元素
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const loginLink = document.getElementById('login-link');
+    const registerLink = document.getElementById('register-link');
+    const errorMessage = document.getElementById('error-message');
+    const registerErrorMessage = document.getElementById('register-error-message');
+
+    // 切换到注册表单
+    registerLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      registerForm.style.display = 'flex';
+    });
+
+    // 切换到登录表单
+    loginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      registerForm.style.display = 'none';
+      loginForm.style.display = 'flex';
+    });
+
+    // 登录表单提交
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '登录失败');
+        }
+        
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // 登录成功，跳转到首页
+        window.location.href = 'index.html';
+      } catch (error) {
+        errorMessage.textContent = error.message;
+      }
+    });
+
+    // 注册表单提交
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('register-email').value;
+      const password = document.getElementById('register-password').value;
+      
+      try {
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, role: 'user' })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || '注册失败');
+        }
+        
+        const data = await response.json();
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        
+        // 注册成功，跳转到首页
+        window.location.href = 'index.html';
+      } catch (error) {
+        registerErrorMessage.textContent = error.message;
+      }
+    });
+  </script>
+</body>
+</html>
