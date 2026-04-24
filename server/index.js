@@ -7,7 +7,7 @@ const multer = require('multer');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
-const feishu = require('./feishu');
+const feishu = require('./services/feishu');
 
 const app = express();
 const port = 3000;
@@ -482,7 +482,7 @@ if (!fs.existsSync(booksDir)) {
 }
 
 // 设置静态文件服务
-app.use(express.static('public'));
+app.use(express.static('src'));
 app.use('/uploads', express.static('uploads'));
 
 // 启动时对齐书籍存储结构，避免历史数据不一致。

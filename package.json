@@ -2,10 +2,10 @@
   "name": "animation-book",
   "version": "1.0.0",
   "description": "儿童书籍动画化网页应用",
-  "main": "index.js",
+  "main": "server/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
     "build": "webpack --mode production"
   },
   "keywords": [
