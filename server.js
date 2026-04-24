@@ -6,17 +6,18 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
-// 正确加载 node-fetch
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const feishu = require('./feishu');
 
 const app = express();
 const port = 3000;
+const USE_FEISHU_STORAGE = process.env.USE_FEISHU_STORAGE === 'true';
 const booksFile = './data/books.json';
 const usersFile = './data/users.json';
 const imagesFile = './data/images.json';
 const uploadsDir = './uploads';
 const booksDir = './uploads/books';
-const jwtSecret = 'your-secret-key';
+const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
 const coverGenerationLocks = new Map();
 const IMAGE_FETCH_TIMEOUT_MS = 45000;
 const IMAGE_FETCH_MAX_RETRIES = 3;
@@ -104,6 +105,132 @@ function writeBookPages(bookId, pages) {
   fs.writeFileSync(pagesFile, JSON.stringify(pages, null, 2), 'utf8');
 }
 
+async function feishuReadBooks() {
+  if (!feishu.isConfigured()) {
+    return readBooks();
+  }
+  try {
+    await feishu.initializeBitable();
+    const records = await feishu.getAllRecords(feishu.booksTableId);
+    return records.map(record => ({
+      id: record.fields.id,
+      title: record.fields.title,
+      coverUrl: record.fields.coverUrl || '',
+      pageCount: record.fields.pageCount || 0,
+      isPublished: record.fields.isPublished || false,
+      published_at: record.fields.published_at || null,
+      created_by: record.fields.created_by,
+      created_at: record.fields.created_at,
+      updated_at: record.fields.updated_at,
+      feishuRecordId: record.record_id
+    }));
+  } catch (error) {
+    console.error('从飞书读取书籍失败，回退到本地存储:', error.message);
+    return readBooks();
+  }
+}
+
+async function feishuWriteBooks(books) {
+  if (!feishu.isConfigured()) {
+    writeBooks(books);
+    return;
+  }
+  try {
+    await feishu.initializeBitable();
+    const existingRecords = await feishu.getAllRecords(feishu.booksTableId);
+    const existingMap = new Map(existingRecords.map(r => [r.fields.id, r]));
+
+    for (const book of books) {
+      const fields = {
+        id: book.id,
+        title: book.title,
+        coverUrl: book.coverUrl || '',
+        pageCount: book.pageCount || 0,
+        isPublished: book.isPublished || false,
+        published_at: book.published_at || null,
+        created_by: book.created_by,
+        created_at: book.created_at,
+        updated_at: book.updated_at || new Date().toISOString()
+      };
+
+      const existingRecord = existingMap.get(book.id);
+      if (existingRecord) {
+        await feishu.updateRecord(feishu.booksTableId, existingRecord.record_id, fields);
+      } else {
+        await feishu.createRecord(feishu.booksTableId, fields);
+      }
+    }
+  } catch (error) {
+    console.error('写入飞书书籍失败:', error.message);
+    writeBooks(books);
+  }
+}
+
+async function feishuReadBookPages(bookId) {
+  if (!feishu.isConfigured()) {
+    return readBookPages(bookId);
+  }
+  try {
+    await feishu.initializeBitable();
+    const records = await feishu.getAllRecords(feishu.pagesTableId);
+    return records
+      .filter(record => record.fields.bookId == bookId)
+      .sort((a, b) => a.fields.index - b.fields.index)
+      .map(record => ({
+        index: record.fields.index,
+        content: record.fields.content || '',
+        imageUrl: record.fields.imageUrl || '',
+        feishuRecordId: record.record_id
+      }));
+  } catch (error) {
+    console.error('从飞书读取页面失败，回退到本地存储:', error.message);
+    return readBookPages(bookId);
+  }
+}
+
+async function feishuWriteBookPages(bookId, pages) {
+  if (!feishu.isConfigured()) {
+    writeBookPages(bookId, pages);
+    return;
+  }
+  try {
+    await feishu.initializeBitable();
+    const existingRecords = await feishu.getAllRecords(feishu.pagesTableId);
+    const pageRecords = existingRecords.filter(r => r.fields.bookId == bookId);
+    const existingMap = new Map(pageRecords.map(r => [r.fields.index, r]));
+
+    for (const page of pages) {
+      const fields = {
+        bookId: Number(bookId),
+        index: page.index ?? 0,
+        content: page.content || '',
+        imageUrl: page.imageUrl || ''
+      };
+
+      const existingRecord = existingMap.get(page.index);
+      if (existingRecord) {
+        await feishu.updateRecord(feishu.pagesTableId, existingRecord.record_id, fields);
+      } else {
+        await feishu.createRecord(feishu.pagesTableId, fields);
+      }
+    }
+
+    const indexesToDelete = pageRecords
+      .map(r => r.fields.index)
+      .filter(idx => !pages.find(p => (p.index ?? 0) === idx));
+
+    for (const idx of indexesToDelete) {
+      const recordToDelete = pageRecords.find(r => r.fields.index === idx);
+      if (recordToDelete) {
+        await feishu.deleteRecord(feishu.pagesTableId, recordToDelete.record_id);
+      }
+    }
+  } catch (error) {
+    console.error('写入飞书页面失败:', error.message);
+    writeBookPages(bookId, pages);
+  }
+}
+
 function canManageBook(user, book) {
   return user.role === 'admin' || book.created_by == user.id;
 }
@@ -121,7 +248,7 @@ function generateAndSaveBookCover(bookId, title, prompt = '') {
   }
 
   const task = (async () => {
-    const books = readBooks();
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
     const bookIndex = books.findIndex(book => book.id == bookId);
     if (bookIndex === -1) {
       throw new Error('书籍不存在');
@@ -142,7 +269,11 @@ function generateAndSaveBookCover(bookId, title, prompt = '') {
       updated_at: new Date().toISOString()
     };
 
-    writeBooks(books);
+    if (USE_FEISHU_STORAGE) {
+      await feishuWriteBooks(books);
+    } else {
+      writeBooks(books);
+    }
     return { coverUrl: savedCoverPath };
   })();
 
@@ -167,10 +298,10 @@ function updateGenerationJob(bookId, patch) {
   return next;
 }
 
-function getBookGenerationStatus(book) {
+async function getBookGenerationStatus(book) {
   const key = String(book.id);
   const runningJob = generationJobs.get(key);
-  const pages = readBookPages(book.id);
+  const pages = USE_FEISHU_STORAGE ? await feishuReadBookPages(book.id) : readBookPages(book.id);
   const pageTotal = pages.length;
   const generatedPages = pages.filter(page => !!page.imageUrl).length;
   const hasCover = !!book.coverUrl;
@@ -218,14 +349,14 @@ function isBookPublic(book) {
 
 async function runBookAssetGeneration(bookId) {
   const key = String(bookId);
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const bookIndex = books.findIndex(book => book.id == bookId);
   if (bookIndex === -1) {
     throw new Error('书籍不存在');
   }
 
   const book = books[bookIndex];
-  const pages = readBookPages(book.id);
+  let pages = USE_FEISHU_STORAGE ? await feishuReadBookPages(book.id) : readBookPages(book.id);
   const total = pages.length + 1;
   let completed = 0;
 
@@ -275,7 +406,11 @@ async function runBookAssetGeneration(bookId) {
         imageUrl: savedImagePath
       };
 
-      writeBookPages(book.id, pages);
+      if (USE_FEISHU_STORAGE) {
+        await feishuWriteBookPages(book.id, pages);
+      } else {
+        writeBookPages(book.id, pages);
+      }
 
       completed += 1;
       updateGenerationJob(book.id, {
@@ -347,10 +482,15 @@ app.use('/uploads', express.static('uploads'));
 
 // 启动时对齐书籍存储结构，避免历史数据不一致。
 function syncBookStorage() {
+  if (USE_FEISHU_STORAGE) {
+    console.log('使用飞书存储，跳过本地书籍存储结构检查');
+    return;
+  }
+
   try {
     const books = readBooks();
     let hasUpdates = false;
-    
+
     for (const book of books) {
       const { pagesFile } = ensureBookStorage(book.id);
 
@@ -375,7 +515,7 @@ function syncBookStorage() {
         hasUpdates = true;
       }
     }
-    
+
     if (hasUpdates) {
       writeBooks(books);
     }
@@ -619,7 +759,7 @@ app.post('/api/auth/register', (req, res) => {
 app.post('/api/books', authenticateToken, async (req, res) => {
   try {
     const { title, content, pages, coverUrl } = req.body;
-    const books = readBooks();
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
     const newBook = {
       id: Date.now(),
       title,
@@ -629,15 +769,28 @@ app.post('/api/books', authenticateToken, async (req, res) => {
       created_by: req.user.id,
       created_at: new Date().toISOString()
     };
-    
-    // 保存封面图片
+
     if (coverUrl) {
       const savedCoverPath = await downloadAndSaveImage(coverUrl, newBook.id, 'cover');
       newBook.coverUrl = savedCoverPath;
     }
-    
+
     books.push(newBook);
-    writeBooks(books);
+
+    if (USE_FEISHU_STORAGE) {
+      await feishuWriteBooks(books);
+    } else {
+      writeBooks(books);
+    }
+
+    if (pages && pages.length > 0) {
+      if (USE_FEISHU_STORAGE) {
+        await feishuWriteBookPages(newBook.id, pages);
+      } else {
+        writeBookPages(newBook.id, pages);
+      }
+    }
+
     res.json(newBook);
   } catch (error) {
     console.error('创建书籍失败:', error);
@@ -645,26 +798,34 @@ app.post('/api/books', authenticateToken, async (req, res) => {
   }
 });
 
-app.get('/api/books/mine', authenticateToken, (req, res) => {
-  const books = readBooks();
-  const userBooks = books
-    .filter(book => book.created_by == req.user.id)
-    .map(book => ({
-      ...book,
-      generation: getBookGenerationStatus(book)
-    }))
-    .sort((a, b) => {
+app.get('/api/books/mine', authenticateToken, async (req, res) => {
+  try {
+    const books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
+    const userBooksWithGeneration = await Promise.all(
+      books
+        .filter(book => book.created_by == req.user.id)
+        .map(async book => ({
+          ...book,
+          generation: await getBookGenerationStatus(book)
+        }))
+    );
+
+    const sortedBooks = userBooksWithGeneration.sort((a, b) => {
       const timeA = new Date(a.created_at || 0).getTime();
       const timeB = new Date(b.created_at || 0).getTime();
       return timeB - timeA;
     });
 
-  res.json(userBooks);
+    res.json(sortedBooks);
+  } catch (error) {
+    console.error('获取我的书籍失败:', error);
+    res.status(500).json({ error: '获取书籍失败' });
+  }
 });
 
-app.get('/api/books/:id', authenticateToken, (req, res) => {
+app.get('/api/books/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const books = readBooks();
+  const books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const book = books.find(b => b.id == id);
   if (!book) {
     return res.status(404).json({ error: '书籍不存在' });
@@ -672,34 +833,55 @@ app.get('/api/books/:id', authenticateToken, (req, res) => {
   res.json(book);
 });
 
-app.get('/api/books', (req, res) => {
-  const books = readBooks().filter(book => isBookPublic(book));
-  res.json(books);
+app.get('/api/books', async (req, res) => {
+  const books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
+  res.json(books.filter(book => isBookPublic(book)));
 });
 
-app.get('/api/books/:id/pages', (req, res) => {
+app.get('/api/books/:id/pages', async (req, res) => {
   const { id } = req.params;
-  const pagesFile = path.join(booksDir, id.toString(), 'pages.json');
-  
-  if (!fs.existsSync(pagesFile)) {
-    return res.status(404).json({ error: '页面内容不存在' });
-  }
-  
-  try {
-    const pagesData = fs.readFileSync(pagesFile, 'utf8');
-    const pages = JSON.parse(pagesData);
-    res.json(pages);
-  } catch (error) {
-    console.error('读取页面内容失败:', error);
-    res.status(500).json({ error: '读取页面内容失败' });
+
+  if (USE_FEISHU_STORAGE) {
+    try {
+      const pages = await feishuReadBookPages(id);
+      if (pages.length === 0) {
+        const books = await feishuReadBooks();
+        const book = books.find(b => b.id == id);
+        if (!book) {
+          return res.status(404).json({ error: '书籍不存在' });
+        }
+      }
+      res.json(pages);
+    } catch (error) {
+      console.error('读取飞书页面内容失败:', error);
+      const pagesFile = path.join(booksDir, id.toString(), 'pages.json');
+      if (!fs.existsSync(pagesFile)) {
+        return res.status(404).json({ error: '页面内容不存在' });
+      }
+      const pagesData = fs.readFileSync(pagesFile, 'utf8');
+      res.json(JSON.parse(pagesData));
+    }
+  } else {
+    const pagesFile = path.join(booksDir, id.toString(), 'pages.json');
+    if (!fs.existsSync(pagesFile)) {
+      return res.status(404).json({ error: '页面内容不存在' });
+    }
+    try {
+      const pagesData = fs.readFileSync(pagesFile, 'utf8');
+      const pages = JSON.parse(pagesData);
+      res.json(pages);
+    } catch (error) {
+      console.error('读取页面内容失败:', error);
+      res.status(500).json({ error: '读取页面内容失败' });
+    }
   }
 });
 
-app.patch('/api/books/:id/pages/:pageIndex', authenticateToken, (req, res) => {
+app.patch('/api/books/:id/pages/:pageIndex', authenticateToken, async (req, res) => {
   const { id, pageIndex } = req.params;
   const { content } = req.body;
 
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const book = books.find(item => item.id == id);
   if (!book) {
     return res.status(404).json({ error: '书籍不存在' });
@@ -714,7 +896,7 @@ app.patch('/api/books/:id/pages/:pageIndex', authenticateToken, (req, res) => {
     return res.status(400).json({ error: '页面索引无效' });
   }
 
-  const pages = readBookPages(book.id);
+  let pages = USE_FEISHU_STORAGE ? await feishuReadBookPages(book.id) : readBookPages(book.id);
   if (!pages[index]) {
     return res.status(404).json({ error: '页面不存在' });
   }
@@ -723,7 +905,12 @@ app.patch('/api/books/:id/pages/:pageIndex', authenticateToken, (req, res) => {
     ...pages[index],
     content: (content || '').trim()
   };
-  writeBookPages(book.id, pages);
+
+  if (USE_FEISHU_STORAGE) {
+    await feishuWriteBookPages(book.id, pages);
+  } else {
+    writeBookPages(book.id, pages);
+  }
 
   const bookIndex = books.findIndex(item => item.id == id);
   books[bookIndex] = {
@@ -731,14 +918,19 @@ app.patch('/api/books/:id/pages/:pageIndex', authenticateToken, (req, res) => {
     pageCount: pages.length,
     updated_at: new Date().toISOString()
   };
-  writeBooks(books);
+
+  if (USE_FEISHU_STORAGE) {
+    await feishuWriteBooks(books);
+  } else {
+    writeBooks(books);
+  }
 
   res.json(pages[index]);
 });
 
-app.get('/api/books/:id/generation-status', authenticateToken, (req, res) => {
+app.get('/api/books/:id/generation-status', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const book = books.find(item => item.id == id);
 
   if (!book) {
@@ -752,9 +944,9 @@ app.get('/api/books/:id/generation-status', authenticateToken, (req, res) => {
   res.json(getBookGenerationStatus(book));
 });
 
-app.post('/api/books/:id/generate-assets', authenticateToken, (req, res) => {
+app.post('/api/books/:id/generate-assets', authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const book = books.find(item => item.id == id);
 
   if (!book) {
@@ -769,7 +961,7 @@ app.post('/api/books/:id/generate-assets', authenticateToken, (req, res) => {
   res.json({ message: '已开始异步生成', generation: job });
 });
 
-app.patch('/api/books/:id/title', authenticateToken, (req, res) => {
+app.patch('/api/books/:id/title', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { title } = req.body;
   const normalizedTitle = (title || '').trim();
@@ -778,7 +970,7 @@ app.patch('/api/books/:id/title', authenticateToken, (req, res) => {
     return res.status(400).json({ error: '书名不能为空' });
   }
 
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const bookIndex = books.findIndex(item => item.id == id);
   if (bookIndex === -1) {
     return res.status(404).json({ error: '书籍不存在' });
@@ -794,16 +986,21 @@ app.patch('/api/books/:id/title', authenticateToken, (req, res) => {
     updated_at: new Date().toISOString()
   };
 
-  writeBooks(books);
+  if (USE_FEISHU_STORAGE) {
+    await feishuWriteBooks(books);
+  } else {
+    writeBooks(books);
+  }
+
   res.json(books[bookIndex]);
 });
 
-app.patch('/api/books/:id/publish', authenticateToken, (req, res) => {
+app.patch('/api/books/:id/publish', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const { publish } = req.body;
   const shouldPublish = Boolean(publish);
 
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const bookIndex = books.findIndex(item => item.id == id);
   if (bookIndex === -1) {
     return res.status(404).json({ error: '书籍不存在' });
@@ -815,7 +1012,7 @@ app.patch('/api/books/:id/publish', authenticateToken, (req, res) => {
   }
 
   if (shouldPublish) {
-    const generation = getBookGenerationStatus(book);
+    const generation = await getBookGenerationStatus(book);
     if (generation.status !== 'completed') {
       return res.status(400).json({ error: '请先完成制作，再发布到公开书库' });
     }
@@ -828,11 +1025,16 @@ app.patch('/api/books/:id/publish', authenticateToken, (req, res) => {
     updated_at: new Date().toISOString()
   };
 
-  writeBooks(books);
+  if (USE_FEISHU_STORAGE) {
+    await feishuWriteBooks(books);
+  } else {
+    writeBooks(books);
+  }
 
+  const finalGeneration = await getBookGenerationStatus(books[bookIndex]);
   res.json({
     ...books[bookIndex],
-    generation: getBookGenerationStatus(books[bookIndex])
+    generation: finalGeneration
   });
 });
 
@@ -840,27 +1042,25 @@ app.put('/api/books/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { title, content, pages, coverUrl } = req.body;
-    const books = readBooks();
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
     const bookIndex = books.findIndex(b => b.id == id);
-    
+
     if (bookIndex === -1) {
       return res.status(404).json({ error: '书籍不存在' });
     }
-    
-    // 检查权限
+
     const book = books[bookIndex];
     if (req.user.role !== 'admin' && book.created_by !== req.user.id) {
       return res.status(403).json({ error: '没有权限编辑此书籍' });
     }
-    
+
     let updatedCoverUrl = book.coverUrl;
-    
-    // 保存封面图片
+
     if (coverUrl && coverUrl !== book.coverUrl) {
       const savedCoverPath = await downloadAndSaveImage(coverUrl, id, 'cover');
       updatedCoverUrl = savedCoverPath;
     }
-    
+
     books[bookIndex] = {
       ...book,
       title,
@@ -869,8 +1069,19 @@ app.put('/api/books/:id', authenticateToken, async (req, res) => {
       coverUrl: updatedCoverUrl,
       updated_at: new Date().toISOString()
     };
-    
-    writeBooks(books);
+
+    if (USE_FEISHU_STORAGE) {
+      await feishuWriteBooks(books);
+      if (pages) {
+        await feishuWriteBookPages(id, pages);
+      }
+    } else {
+      writeBooks(books);
+      if (pages) {
+        writeBookPages(id, pages);
+      }
+    }
+
     res.json(books[bookIndex]);
   } catch (error) {
     console.error('更新书籍失败:', error);
@@ -878,17 +1089,16 @@ app.put('/api/books/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.delete('/api/books/:id', authenticateToken, (req, res) => {
+app.delete('/api/books/:id', authenticateToken, async (req, res) => {
   const { id } = req.params;
   const bookId = Number(id);
-  const books = readBooks();
+  let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const bookIndex = books.findIndex(b => b.id == id);
-  
+
   if (bookIndex === -1) {
     return res.status(404).json({ error: '书籍不存在' });
   }
-  
-  // 检查权限
+
   const book = books[bookIndex];
   if (req.user.role !== 'admin' && book.created_by !== req.user.id) {
     return res.status(403).json({ error: '没有权限删除此书籍' });
@@ -897,13 +1107,17 @@ app.delete('/api/books/:id', authenticateToken, (req, res) => {
   if (isBookPublic(book)) {
     return res.status(400).json({ error: '已发布书籍不能删除，请先下架' });
   }
-  
-  books.splice(bookIndex, 1);
-  writeBooks(books);
 
-  const bookStorageDir = path.join(booksDir, bookId.toString());
-  if (fs.existsSync(bookStorageDir)) {
-    fs.rmSync(bookStorageDir, { recursive: true, force: true });
+  books.splice(bookIndex, 1);
+
+  if (USE_FEISHU_STORAGE) {
+    await feishuWriteBooks(books);
+  } else {
+    writeBooks(books);
+    const bookStorageDir = path.join(booksDir, bookId.toString());
+    if (fs.existsSync(bookStorageDir)) {
+      fs.rmSync(bookStorageDir, { recursive: true, force: true });
+    }
   }
 
   const images = readImages();
@@ -920,40 +1134,44 @@ app.delete('/api/books/:id', authenticateToken, (req, res) => {
 // AI图像生成API（需要认证）
 app.post('/api/generate-image', authenticateToken, async (req, res) => {
   const { prompt, bookId, pageIndex } = req.body;
-  
+
   try {
-    // 改进提示词生成逻辑，添加更多详细信息
     const enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
     console.log('原始提示词:', prompt);
     console.log('增强提示词:', enhancedPrompt);
     const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(enhancedPrompt)}&image_size=square`;
     console.log('生成的图片URL:', imageUrl);
-    
-    // 保存图片到本地
+
     const savedImagePath = await downloadAndSaveImage(imageUrl, bookId, 'page', pageIndex);
 
-    // 同步更新 pages.json 中对应页面的 imageUrl
-    const pages = readBookPages(bookId);
+    let pages = USE_FEISHU_STORAGE ? await feishuReadBookPages(bookId) : readBookPages(bookId);
     const index = Number(pageIndex);
     if (Number.isInteger(index) && index >= 0 && pages[index]) {
       pages[index] = {
         ...pages[index],
         imageUrl: savedImagePath
       };
-      writeBookPages(bookId, pages);
+      if (USE_FEISHU_STORAGE) {
+        await feishuWriteBookPages(bookId, pages);
+      } else {
+        writeBookPages(bookId, pages);
+      }
     }
 
-    const books = readBooks();
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
     const bookIndex = books.findIndex(item => item.id == bookId);
     if (bookIndex !== -1) {
       books[bookIndex] = {
         ...books[bookIndex],
         updated_at: new Date().toISOString()
       };
-      writeBooks(books);
+      if (USE_FEISHU_STORAGE) {
+        await feishuWriteBooks(books);
+      } else {
+        writeBooks(books);
+      }
     }
-    
-    // 保存图片信息
+
     const images = readImages();
     const newImage = {
       id: Date.now(),
@@ -966,7 +1184,7 @@ app.post('/api/generate-image', authenticateToken, async (req, res) => {
     };
     images.push(newImage);
     writeImages(images);
-    
+
     res.json({ imageUrl: savedImagePath, imageId: newImage.id });
   } catch (error) {
     console.error('生成图片失败:', error);
@@ -1036,14 +1254,16 @@ app.post('/api/books/import', authenticateToken, upload.single('file'), async (r
     }
 
     const bookId = Date.now();
-    const { pagesFile } = ensureBookStorage(bookId);
-    fs.writeFileSync(pagesFile, JSON.stringify(pages, null, 2), 'utf8');
 
-    // 创建书籍
-    const books = readBooks();
+    if (!USE_FEISHU_STORAGE) {
+      const { pagesFile } = ensureBookStorage(bookId);
+      fs.writeFileSync(pagesFile, JSON.stringify(pages, null, 2), 'utf8');
+    }
+
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
     const newBook = {
       id: bookId,
-      title: normalizedOriginalName.replace(/\.[^/.]+$/, ""), // 从文件名提取标题
+      title: normalizedOriginalName.replace(/\.[^/.]+$/, ""),
       coverUrl: '',
       pageCount: pages.length,
       isPublished: false,
@@ -1054,15 +1274,22 @@ app.post('/api/books/import', authenticateToken, upload.single('file'), async (r
     };
 
     books.push(newBook);
-    writeBooks(books);
+
+    if (USE_FEISHU_STORAGE) {
+      await feishuWriteBooks(books);
+      await feishuWriteBookPages(bookId, pages);
+    } else {
+      writeBooks(books);
+    }
 
     generateAndSaveBookCover(newBook.id, newBook.title).catch(error => {
       console.error('导入后自动生成封面失败:', error);
     });
 
+    const generation = await getBookGenerationStatus(newBook);
     res.json({
       ...newBook,
-      generation: getBookGenerationStatus(newBook)
+      generation
     });
   } catch (error) {
     console.error('导入书籍失败:', error);
@@ -1248,20 +1475,20 @@ app.post('/api/bookshelf/remove', authenticateToken, (req, res) => {
   res.json({ message: '书籍从书架移除成功' });
 });
 
-app.get('/api/bookshelf/books', authenticateToken, (req, res) => {
+app.get('/api/bookshelf/books', authenticateToken, async (req, res) => {
   const users = readUsers();
   const user = users.find(u => u.id == req.user.id);
-  
+
   if (!user || !user.bookshelf) {
     return res.json([]);
   }
-  
-  const books = readBooks();
+
+  const books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
   const shelfBooks = user.bookshelf.map(shelfItem => {
     const book = books.find(b => b.id == shelfItem.bookId);
     return book ? { ...book, category: shelfItem.category, added_at: shelfItem.added_at } : null;
   }).filter(Boolean);
-  
+
   res.json(shelfBooks);
 });
 
