@@ -22,6 +22,11 @@ const coverGenerationLocks = new Map();
 const IMAGE_FETCH_TIMEOUT_MS = 45000;
 const IMAGE_FETCH_MAX_RETRIES = 3;
 
+// 魔搭 API 配置
+const MODEL_SCOPE_API_TOKEN = process.env.MODEL_SCOPE_API_TOKEN || '';
+const MODEL_SCOPE_API_URL = 'https://api-inference.modelscope.cn/v1/images/generations';
+const DEFAULT_MODEL_ID = 'AI-ModelScope/Wanx2.1-Turbo'; // 通义万相
+
 function decodeUploadFilename(name = '') {
   try {
     return Buffer.from(name, 'latin1').toString('utf8');
@@ -611,6 +616,44 @@ function writeImages(images) {
   fs.writeFileSync(imagesFile, JSON.stringify(images, null, 2));
 }
 
+async function generateImageFromModelScope(prompt, size = '1024x1024', modelId = DEFAULT_MODEL_ID) {
+  if (!MODEL_SCOPE_API_TOKEN) {
+    throw new Error('魔搭 API 令牌未配置，请设置 MODEL_SCOPE_API_TOKEN 环境变量');
+  }
+
+  try {
+    const response = await fetch(MODEL_SCOPE_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${MODEL_SCOPE_API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: modelId,
+        prompt: prompt,
+        n: 1,
+        size: size
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(`魔搭 API 错误: ${errorData.message || response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    if (!result.images || !result.images[0] || !result.images[0].url) {
+      throw new Error('魔搭 API 返回数据格式异常');
+    }
+
+    return result.images[0].url;
+  } catch (error) {
+    console.error('魔搭 API 调用失败:', error.message);
+    throw error;
+  }
+}
+
 // 下载并保存图片
 async function downloadAndSaveImage(url, bookId, imageType, index = 0) {
   try {
@@ -1133,13 +1176,25 @@ app.delete('/api/books/:id', authenticateToken, async (req, res) => {
 
 // AI图像生成API（需要认证）
 app.post('/api/generate-image', authenticateToken, async (req, res) => {
-  const { prompt, bookId, pageIndex } = req.body;
+  const { prompt, bookId, pageIndex, useModelScope = false, size = '1024x1024', modelId = DEFAULT_MODEL_ID } = req.body;
 
   try {
-    const enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
-    console.log('原始提示词:', prompt);
-    console.log('增强提示词:', enhancedPrompt);
-    const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(enhancedPrompt)}&image_size=square`;
+    let imageUrl;
+    let enhancedPrompt;
+
+    if (useModelScope && MODEL_SCOPE_API_TOKEN) {
+      // 使用魔搭 API
+      enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
+      console.log('使用魔搭 API 生成图片，提示词:', enhancedPrompt);
+      imageUrl = await generateImageFromModelScope(enhancedPrompt, size, modelId);
+    } else {
+      // 使用默认的 trae API
+      enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
+      console.log('原始提示词:', prompt);
+      console.log('增强提示词:', enhancedPrompt);
+      imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(enhancedPrompt)}&image_size=square`;
+    }
+
     console.log('生成的图片URL:', imageUrl);
 
     const savedImagePath = await downloadAndSaveImage(imageUrl, bookId, 'page', pageIndex);
@@ -1194,7 +1249,7 @@ app.post('/api/generate-image', authenticateToken, async (req, res) => {
 
 // 生成封面API（不需要认证）
 app.post('/api/generate-cover', async (req, res) => {
-  const { bookId, title, prompt } = req.body;
+  const { bookId, title, prompt, useModelScope = false, size = '1024x1024', modelId = DEFAULT_MODEL_ID } = req.body;
 
   if (!bookId) {
     return res.status(400).json({ error: '缺少 bookId' });
@@ -1203,8 +1258,35 @@ app.post('/api/generate-cover', async (req, res) => {
   try {
     console.log('生成封面:', title);
     console.log('提示词:', prompt);
-    const result = await generateAndSaveBookCover(bookId, title, prompt);
-    res.json(result);
+    
+    if (useModelScope && MODEL_SCOPE_API_TOKEN) {
+      // 使用魔搭 API 生成封面
+      const coverPrompt = prompt || `儿童书籍封面，标题: ${title}，色彩鲜艳，风格友好，适合儿童`;
+      console.log('使用魔搭 API 生成封面，提示词:', coverPrompt);
+      const imageUrl = await generateImageFromModelScope(coverPrompt, size, modelId);
+      const savedCoverPath = await downloadAndSaveImage(imageUrl, bookId, 'cover');
+      
+      let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
+      const bookIndex = books.findIndex(book => book.id == bookId);
+      if (bookIndex !== -1) {
+        books[bookIndex] = {
+          ...books[bookIndex],
+          coverUrl: savedCoverPath,
+          updated_at: new Date().toISOString()
+        };
+        if (USE_FEISHU_STORAGE) {
+          await feishuWriteBooks(books);
+        } else {
+          writeBooks(books);
+        }
+      }
+      
+      res.json({ coverUrl: savedCoverPath });
+    } else {
+      // 使用默认的生成封面函数
+      const result = await generateAndSaveBookCover(bookId, title, prompt);
+      res.json(result);
+    }
   } catch (error) {
     console.error('生成封面失败:', error);
     res.status(500).json({ error: '生成封面失败' });
