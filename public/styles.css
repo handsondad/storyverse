@@ -1,5 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Bubblegum+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+
+:root {
+  --app-font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+}
 
 * {
   margin: 0;
@@ -8,29 +12,74 @@
 }
 
 body {
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--app-font-family);
   background-color: #f0f9f0;
   min-height: 100vh;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f7fff6 0%, #eef7fb 100%);
+  box-shadow: 0 24px 48px rgba(46, 125, 50, 0.12);
   position: relative;
   overflow-x: hidden;
 }
 
+body,
+body button,
+body input,
+body textarea,
+body select,
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6,
+body p,
+body span,
+body a,
+body div,
+body label {
+  font-family: var(--app-font-family);
+}
+
 .top-decoration {
-  background: linear-gradient(135deg, #4CAF50, #2e7d32);
-  padding: 30px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #43a047 0%, #2e7d32 58%, #1f6f5e 100%);
   position: relative;
+  overflow: hidden;
+}
+
+.reader-header::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.16);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .top-decoration::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  inset: 0;
   height: 100%;
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M10,30 Q20,10 30,30 T50,30 T70,30 T90,30" stroke="rgba(255,255,255,0.2)" stroke-width="2" fill="none"/><circle cx="25" cy="25" r="3" fill="rgba(255,255,255,0.3)"/><circle cx="75" cy="25" r="3" fill="rgba(255,255,255,0.3)"/></svg>');
   opacity: 0.3;
+}
+
+.reader-title-group {
+  min-width: 0;
+  flex: 1;
+}
+
+.reader-subtitle {
+  margin-top: 4px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.78);
+  letter-spacing: 0.04em;
 }
 
 .app-title {
@@ -48,6 +97,11 @@ body {
   padding: 30px 20px;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.main-content.reader-shell {
+  max-width: none;
+  padding: 8px 8px 0;
 }
 
 .section-title {
@@ -117,6 +171,21 @@ body {
   border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.book-favorite-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(255, 193, 7, 0.95);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .book-title {
@@ -204,6 +273,29 @@ body {
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
 }
 
+.search-favorite-toggle {
+  border: none;
+  background-color: #eceff1;
+  color: #607d8b;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.search-favorite-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.search-favorite-toggle.active {
+  background-color: #ffca28;
+  color: #fff;
+}
+
 .search-btn:hover {
   background-color: #388e3c;
   transform: scale(1.05);
@@ -260,6 +352,344 @@ body {
   color: #2e7d32;
   margin-bottom: 10px;
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+}
+
+.upload-panel {
+  background: linear-gradient(180deg, #ffffff, #f6fff6);
+  border: 2px solid #c8e6c9;
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 18px;
+  display: none;
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.08);
+}
+
+.upload-panel.visible {
+  display: block;
+}
+
+.upload-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.upload-title-row h3 {
+  color: #2e7d32;
+  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+}
+
+.upload-types {
+  font-size: 12px;
+  color: #5d6b5f;
+  background-color: #e8f5e9;
+  padding: 4px 8px;
+  border-radius: 999px;
+}
+
+.upload-hint {
+  color: #5c6b5d;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.book-file-input {
+  display: none;
+}
+
+.pick-file-btn,
+.upload-submit-btn,
+.open-upload-btn {
+  border: none;
+  border-radius: 20px;
+  padding: 9px 14px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pick-file-btn {
+  background-color: #2e7d32;
+}
+
+.upload-submit-btn {
+  background-color: #1976d2;
+}
+
+.upload-submit-btn:disabled {
+  background-color: #90a4ae;
+  cursor: not-allowed;
+}
+
+.open-upload-btn {
+  margin-top: 10px;
+  background-color: #ff8f00;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pick-file-btn:hover,
+.upload-submit-btn:hover,
+.open-upload-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.selected-file-name {
+  color: #4e5d50;
+  font-size: 14px;
+}
+
+.upload-status {
+  min-height: 0;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.upload-status:empty {
+  display: none;
+  margin-top: 0;
+}
+
+.upload-status.loading {
+  color: #1565c0;
+}
+
+.upload-status.success {
+  color: #2e7d32;
+}
+
+.upload-status.error {
+  color: #c62828;
+}
+
+.library-books-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.library-book-card {
+  background-color: #fff;
+  border: 1px solid #d3ead4;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.library-book-card.selected {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2), 0 12px 20px rgba(76, 175, 80, 0.15);
+}
+
+.library-book-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 20px rgba(76, 175, 80, 0.15);
+}
+
+.library-book-cover {
+  height: 160px;
+  background-color: #f0f7f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.card-delete-x {
+  position: absolute;
+  right: 8px;
+  top: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(198, 40, 40, 0.95);
+  color: #fff;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.card-delete-x:hover {
+  background: #b71c1c;
+}
+
+.library-book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.library-cover-placeholder {
+  color: #9eb6a1;
+  font-size: 34px;
+}
+
+.library-book-info {
+  padding: 12px;
+}
+
+.library-book-info h4 {
+  color: #2e7d32;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+
+.library-book-info p {
+  color: #6d7e6f;
+  font-size: 13px;
+}
+
+.publish-state {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.publish-state.published {
+  color: #2e7d32;
+}
+
+.publish-state.draft {
+  color: #8d6e63;
+}
+
+.generation-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.generation-text {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.generation-text.running {
+  color: #1565c0;
+}
+
+.generation-text.completed {
+  color: #2e7d32;
+}
+
+.generation-text.failed {
+  color: #c62828;
+}
+
+.generation-text.partial,
+.generation-text.pending {
+  color: #ef6c00;
+}
+
+.generation-percent {
+  font-size: 12px;
+  color: #4f5e50;
+}
+
+.generation-progress-track {
+  margin-top: 6px;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background-color: #e5efe6;
+  overflow: hidden;
+}
+
+.generation-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2e7d32, #66bb6a);
+  transition: width 0.3s ease;
+}
+
+.library-book-actions {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.card-action-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 7px 8px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--app-font-family);
+}
+
+.card-action-btn.generate {
+  background-color: #0288d1;
+}
+
+.card-action-btn.publish {
+  background-color: #2e7d32;
+}
+
+.card-action-btn.publish.active {
+  background-color: #6d4c41;
+}
+
+.card-action-btn.select {
+  background-color: #455a64;
+}
+
+.card-action-btn.select.active {
+  background-color: #1e88e5;
+}
+
+.card-action-btn.rename {
+  background-color: #5e35b1;
+}
+
+.card-action-btn.delete {
+  background-color: #c62828;
+}
+
+.card-action-btn:hover {
+  opacity: 0.92;
+}
+
+.card-action-btn:disabled {
+  cursor: not-allowed;
+  background-color: #90a4ae;
+  opacity: 0.75;
+}
+
+.editable-title,
+.editable-content {
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.editable-title[contenteditable='true'],
+.editable-content[contenteditable='true'] {
+  background-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.35);
+  outline: none;
+}
+
+.studio-controls {
+  flex-wrap: wrap;
 }
 
 .start-btn {
@@ -400,6 +830,7 @@ body {
 }
 
 .action-btn {
+  width: 100%;
   padding: 12px 24px;
   background-color: #4CAF50;
   color: white;
@@ -417,50 +848,50 @@ body {
   transform: translateY(-2px);
 }
 
-.language-section {
-  margin: 30px 0;
-  padding: 20px;
-  background-color: #e8f5e8;
-  border-radius: 15px;
-}
-
-.language-section h3 {
-  color: #2e7d32;
-  margin-bottom: 15px;
-  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
-}
-
-.language-options {
+.language-inline-row {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.language-btn {
-  flex: 1;
-  padding: 10px 20px;
-  border: 2px solid #a5d6a7;
-  background-color: white;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  color: #666;
-  transition: all 0.3s ease;
-  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+.profile-language-row {
+  max-width: 300px;
+  margin: 8px auto 24px;
 }
 
-.language-btn.active {
+.language-toggle-btn {
+  width: 100%;
+  padding: 12px 24px;
   background-color: #4CAF50;
   color: white;
-  border-color: #4CAF50;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
 }
 
-.language-btn:hover {
+.language-toggle-btn:hover {
+  background-color: #388e3c;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(76, 175, 80, 0.2);
+}
+
+@media (max-width: 768px) {
+  .language-inline-row {
+    justify-content: center;
+  }
 }
 
 .book-reader {
-  height: 100%;
+  height: calc(100vh - 112px);
+  height: calc(100dvh - 112px);
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -486,53 +917,161 @@ body {
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
 }
 
+.favorite-reader-btn {
+  margin-left: auto;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+}
+
+.favorite-reader-btn.active {
+  background-color: rgba(255, 193, 7, 0.92);
+}
+
+.studio-publish-btn {
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.studio-publish-btn i {
+  font-size: 13px;
+}
+
+.studio-publish-btn:not(.published) {
+  background-color: rgba(33, 150, 243, 0.18);
+  border-color: rgba(179, 229, 252, 0.4);
+}
+
+.studio-publish-btn.active.published {
+  background-color: rgba(76, 175, 80, 0.82);
+  border-color: rgba(200, 230, 201, 0.5);
+}
+
+.studio-publish-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.14);
+}
+
 .back-btn:hover {
-  text-decoration: underline;
+  background-color: rgba(255, 255, 255, 0.22);
 }
 
 .reader-title {
   margin: 0;
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .reader-content {
   flex: 1;
+  min-height: 0;
   display: flex;
-  padding: 20px;
-  gap: 20px;
+  padding: 24px;
+  gap: 24px;
   overflow: hidden;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), transparent 35%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.42));
+  transition: transform 0.22s ease, opacity 0.18s ease;
+  will-change: transform, opacity;
+}
+
+.reader-content.page-transition-out-left {
+  transform: translateX(-18px);
+  opacity: 0.3;
+}
+
+.reader-content.page-transition-out-right {
+  transform: translateX(18px);
+  opacity: 0.3;
+}
+
+.reader-content.page-transition-in-right {
+  animation: readerSlideInRight 0.22s ease;
+}
+
+.reader-content.page-transition-in-left {
+  animation: readerSlideInLeft 0.22s ease;
+}
+
+@keyframes readerSlideInRight {
+  from {
+    transform: translateX(18px);
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes readerSlideInLeft {
+  from {
+    transform: translateX(-18px);
+    opacity: 0.35;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .text-section {
   flex: 1;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 20px;
+  min-height: 0;
+  background: rgba(255, 255, 255, 0.82);
+  border-radius: 20px;
+  padding: 24px;
   overflow-y: auto;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 36px rgba(38, 50, 56, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.08);
 }
 
 .page-content {
-  font-size: 18px;
-  line-height: 1.6;
-  color: #333;
+  font-size: 19px;
+  line-height: 1.9;
+  color: #28443a;
+  white-space: pre-wrap;
 }
 
 .image-section {
   flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f9f9f9;
-  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(232, 245, 233, 0.9));
+  border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 36px rgba(38, 50, 56, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.08);
+}
+
+.page-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-image img {
   max-width: 100%;
   max-height: 100%;
-  border-radius: 10px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(38, 50, 56, 0.16);
 }
 
 .image-placeholder {
@@ -553,22 +1092,32 @@ body {
   justify-content: center;
   align-items: center;
   gap: 20px;
-  padding: 20px;
-  background-color: #f1f8e9;
-  border-top: 1px solid #a5d6a7;
+  width: min(720px, calc(100% - 32px));
+  margin: auto auto calc(env(safe-area-inset-bottom, 0px) + 4px);
+  padding: 16px 18px;
+  background: rgba(246, 251, 246, 0.94);
+  border: 1px solid rgba(165, 214, 167, 0.45);
+  border-radius: 26px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 16px 30px rgba(46, 125, 50, 0.14), 0 4px 10px rgba(46, 125, 50, 0.08);
+  position: relative;
+  z-index: 2;
+  transform: none;
 }
 
 .prev-btn, .next-btn {
+  min-width: 118px;
   padding: 10px 20px;
-  background-color: #4CAF50;
+  background: linear-gradient(135deg, #4CAF50, #2e7d32);
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 999px;
   cursor: pointer;
   font-size: 16px;
   font-weight: 600;
   transition: all 0.3s ease;
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  box-shadow: 0 8px 18px rgba(46, 125, 50, 0.2);
 }
 
 .prev-btn:hover, .next-btn:hover {
@@ -577,13 +1126,22 @@ body {
 }
 
 .page-indicator {
+  min-width: 84px;
+  text-align: center;
   font-size: 16px;
   font-weight: 600;
   color: #4CAF50;
   font-family: 'Bubblegum Sans', 'Ma Shan Zheng', cursive;
+  background-color: rgba(232, 245, 233, 0.95);
+  border-radius: 999px;
+  padding: 8px 14px;
 }
 
 @media (max-width: 768px) {
+  .main-content.reader-shell {
+    padding: 6px 6px 0;
+  }
+
   .books-container {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
@@ -597,12 +1155,76 @@ body {
     font-size: 24px;
   }
 
+  .reader-header {
+    flex-wrap: wrap;
+  }
+
+  .reader-title-group {
+    order: 3;
+    width: 100%;
+  }
+
+  .favorite-reader-btn {
+    margin-left: 0;
+  }
+
+  .reader-content {
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .text-section,
+  .image-section {
+    min-height: 280px;
+  }
+
+  .page-content {
+    font-size: 17px;
+    line-height: 1.75;
+  }
+
+  .reader-controls {
+    gap: 12px;
+    width: calc(100% - 20px);
+    margin: auto auto calc(env(safe-area-inset-bottom, 0px) + 4px);
+    padding: 14px;
+    flex-wrap: wrap;
+    border-radius: 22px;
+    transform: none;
+  }
+
   .section-title {
     font-size: 20px;
   }
 
   .library-content {
     padding: 0 10px;
+  }
+
+  .upload-actions {
+    align-items: stretch;
+  }
+
+  .pick-file-btn,
+  .upload-submit-btn,
+  .open-upload-btn {
+    width: 100%;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .selected-file-name {
+    width: 100%;
+  }
+
+  .library-books-list {
+    grid-template-columns: 1fr;
+  }
+
+  .library-book-actions {
+    grid-template-columns: 1fr;
   }
 
   .search-input {
@@ -659,7 +1281,7 @@ body {
   border: 2px solid #a5d6a7;
   border-radius: 12px;
   font-size: 16px;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--app-font-family);
   transition: all 0.3s ease;
 }
 
@@ -680,7 +1302,7 @@ body {
   font-weight: 600;
   box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
   transition: all 0.3s ease;
-  font-family: 'Nunito', sans-serif;
+  font-family: var(--app-font-family);
 }
 
 .auth-btn:hover {

@@ -5,7 +5,9 @@
     "coverUrl": "books/1776758320162/cover.jpg",
     "pageCount": 9,
     "created_at": "2026-04-21T07:58:40.162Z",
-    "updated_at": "2026-04-21T16:38:02.814Z"
+    "updated_at": "2026-04-21T16:38:02.814Z",
+    "isPublished": true,
+    "published_at": "2026-04-21T16:38:02.814Z"
   },
   {
     "id": 1,
@@ -13,7 +15,9 @@
     "coverUrl": "books/1/cover.jpg",
     "pageCount": 7,
     "created_at": "2026-04-21T00:00:00.000Z",
-    "updated_at": "2026-04-21T16:38:03.018Z"
+    "updated_at": "2026-04-21T16:38:03.018Z",
+    "isPublished": true,
+    "published_at": "2026-04-21T16:38:03.018Z"
   },
   {
     "id": 2,
@@ -21,7 +25,9 @@
     "coverUrl": "books/2/cover.jpg",
     "pageCount": 6,
     "created_at": "2026-04-21T00:00:00.000Z",
-    "updated_at": "2026-04-21T16:38:03.709Z"
+    "updated_at": "2026-04-21T16:38:03.709Z",
+    "isPublished": true,
+    "published_at": "2026-04-21T16:38:03.709Z"
   },
   {
     "id": 3,
@@ -29,6 +35,29 @@
     "coverUrl": "books/3/cover.jpg",
     "pageCount": 6,
     "created_at": "2026-04-21T00:00:00.000Z",
-    "updated_at": "2026-04-21T16:38:03.969Z"
+    "updated_at": "2026-04-21T16:38:03.969Z",
+    "isPublished": true,
+    "published_at": "2026-04-21T16:38:03.969Z"
+  },
+  {
+    "id": 1776833034879,
+    "title": "会发光的小雨鞋",
+    "coverUrl": "",
+    "pageCount": 20,
+    "created_by": 1,
+    "created_at": "2026-04-22T04:43:54.890Z",
+    "updated_at": "2026-04-22T15:45:02.266Z",
+    "isPublished": false
+  },
+  {
+    "id": 1776874838319,
+    "title": "星星种子的小花园",
+    "coverUrl": "books\\1776874838319\\cover.jpg",
+    "pageCount": 24,
+    "isPublished": false,
+    "published_at": null,
+    "created_by": 1,
+    "created_at": "2026-04-22T16:20:38.330Z",
+    "updated_at": "2026-04-22T16:20:39.488Z"
   }
 ]
