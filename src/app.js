@@ -8,6 +8,14 @@ let libraryPollingTimer = null;
 let publicBooks = [];
 let keyboardNavigationCleanup = null;
 const FAVORITE_BOOKS_KEY = 'favoriteBookIds';
+let imageConfig = {
+  modelScopeConfigured: false,
+  defaultProvider: 'trae',
+  availableSizes: {},
+  defaultModel: ''
+};
+let selectedImageProvider = 'trae';
+let selectedImageSize = 'square';
 
 function setMainContentReaderMode(enabled) {
   const mainContent = document.querySelector('.main-content');
@@ -240,6 +248,7 @@ function renderHomeBooksList() {
 async function generateAndSaveCover(bookId, bookTitle) {
   try {
     const coverPrompt = `children book cover for "${bookTitle}", colorful, cartoon style`;
+    const useModelScope = imageConfig.modelScopeConfigured;
     
     const response = await fetch('/api/generate-cover', {
       method: 'POST',
@@ -249,7 +258,9 @@ async function generateAndSaveCover(bookId, bookTitle) {
       body: JSON.stringify({
         bookId,
         title: bookTitle,
-        prompt: coverPrompt
+        prompt: coverPrompt,
+        useModelScope,
+        size: 'square'
       })
     });
     
@@ -1375,6 +1386,19 @@ if (window.MeSection && typeof window.MeSection.showMeSection === 'function') {
   showMeSection = window.MeSection.showMeSection;
 }
 
+async function loadImageConfig() {
+  try {
+    const response = await fetch('/api/image-config');
+    if (response.ok) {
+      imageConfig = await response.json();
+      selectedImageProvider = imageConfig.defaultProvider;
+      console.log('图片生成配置已加载:', imageConfig);
+    }
+  } catch (error) {
+    console.warn('加载图片生成配置失败，使用默认设置:', error.message);
+  }
+}
+
 async function init() {
   try {
     currentUser = JSON.parse(localStorage.getItem('user') || 'null');
@@ -1383,6 +1407,7 @@ async function init() {
   }
 
   updateLanguage();
+  await loadImageConfig();
   await renderBooks();
 }
 

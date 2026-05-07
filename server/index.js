@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -23,9 +24,17 @@ const IMAGE_FETCH_TIMEOUT_MS = 45000;
 const IMAGE_FETCH_MAX_RETRIES = 3;
 
 // 魔搭 API 配置
-const MODEL_SCOPE_API_TOKEN = process.env.MODEL_SCOPE_API_TOKEN || '';
+const MODEL_SCOPE_API_TOKEN = process.env.MODEL_SCOPE_API_TOKEN || process.env.VITE_MODEL_SCOPE_API_TOKEN || '';
 const MODEL_SCOPE_API_URL = 'https://api-inference.modelscope.cn/v1/images/generations';
-const DEFAULT_MODEL_ID = 'AI-ModelScope/Wanx2.1-Turbo'; // 通义万相
+const DEFAULT_MODEL_ID = 'Tongyi-MAI/Z-Image-Turbo'; // 通义万相
+const TRAE_API_BASE = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image';
+
+// 通义万相默认图片尺寸选项（使用较小尺寸以减少文件大小）
+const MODEL_SCOPE_SIZES = {
+  square: '768x768',
+  portrait: '512x768',
+  landscape: '768x512'
+};
 
 function decodeUploadFilename(name = '') {
   try {
@@ -265,7 +274,11 @@ function generateAndSaveBookCover(bookId, title, prompt = '') {
     }
 
     const coverPrompt = prompt || buildCoverPrompt(title || books[bookIndex].title || '');
-    const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(coverPrompt)}&image_size=square_hd`;
+    const imageUrl = await generateImageWithFallback(coverPrompt, {
+      useModelScope: !!MODEL_SCOPE_API_TOKEN,
+      size: 'square',
+      imageType: 'cover'
+    });
     const savedCoverPath = await downloadAndSaveImage(imageUrl, bookId, 'cover');
 
     books[bookIndex] = {
@@ -401,8 +414,11 @@ async function runBookAssetGeneration(bookId) {
         continue;
       }
 
-      const pagePrompt = `儿童书籍插图，适合短文，风格友好、色彩鲜艳、适合儿童，${page.content || ''}`;
-      const imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(pagePrompt)}&image_size=square`;
+      const imageUrl = await generateImageWithFallback(page.content || '', {
+        useModelScope: !!MODEL_SCOPE_API_TOKEN,
+        size: 'square',
+        imageType: 'illustration'
+      });
       const savedImagePath = await downloadAndSaveImage(imageUrl, book.id, 'page', page.index ?? i);
 
       pages[i] = {
@@ -551,6 +567,8 @@ const upload = multer({ storage: storage });
 app.use(express.json({ extended: true }));
 app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
+// 统一使用 uploads/books 目录存储书籍图片
+app.use('/uploads/books', express.static('uploads/books'));
 app.use(express.urlencoded({ extended: true }));
 
 // 初始化数据文件
@@ -626,7 +644,8 @@ async function generateImageFromModelScope(prompt, size = '1024x1024', modelId =
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${MODEL_SCOPE_API_TOKEN}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-ModelScope-Async-Mode': 'true'
       },
       body: JSON.stringify({
         model: modelId,
@@ -637,21 +656,87 @@ async function generateImageFromModelScope(prompt, size = '1024x1024', modelId =
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
       throw new Error(`魔搭 API 错误: ${errorData.message || response.statusText}`);
     }
 
     const result = await response.json();
 
-    if (!result.images || !result.images[0] || !result.images[0].url) {
-      throw new Error('魔搭 API 返回数据格式异常');
+    if (!result.task_id) {
+      throw new Error('魔搭 API 返回数据格式异常：缺少 task_id');
     }
 
-    return result.images[0].url;
+    const taskId = result.task_id;
+    console.log(`魔搭任务已提交: ${taskId}`);
+
+    return await waitForModelScopeTask(taskId);
   } catch (error) {
     console.error('魔搭 API 调用失败:', error.message);
     throw error;
   }
+}
+
+async function waitForModelScopeTask(taskId, maxWaitMs = 120000) {
+  const startTime = Date.now();
+  const statusUrl = `${MODEL_SCOPE_API_URL.replace('/images/generations', '/tasks')}/${taskId}`;
+
+  while (Date.now() - startTime < maxWaitMs) {
+    const statusResponse = await fetch(statusUrl, {
+      headers: {
+        'Authorization': `Bearer ${MODEL_SCOPE_API_TOKEN}`,
+        'X-ModelScope-Task-Type': 'image_generation'
+      }
+    });
+
+    if (!statusResponse.ok) {
+      throw new Error(`查询任务状态失败: ${statusResponse.statusText}`);
+    }
+
+    const statusData = await statusResponse.json();
+    console.log(`魔搭任务状态: ${statusData.task_status}`);
+
+    if (statusData.task_status === 'SUCCEED') {
+      if (!statusData.output_images || !statusData.output_images[0]) {
+        throw new Error('魔搭 API 返回数据格式异常：缺少 output_images');
+      }
+      return statusData.output_images[0];
+    }
+
+    if (statusData.task_status === 'FAILED') {
+      throw new Error('魔搭图片生成任务失败');
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+  }
+
+  throw new Error('魔搭图片生成任务等待超时');
+}
+
+async function generateImageWithFallback(prompt, options = {}) {
+  const {
+    useModelScope = false,
+    size = 'square',
+    modelId = DEFAULT_MODEL_ID,
+    imageType = 'illustration'
+  } = options;
+
+  const enhancedPrompt = imageType === 'cover'
+    ? `儿童书籍封面，色彩鲜艳，风格友好，适合儿童，${prompt}`
+    : `儿童书籍插图，适合短文，风格友好、色彩鲜艳、适合儿童，${prompt}`;
+
+  if (useModelScope && MODEL_SCOPE_API_TOKEN) {
+    try {
+      console.log(`使用通义万相生成图片: ${enhancedPrompt.substring(0, 50)}...`);
+      const modelScopeSize = MODEL_SCOPE_SIZES[size] || size;
+      return await generateImageFromModelScope(enhancedPrompt, modelScopeSize, modelId);
+    } catch (error) {
+      console.warn('通义万相调用失败，降级到默认API:', error.message);
+    }
+  }
+
+  const traeSize = size === 'square' ? 'square' : 'square_hd';
+  console.log(`使用Trae API生成图片: ${enhancedPrompt.substring(0, 50)}...`);
+  return `${TRAE_API_BASE}?prompt=${encodeURIComponent(enhancedPrompt)}&image_size=${traeSize}`;
 }
 
 // 下载并保存图片
@@ -701,7 +786,7 @@ async function downloadAndSaveImage(url, bookId, imageType, index = 0) {
           throw new Error(`下载图片失败: ${response.statusText}`);
         }
 
-        buffer = await response.buffer();
+        buffer = await response.arrayBuffer();
         lastError = null;
         break;
       } catch (error) {
@@ -721,8 +806,9 @@ async function downloadAndSaveImage(url, bookId, imageType, index = 0) {
       throw lastError || new Error('下载图片失败: 未知错误');
     }
 
-    // 保存图片
-    fs.writeFileSync(filePath, buffer);
+    // 保存图片（将 ArrayBuffer 转换为 Buffer）
+    const imageBuffer = Buffer.from(buffer);
+    fs.writeFileSync(filePath, imageBuffer);
     
     // 返回相对路径
     if (imageType === 'cover') {
@@ -1174,26 +1260,27 @@ app.delete('/api/books/:id', authenticateToken, async (req, res) => {
   res.json({ message: '书籍删除成功' });
 });
 
-// AI图像生成API（需要认证）
+// 获取图片生成配置状态
+app.get('/api/image-config', (req, res) => {
+  res.json({
+    modelScopeConfigured: !!MODEL_SCOPE_API_TOKEN,
+    defaultProvider: MODEL_SCOPE_API_TOKEN ? 'modelscope' : 'trae',
+    availableSizes: MODEL_SCOPE_SIZES,
+    defaultModel: DEFAULT_MODEL_ID
+  });
+});
+
+// 生成图片API
 app.post('/api/generate-image', authenticateToken, async (req, res) => {
-  const { prompt, bookId, pageIndex, useModelScope = false, size = '1024x1024', modelId = DEFAULT_MODEL_ID } = req.body;
+  const { bookId, pageIndex, prompt, useModelScope = false, size = 'square', modelId = DEFAULT_MODEL_ID } = req.body;
 
   try {
-    let imageUrl;
-    let enhancedPrompt;
-
-    if (useModelScope && MODEL_SCOPE_API_TOKEN) {
-      // 使用魔搭 API
-      enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
-      console.log('使用魔搭 API 生成图片，提示词:', enhancedPrompt);
-      imageUrl = await generateImageFromModelScope(enhancedPrompt, size, modelId);
-    } else {
-      // 使用默认的 trae API
-      enhancedPrompt = `儿童书籍插图，适合${prompt.length > 50 ? '故事' : '短文'}，风格友好、色彩鲜艳、适合儿童，${prompt}`;
-      console.log('原始提示词:', prompt);
-      console.log('增强提示词:', enhancedPrompt);
-      imageUrl = `https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=${encodeURIComponent(enhancedPrompt)}&image_size=square`;
-    }
+    const imageUrl = await generateImageWithFallback(prompt, {
+      useModelScope,
+      size,
+      modelId,
+      imageType: 'illustration'
+    });
 
     console.log('生成的图片URL:', imageUrl);
 
@@ -1259,34 +1346,32 @@ app.post('/api/generate-cover', async (req, res) => {
     console.log('生成封面:', title);
     console.log('提示词:', prompt);
     
-    if (useModelScope && MODEL_SCOPE_API_TOKEN) {
-      // 使用魔搭 API 生成封面
-      const coverPrompt = prompt || `儿童书籍封面，标题: ${title}，色彩鲜艳，风格友好，适合儿童`;
-      console.log('使用魔搭 API 生成封面，提示词:', coverPrompt);
-      const imageUrl = await generateImageFromModelScope(coverPrompt, size, modelId);
-      const savedCoverPath = await downloadAndSaveImage(imageUrl, bookId, 'cover');
-      
-      let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
-      const bookIndex = books.findIndex(book => book.id == bookId);
-      if (bookIndex !== -1) {
-        books[bookIndex] = {
-          ...books[bookIndex],
-          coverUrl: savedCoverPath,
-          updated_at: new Date().toISOString()
-        };
-        if (USE_FEISHU_STORAGE) {
-          await feishuWriteBooks(books);
-        } else {
-          writeBooks(books);
-        }
+    const coverPrompt = prompt || `标题: ${title}`;
+    const imageUrl = await generateImageWithFallback(coverPrompt, {
+      useModelScope,
+      size,
+      modelId,
+      imageType: 'cover'
+    });
+    
+    const savedCoverPath = await downloadAndSaveImage(imageUrl, bookId, 'cover');
+    
+    let books = USE_FEISHU_STORAGE ? await feishuReadBooks() : readBooks();
+    const bookIndex = books.findIndex(book => book.id == bookId);
+    if (bookIndex !== -1) {
+      books[bookIndex] = {
+        ...books[bookIndex],
+        coverUrl: savedCoverPath,
+        updated_at: new Date().toISOString()
+      };
+      if (USE_FEISHU_STORAGE) {
+        await feishuWriteBooks(books);
+      } else {
+        writeBooks(books);
       }
-      
-      res.json({ coverUrl: savedCoverPath });
-    } else {
-      // 使用默认的生成封面函数
-      const result = await generateAndSaveBookCover(bookId, title, prompt);
-      res.json(result);
     }
+    
+    res.json({ coverUrl: savedCoverPath });
   } catch (error) {
     console.error('生成封面失败:', error);
     res.status(500).json({ error: '生成封面失败' });

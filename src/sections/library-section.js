@@ -50,6 +50,7 @@
   async function generateAndSaveCover(bookId, bookTitle) {
     try {
       const coverPrompt = `children book cover for "${bookTitle}", colorful, cartoon style`;
+      const useModelScope = imageConfig.modelScopeConfigured;
 
       const response = await fetch('/api/generate-cover', {
         method: 'POST',
@@ -59,7 +60,9 @@
         body: JSON.stringify({
           bookId,
           title: bookTitle,
-          prompt: coverPrompt
+          prompt: coverPrompt,
+          useModelScope,
+          size: 'square'
         })
       });
 

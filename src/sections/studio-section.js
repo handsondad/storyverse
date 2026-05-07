@@ -94,6 +94,22 @@
           <div class="page-image" id="studio-page-image"></div>
         </div>
       </div>
+      <div class="image-options-panel" id="image-options-panel">
+        <div class="option-group">
+          <label>图片生成引擎:</label>
+          <select id="image-provider-select">
+            <option value="trae">Trae IDE (默认)</option>
+          </select>
+        </div>
+        <div class="option-group">
+          <label>图片尺寸:</label>
+          <select id="image-size-select">
+            <option value="square">正方形 (768x768)</option>
+            <option value="portrait">竖版 (512x768)</option>
+            <option value="landscape">横版 (768x512)</option>
+          </select>
+        </div>
+      </div>
       <div class="reader-controls studio-controls">
         <button class="prev-btn" id="studio-prev-btn">${languageText[currentLanguage].prevPage}</button>
         <span class="page-indicator" id="studio-page-indicator">0/0</span>
@@ -271,13 +287,16 @@
 
       try {
         setStudioStatus(languageText[currentLanguage].generating, 'loading');
+        const useModelScope = selectedImageProvider === 'modelscope';
         const response = await fetch('/api/generate-image', {
           method: 'POST',
           headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
             prompt: pages[currentPage].content || '',
             bookId: localBook.id,
-            pageIndex: currentPage
+            pageIndex: currentPage,
+            useModelScope,
+            size: selectedImageSize
           })
         });
 
@@ -300,27 +319,23 @@
     });
 
     publishBtn.addEventListener('click', async () => {
-      const nextState = !localBook.isPublished;
-      const generatedCount = pages.filter(page => !!page.imageUrl).length;
-      if (nextState && (!localBook.coverUrl || generatedCount < pages.length)) {
-        setStudioStatus(languageText[currentLanguage].publishNeedComplete, 'error');
-        return;
-      }
-
       try {
+        setStudioStatus(languageText[currentLanguage].publishing, 'loading');
+        const shouldPublish = !localBook.isPublished;
         const response = await fetch(`/api/books/${localBook.id}/publish`, {
           method: 'PATCH',
           headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ publish: nextState })
+          body: JSON.stringify({ publish: shouldPublish })
         });
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || languageText[currentLanguage].publishFailed);
+          throw new Error(errorData.error || (shouldPublish ? languageText[currentLanguage].publishFailed : languageText[currentLanguage].unpublishFailed));
         }
 
-        const updatedBook = await response.json();
-        localBook = { ...localBook, ...updatedBook };
-        publishBtn.classList.toggle('active', !!localBook.isPublished);
+        const updated = await response.json();
+        localBook = { ...localBook, ...updated };
+        publishBtn.classList.toggle('active', shouldPublish);
         publishBtn.classList.toggle('published', !!localBook.isPublished);
         publishBtn.innerHTML = `<i class="fas fa-paper-plane"></i> ${localBook.isPublished ? languageText[currentLanguage].unpublishBook : languageText[currentLanguage].publishBook}`;
         await loadMyUploadedBooks();
@@ -328,6 +343,27 @@
       } catch (error) {
         setStudioStatus(error.message || languageText[currentLanguage].publishFailed, 'error');
       }
+    });
+
+    const providerSelect = document.getElementById('image-provider-select');
+    const sizeSelect = document.getElementById('image-size-select');
+
+    if (imageConfig.modelScopeConfigured) {
+      const modelScopeOption = document.createElement('option');
+      modelScopeOption.value = 'modelscope';
+      modelScopeOption.textContent = '通义万相 (AI生成)';
+      providerSelect.appendChild(modelScopeOption);
+    }
+
+    providerSelect.value = selectedImageProvider;
+    sizeSelect.value = selectedImageSize;
+
+    providerSelect.addEventListener('change', () => {
+      selectedImageProvider = providerSelect.value;
+    });
+
+    sizeSelect.addEventListener('change', () => {
+      selectedImageSize = sizeSelect.value;
     });
 
     refreshPage();
