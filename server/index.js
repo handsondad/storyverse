@@ -9,6 +9,7 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const { rateLimit } = require('express-rate-limit');
 const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
@@ -30,6 +31,12 @@ const IMAGE_FETCH_MAX_RETRIES = 3;
 const loginAttempts = new Map();
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 10;
+const authRateLimit = rateLimit({
+  windowMs: LOGIN_WINDOW_MS,
+  limit: LOGIN_MAX_ATTEMPTS,
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 if (process.env.NODE_ENV === 'production' && jwtSecret.length < 32) {
   throw new Error('生产环境必须设置至少 32 位的 JWT_SECRET');
@@ -902,7 +909,7 @@ function isValidEmail(email) {
 }
 
 // 用户认证API
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', authRateLimit, (req, res) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   const rateLimitKey = `${req.ip}:${email}`;
@@ -928,7 +935,7 @@ app.post('/api/auth/login', (req, res) => {
   res.json({ token, user: { id: user.id, email: user.email, role: user.role } });
 });
 
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', authRateLimit, (req, res) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
   if (!isValidEmail(email) || password.length < 12) {
@@ -1458,7 +1465,7 @@ app.get('/api/images/:bookId/:pageIndex', authenticateToken, (req, res) => {
 });
 
 // 导入书籍API
-app.post('/api/books/import', authenticateToken, upload.single('file'), async (req, res) => {
+app.post('/api/books/import', authRateLimit, authenticateToken, upload.single('file'), async (req, res) => {
   try {
     if (isLoginRateLimited(`import:${req.user.id}`)) {
       return res.status(429).json({ error: '导入请求过于频繁，请稍后再试' });
