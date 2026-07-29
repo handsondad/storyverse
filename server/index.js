@@ -892,6 +892,15 @@ function isLoginRateLimited(key) {
   return recentAttempts.length > LOGIN_MAX_ATTEMPTS;
 }
 
+function isValidEmail(email) {
+  const atIndex = email.indexOf('@');
+  const dotIndex = email.lastIndexOf('.');
+  return atIndex > 0
+    && dotIndex > atIndex + 1
+    && dotIndex < email.length - 1
+    && !email.includes(' ');
+}
+
 // 用户认证API
 app.post('/api/auth/login', (req, res) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
@@ -922,7 +931,7 @@ app.post('/api/auth/login', (req, res) => {
 app.post('/api/auth/register', (req, res) => {
   const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
   const password = typeof req.body.password === 'string' ? req.body.password : '';
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12) {
+  if (!isValidEmail(email) || password.length < 12) {
     return res.status(400).json({ error: '请输入有效邮箱，密码至少需要 12 位' });
   }
   const users = readUsers();
@@ -1451,6 +1460,9 @@ app.get('/api/images/:bookId/:pageIndex', authenticateToken, (req, res) => {
 // 导入书籍API
 app.post('/api/books/import', authenticateToken, upload.single('file'), async (req, res) => {
   try {
+    if (isLoginRateLimited(`import:${req.user.id}`)) {
+      return res.status(429).json({ error: '导入请求过于频繁，请稍后再试' });
+    }
     if (!req.file) {
       return res.status(400).json({ error: '请选择要导入的文件' });
     }
