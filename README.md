@@ -31,12 +31,14 @@
 
 1. 克隆项目到本地
 2. 安装依赖：`npm install`
-3. 启动服务器：`npm start`
-4. 访问：http://localhost:3000
+3. 复制 `.env.example` 为 `.env`，设置至少 32 位 `JWT_SECRET` 和至少 12 位 `ADMIN_PASSWORD`
+4. 启动服务器：`npm start`
+5. 访问：http://localhost:3000
 
-### 默认账号
+### 管理员账号
 
-- **管理员账号**：admin@example.com / admin123
+- 首次启动时由 `ADMIN_EMAIL` 和 `ADMIN_PASSWORD` 环境变量创建，不再使用固定默认密码。
+- 健康检查：`GET /api/health`
 
 ### 使用方法
 
@@ -61,7 +63,7 @@
 
 ```
 动画图书/
-├── public/            # 静态文件
+├── src/               # 前端静态文件
 │   ├── index.html     # 主页面
 │   └── login.html     # 登录页面
 ├── data/              # 数据存储
@@ -69,7 +71,8 @@
 │   ├── users.json     # 用户数据
 │   └── images.json    # 图片数据
 ├── uploads/           # 上传文件
-├── server.js          # 服务器端代码
+├── server/            # 服务器端代码
+│   └── index.js
 ├── package.json       # 项目配置
 └── README.md          # 项目说明
 ```

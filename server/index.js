@@ -11,20 +11,31 @@ const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch
 const feishu = require('./services/feishu');
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 const USE_FEISHU_STORAGE = process.env.USE_FEISHU_STORAGE === 'true';
-const booksFile = './data/books.json';
-const usersFile = './data/users.json';
-const imagesFile = './data/images.json';
-const uploadsDir = './uploads';
-const booksDir = './uploads/books';
-const jwtSecret = process.env.JWT_SECRET || 'your-secret-key';
+const dataDir = path.resolve(__dirname, '..', 'data');
+const booksFile = path.join(dataDir, 'books.json');
+const usersFile = path.join(dataDir, 'users.json');
+const imagesFile = path.join(dataDir, 'images.json');
+const uploadsDir = path.resolve(__dirname, '..', 'uploads');
+const booksDir = path.join(uploadsDir, 'books');
+const jwtSecret = process.env.JWT_SECRET || '';
 const coverGenerationLocks = new Map();
 const IMAGE_FETCH_TIMEOUT_MS = 45000;
 const IMAGE_FETCH_MAX_RETRIES = 3;
+const loginAttempts = new Map();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const LOGIN_MAX_ATTEMPTS = 10;
+
+if (process.env.NODE_ENV === 'production' && jwtSecret.length < 32) {
+  throw new Error('生产环境必须设置至少 32 位的 JWT_SECRET');
+}
+if (!jwtSecret) {
+  console.warn('JWT_SECRET 未配置；请在生产环境中设置随机且足够长的密钥');
+}
 
 // 魔搭 API 配置
-const MODEL_SCOPE_API_TOKEN = process.env.MODEL_SCOPE_API_TOKEN || process.env.VITE_MODEL_SCOPE_API_TOKEN || '';
+const MODEL_SCOPE_API_TOKEN = process.env.MODEL_SCOPE_API_TOKEN || '';
 const MODEL_SCOPE_API_URL = 'https://api-inference.modelscope.cn/v1/images/generations';
 const DEFAULT_MODEL_ID = 'Tongyi-MAI/Z-Image-Turbo'; // 通义万相
 const TRAE_API_BASE = 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image';
@@ -498,8 +509,8 @@ if (!fs.existsSync(booksDir)) {
 }
 
 // 设置静态文件服务
-app.use(express.static('src'));
-app.use('/uploads', express.static('uploads'));
+app.use(express.static(path.resolve(__dirname, '..', 'src')));
+app.use('/uploads', express.static(uploadsDir));
 
 // 启动时对齐书籍存储结构，避免历史数据不一致。
 function syncBookStorage() {
@@ -557,34 +568,54 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    cb(null, `${file.fieldname}-${uniqueSuffix}${path.extname(file.originalname).toLowerCase()}`);
   }
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    const extension = path.extname(decodeUploadFilename(file.originalname)).toLowerCase();
+    const allowedExtensions = new Set(['.pdf', '.docx', '.txt']);
+    const allowedMimeTypes = new Set([
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'application/octet-stream'
+    ]);
+    if (!allowedExtensions.has(extension) || !allowedMimeTypes.has(file.mimetype)) {
+      return cb(new Error('仅支持 PDF、DOCX 和 TXT 文件'));
+    }
+    cb(null, true);
+  }
+});
 
 // 中间件
-app.use(express.json({ extended: true }));
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.static(path.resolve(__dirname, '..', 'public')));
+app.use('/uploads', express.static(uploadsDir));
 // 统一使用 uploads/books 目录存储书籍图片
-app.use('/uploads/books', express.static('uploads/books'));
+app.use('/uploads/books', express.static(booksDir));
 app.use(express.urlencoded({ extended: true }));
 
 // 初始化数据文件
 function initDataFile() {
-  if (!fs.existsSync('./data')) {
-    fs.mkdirSync('./data', { recursive: true });
+  if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
   }
   if (!fs.existsSync(booksFile)) {
     fs.writeFileSync(booksFile, JSON.stringify([]));
   }
   if (!fs.existsSync(usersFile)) {
-    // 创建默认管理员用户
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword || adminPassword.length < 12) {
+      throw new Error('首次启动必须设置至少 12 位的 ADMIN_PASSWORD');
+    }
     const defaultAdmin = {
       id: 1,
-      email: 'admin@example.com',
-      password: bcrypt.hashSync('admin123', 10),
+      email: process.env.ADMIN_EMAIL || 'admin@example.com',
+      password: bcrypt.hashSync(adminPassword, 10),
       role: 'admin',
       created_at: new Date().toISOString()
     };
@@ -605,7 +636,7 @@ function readBooks() {
 // 写入书籍数据
 function writeBooks(books) {
   initDataFile();
-  fs.writeFileSync(booksFile, JSON.stringify(books, null, 2));
+  writeJsonAtomically(booksFile, books);
 }
 
 // 读取用户数据
@@ -618,7 +649,7 @@ function readUsers() {
 // 写入用户数据
 function writeUsers(users) {
   initDataFile();
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
+  writeJsonAtomically(usersFile, users);
 }
 
 // 读取图片数据
@@ -631,7 +662,13 @@ function readImages() {
 // 写入图片数据
 function writeImages(images) {
   initDataFile();
-  fs.writeFileSync(imagesFile, JSON.stringify(images, null, 2));
+  writeJsonAtomically(imagesFile, images);
+}
+
+function writeJsonAtomically(filePath, value) {
+  const temporaryPath = `${filePath}.${process.pid}.tmp`;
+  fs.writeFileSync(temporaryPath, JSON.stringify(value, null, 2), 'utf8');
+  fs.renameSync(temporaryPath, filePath);
 }
 
 async function generateImageFromModelScope(prompt, size = '1024x1024', modelId = DEFAULT_MODEL_ID) {
@@ -842,9 +879,26 @@ function authenticateToken(req, res, next) {
   });
 }
 
+function isLoginRateLimited(key) {
+  const now = Date.now();
+  const attempts = loginAttempts.get(key) || [];
+  const recentAttempts = attempts.filter(timestamp => now - timestamp < LOGIN_WINDOW_MS);
+  recentAttempts.push(now);
+  loginAttempts.set(key, recentAttempts);
+  return recentAttempts.length > LOGIN_MAX_ATTEMPTS;
+}
+
 // 用户认证API
 app.post('/api/auth/login', (req, res) => {
-  const { email, password } = req.body;
+  const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+  const rateLimitKey = `${req.ip}:${email}`;
+  if (isLoginRateLimited(rateLimitKey)) {
+    return res.status(429).json({ error: '登录尝试过于频繁，请稍后再试' });
+  }
+  if (!email || !password) {
+    return res.status(400).json({ error: '请输入邮箱和密码' });
+  }
   const users = readUsers();
   const user = users.find(u => u.email === email);
   
@@ -862,7 +916,11 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 app.post('/api/auth/register', (req, res) => {
-  const { email, password, role = 'user' } = req.body;
+  const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 12) {
+    return res.status(400).json({ error: '请输入有效邮箱，密码至少需要 12 位' });
+  }
   const users = readUsers();
   
   // 检查邮箱是否已存在
@@ -875,7 +933,7 @@ app.post('/api/auth/register', (req, res) => {
     id: Date.now(),
     email,
     password: hashedPassword,
-    role,
+    role: 'user',
     created_at: new Date().toISOString()
   };
   
@@ -1657,6 +1715,18 @@ app.get('/api/bookshelf/books', authenticateToken, async (req, res) => {
   }).filter(Boolean);
 
   res.json(shelfBooks);
+});
+
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', storage: USE_FEISHU_STORAGE ? 'feishu' : 'local' });
+});
+
+app.use((error, req, res, next) => {
+  if (error instanceof multer.MulterError || error.message === '仅支持 PDF、DOCX 和 TXT 文件') {
+    return res.status(400).json({ error: error.message || '上传文件无效' });
+  }
+  console.error('未处理的服务器错误:', error);
+  res.status(500).json({ error: '服务器内部错误，请稍后重试' });
 });
 
 // 启动服务器
