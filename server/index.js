@@ -1412,8 +1412,8 @@ app.post('/api/generate-image', authenticateToken, async (req, res) => {
   }
 });
 
-// 生成封面API（不需要认证）
-app.post('/api/generate-cover', authenticateToken, async (req, res) => {
+// 生成封面API
+app.post('/api/generate-cover', authRateLimit, authenticateToken, async (req, res) => {
   const { bookId, title, prompt, useModelScope = false, size = '1024x1024', modelId = DEFAULT_MODEL_ID } = req.body;
 
   if (!bookId) {
