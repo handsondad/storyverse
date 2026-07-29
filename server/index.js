@@ -1,4 +1,8 @@
-require('dotenv').config();
+try {
+  require('dotenv').config();
+} catch (error) {
+  console.warn('未安装 dotenv，将仅使用系统环境变量');
+}
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -1393,7 +1397,7 @@ app.post('/api/generate-image', authenticateToken, async (req, res) => {
 });
 
 // 生成封面API（不需要认证）
-app.post('/api/generate-cover', async (req, res) => {
+app.post('/api/generate-cover', authenticateToken, async (req, res) => {
   const { bookId, title, prompt, useModelScope = false, size = '1024x1024', modelId = DEFAULT_MODEL_ID } = req.body;
 
   if (!bookId) {
