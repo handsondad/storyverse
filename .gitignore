@@ -1,118 +1,20 @@
-# Dependencies
 node_modules/
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Build outputs
 dist/
-build/
-
-# Logs
-logs
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
+.env
+.env.*
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# snapshot 工具的输出，给 agent 自查用，不进仓库
+snapshots/
 
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
+# npm run font 自动下载的完整字体，只留截出来的子集
+tools/font/.cache/
 
-# nyc test coverage
-.nyc_output
+# 孩子自己录的声音默认不公开；要发布哪一段，手动挪到 public/voice/ 下
+private/
 
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Optional stylelint cache
-.stylelintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache (https://parceljs.org/)
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-# Comment in the public line in if your project uses Gatsby and not Next.js
-# public
-
-# vuepress build output
-.vuepress/dist
-
-# vuepress v2.x temp and cache directory
-.temp
-.cache
-
-# Docusaurus cache and generated files
-.docusaurus
-
-# Serverless directories
-.serverless/
-
-# FuseBox cache
-.fusebox/
-
-# DynamoDB Local files
-.dynamodb/
-
-# TernJS port file
-.tern-port
-
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
-
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-# Local uploads
-uploads/
-
-# Data files (will be managed by Feishu)
-data/
+.vscode/
+.DS_Store

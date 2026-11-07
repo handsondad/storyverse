@@ -1,0 +1,116 @@
+/* 颜色、圆角和《身体奇遇记》保持一个系列；漫画里的字统一用站酷快乐体（public/fonts/story.woff，npm run font 生成） */
+@font-face {
+  font-family: "StoryFont";
+  src: url("/fonts/story.woff") format("woff");
+  font-display: block;
+}
+
+:root {
+  --story-font: "StoryFont", "PingFang SC", "Microsoft YaHei", sans-serif;
+
+  --bg-primary: #fff8f0;
+  --bg-secondary: #fff0e6;
+  --bg-card: #ffffff;
+
+  --text-primary: #5d4e37;
+  --text-secondary: #8b7a5c;
+  --text-muted: #b8a88a;
+  --ink: #3d3027;
+
+  --accent-orange: #ff9f43;
+  --accent-orange-deep: #e07f22;
+  --accent-blue: #5b8def;
+  --accent-green: #43b58f;
+
+  --border-color: #ffe0cc;
+  --focus: #225dac;
+
+  --radius-sm: 16px;
+  --radius-md: 24px;
+  --shadow-md: 0 4px 12px rgba(255, 111, 107, 0.15);
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { margin: 0; padding: 0; min-height: 100%; }
+
+body {
+  font-family: var(--story-font);
+  background: linear-gradient(180deg, #fff8f0 0%, #f0f8ff 55%, #fff0e6 100%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.story-font { font-family: var(--story-font); }
+
+button, a { font-family: inherit; }
+
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+
+.app { max-width: 1100px; margin: 0 auto; padding: 20px 16px 60px; }
+
+/* 顶栏 */
+.topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.topbar h1 { font-size: 26px; margin: 0; font-weight: 400; color: var(--ink); flex: 1; min-width: 0; }
+.topbar .meta { color: var(--text-secondary); font-size: 16px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 18px; border-radius: 999px; border: 0;
+  background: var(--accent-orange); color: #fff; font-size: 18px; cursor: pointer;
+  box-shadow: 0 3px 0 var(--accent-orange-deep); text-decoration: none;
+}
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--accent-orange-deep); }
+.btn:disabled { opacity: 0.4; cursor: default; transform: none; }
+.btn.ghost { background: #fff; color: var(--text-primary); box-shadow: 0 3px 0 var(--border-color); border: 2px solid var(--border-color); }
+
+/* 书架 */
+.hero { text-align: center; padding: 24px 0 8px; }
+.hero h1 {
+  font-size: clamp(34px, 7vw, 56px); margin: 0; font-weight: 400;
+  background: linear-gradient(90deg, #ff9f43, #ff6b6b 50%, #5b8def);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hero p { margin: 6px 0 0; color: var(--text-secondary); font-size: 18px; }
+
+.shelf { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 22px; margin-top: 28px; }
+.book {
+  display: block; text-decoration: none; color: inherit; background: var(--bg-card);
+  border: 3px solid var(--border-color); border-radius: var(--radius-md); overflow: hidden;
+  box-shadow: var(--shadow-md); transition: transform 150ms;
+}
+.book:hover { transform: translateY(-4px) rotate(-0.5deg); }
+.book svg { display: block; width: 100%; height: auto; }
+.book .info { padding: 10px 14px 14px; }
+.book .info h2 { margin: 0; font-size: 22px; font-weight: 400; color: var(--ink); }
+.book .info p { margin: 4px 0 0; font-size: 15px; color: var(--text-secondary); }
+
+.cast-strip { margin-top: 36px; text-align: center; }
+.cast-strip h2 { font-weight: 400; font-size: 24px; margin: 0 0 12px; color: var(--ink); }
+.cast-links { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+/* 阅读 */
+.reader { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.page-svg {
+  display: block; width: 100%; max-width: 760px; height: auto; background: #fff;
+  border-radius: 10px; box-shadow: 0 6px 24px rgba(93, 78, 55, 0.18);
+}
+.pager { display: flex; align-items: center; gap: 16px; }
+.pager .count { min-width: 90px; text-align: center; color: var(--text-secondary); font-size: 18px; }
+
+.the-end { text-align: center; max-width: 560px; background: #fff; border: 3px solid var(--border-color); border-radius: var(--radius-md); padding: 22px; }
+.the-end h2 { margin: 0 0 6px; font-weight: 400; font-size: 32px; color: var(--ink); }
+.the-end p { margin: 4px 0; color: var(--text-secondary); }
+
+/* 角色样张 */
+.sheet { display: block; width: 100%; height: auto; border-radius: 12px; box-shadow: var(--shadow-md); }
+.tabs { display: flex; gap: 10px; flex-wrap: wrap; }
+.tabs .btn[aria-current="page"] { background: #ffe4d0; color: var(--ink); box-shadow: 0 3px 0 var(--accent-orange); border: 2px solid var(--accent-orange); }
+
+/* 截图模式：只留画面 */
+body.snap { background: #fff; }
+body.snap .app { max-width: none; padding: 0; }
+body.snap .topbar, body.snap .pager, body.snap .no-snap { display: none; }
+body.snap .page-svg, body.snap .sheet { max-width: none; border-radius: 0; box-shadow: none; }

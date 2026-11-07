@@ -1,0 +1,418 @@
+/**
+ * 背景：都画在舞台坐标里（1600×1000，地面 880），并往四周多画一圈，镜头推到边上也不露白。
+ * 同一页里有好几格，渐变 id 要带上 uid，免得互相串。
+ */
+import { INK } from "../cast/characters.ts";
+import { EMOJI_FONT } from "../cast/Figure.tsx";
+import { STAGE, stageX } from "../engine/stage.ts";
+import type { Prop, SceneSpec } from "../story/types.ts";
+import type { TimeOfDay } from "../story/vocab.ts";
+
+const X0 = -500;
+const W = STAGE.w + 1000;
+const Y0 = -400;
+const H = STAGE.h + 800;
+const G = STAGE.ground;
+
+const SKY: Record<TimeOfDay, [string, string]> = {
+  morning: ["#bfe3ff", "#fff1d6"],
+  day: ["#86cbff", "#e3f4ff"],
+  evening: ["#ff9f7a", "#ffe0a8"],
+  night: ["#1d2758", "#41508f"],
+};
+
+const line = { stroke: INK, strokeWidth: 6, strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+
+export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
+  const time = scene.time ?? "day";
+  switch (scene.place) {
+    case "living-room": return <LivingRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
+    case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
+    case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
+    case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
+    case "subway": return <Subway tint={scene.tint ?? "#e8f5e9"} />;
+    case "plain": return <Plain tint={scene.tint ?? "#fff1c9"} />;
+    case "burst": return <Burst tint={scene.tint ?? "#ffd166"} />;
+  }
+}
+
+/** 天空：窗户里、公园里都用 */
+function Sky({ time, uid, rain, x, y, w, h }: { time: TimeOfDay; uid: string; rain: boolean; x: number; y: number; w: number; h: number }) {
+  const [top, bottom] = rain ? (time === "night" ? ["#1c2340", "#3a4466"] : ["#9fb0c4", "#d9e2ea"]) : SKY[time];
+  const id = `sky-${uid}`;
+  return (
+    <g>
+      <defs>
+        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={top} />
+          <stop offset="1" stopColor={bottom} />
+        </linearGradient>
+      </defs>
+      <rect x={x} y={y} width={w} height={h} fill={`url(#${id})`} />
+    </g>
+  );
+}
+
+function Celestial({ time, rain, sunAt, moonAt }: { time: TimeOfDay; rain: boolean; sunAt: [number, number]; moonAt: [number, number] }) {
+  if (rain) return <Clouds y={sunAt[1] - 20} dark spread={[sunAt[0] - 260, sunAt[0] + 40]} />;
+  if (time === "night") {
+    return (
+      <g>
+        {stars(moonAt[0] - 700, moonAt[1] - 120, 900, 380, 18).map(([sx, sy, r], i) => <circle key={i} cx={sx} cy={sy} r={r} fill="#fff6c8" />)}
+        <circle cx={moonAt[0]} cy={moonAt[1]} r={56} fill="#fff3b0" />
+        <circle cx={moonAt[0] + 24} cy={moonAt[1] - 14} r={50} fill={SKY.night[0]} />
+      </g>
+    );
+  }
+  const color = time === "evening" ? "#ff8a4c" : "#ffd84d";
+  return (
+    <g>
+      <circle cx={sunAt[0]} cy={sunAt[1]} r={110} fill={color} opacity={0.25} />
+      <circle cx={sunAt[0]} cy={sunAt[1]} r={72} fill={color} />
+    </g>
+  );
+}
+
+/** 固定的伪随机，同一个场景每次画出来都一样 */
+function rand(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 16807) % 2147483647;
+    return s / 2147483647;
+  };
+}
+
+function stars(x: number, y: number, w: number, h: number, n: number): [number, number, number][] {
+  const r = rand(7);
+  return Array.from({ length: n }, () => [x + r() * w, y + r() * h, 2 + r() * 3.5]);
+}
+
+function Clouds({ y, dark, spread }: { y: number; dark?: boolean; spread: [number, number] }) {
+  const fill = dark ? "#c3ccd8" : "#ffffff";
+  const at = [spread[0], (spread[0] + spread[1]) / 2 + 160, spread[1] + 260];
+  return (
+    <g fill={fill} opacity={dark ? 0.95 : 0.9}>
+      {at.map((cx, i) => (
+        <g key={i} transform={`translate(${cx},${y + (i % 2) * 50})`}>
+          <ellipse rx={95} ry={38} />
+          <circle cx={-40} cy={-24} r={42} />
+          <circle cx={30} cy={-36} r={50} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function Window({ x, y, w, h, time, uid, rain, curtain }: { x: number; y: number; w: number; h: number; time: TimeOfDay; uid: string; rain: boolean; curtain: string }) {
+  return (
+    <g>
+      <rect x={x - 14} y={y - 14} width={w + 28} height={h + 28} rx={10} fill="#ffffff" {...line} />
+      <svg x={x} y={y} width={w} height={h} viewBox={`0 0 ${w} ${h}`}>
+        <Sky time={time} uid={`${uid}-win`} rain={rain} x={0} y={0} w={w} h={h} />
+        <Celestial time={time} rain={rain} sunAt={[w * 0.7, h * 0.3]} moonAt={[w * 0.72, h * 0.3]} />
+        {rain && <Rain x={0} y={0} w={w} h={h} seed={3} />}
+        {time !== "night" && !rain && <path d={`M 0,${h * 0.82} Q ${w * 0.3},${h * 0.62} ${w * 0.6},${h * 0.8} T ${w},${h * 0.76} L ${w},${h} L 0,${h} Z`} fill="#a8dc8c" />}
+      </svg>
+      <path d={`M ${x + w / 2},${y} L ${x + w / 2},${y + h} M ${x},${y + h / 2} L ${x + w},${y + h / 2}`} stroke="#ffffff" strokeWidth={12} />
+      <path d={`M ${x + w / 2},${y} L ${x + w / 2},${y + h} M ${x},${y + h / 2} L ${x + w},${y + h / 2}`} stroke={INK} strokeWidth={3} opacity={0.4} />
+      <path d={`M ${x - 40},${y - 30} Q ${x + 30},${y + h * 0.5} ${x - 10},${y + h + 40} L ${x - 70},${y + h + 40} L ${x - 70},${y - 30} Z`} fill={curtain} {...line} />
+      <path d={`M ${x + w + 40},${y - 30} Q ${x + w - 30},${y + h * 0.5} ${x + w + 10},${y + h + 40} L ${x + w + 70},${y + h + 40} L ${x + w + 70},${y - 30} Z`} fill={curtain} {...line} />
+      <rect x={x - 90} y={y - 46} width={w + 180} height={20} rx={10} fill="#c98b52" {...line} />
+    </g>
+  );
+}
+
+function Night({ time }: { time: TimeOfDay }) {
+  if (time === "night") return <rect x={X0} y={Y0} width={W} height={H} fill="#1b2350" opacity={0.3} />;
+  if (time === "evening") return <rect x={X0} y={Y0} width={W} height={H} fill="#ff9a5a" opacity={0.1} />;
+  return null;
+}
+
+function Floor({ color, plank }: { color: string; plank: string }) {
+  const r = rand(11);
+  return (
+    <g>
+      <rect x={X0} y={G - 70} width={W} height={H} fill={color} />
+      {Array.from({ length: 4 }, (_, i) => (
+        <path key={i} d={`M ${X0},${G - 30 + i * 60} L ${X0 + W},${G - 30 + i * 60}`} stroke={plank} strokeWidth={4} />
+      ))}
+      {Array.from({ length: 22 }, (_, i) => {
+        const row = i % 4;
+        const x = X0 + r() * W;
+        return <path key={`v${i}`} d={`M ${x},${G - 70 + row * 60 + (row ? 40 : 0)} l 0,${row ? 60 : 40}`} stroke={plank} strokeWidth={4} />;
+      })}
+      <rect x={X0} y={G - 84} width={W} height={18} fill="#ffffff" {...line} strokeWidth={4} />
+    </g>
+  );
+}
+
+function LivingRoom({ time, uid, rain }: { time: TimeOfDay; uid: string; rain: boolean }) {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#fff1dc" />
+      {Array.from({ length: 18 }, (_, i) => <rect key={i} x={X0 + i * 160} y={Y0} width={60} height={H} fill="#ffe7c7" />)}
+      <rect x={X0} y={G - 250} width={W} height={180} fill="#f8dcbb" />
+      <path d={`M ${X0},${G - 250} L ${X0 + W},${G - 250}`} {...line} strokeWidth={4} opacity={0.5} />
+      <Window x={170} y={220} w={360} h={330} time={time} uid={uid} rain={rain} curtain="#ffb3a7" />
+      <g>
+        <rect x={700} y={250} width={180} height={140} rx={8} fill="#ffffff" {...line} />
+        <rect x={718} y={268} width={144} height={104} fill="#d8f0ff" />
+        <circle cx={830} cy={295} r={16} fill="#ffd84d" />
+        <path d={`M 718,372 L 765,310 L 800,350 L 825,325 L 862,372 Z`} fill="#8fd18a" />
+      </g>
+      <Floor color="#e9c096" plank="#d9a97a" />
+      <ellipse cx={800} cy={G + 20} rx={560} ry={70} fill="#f7c4a6" stroke={INK} strokeWidth={5} opacity={0.9} />
+      <Sofa x={960} y={G - 300} w={520} />
+      <g>
+        <path d={`M 1565,${G - 10} L 1565,${G - 380}`} {...line} strokeWidth={10} />
+        <path d={`M 1500,${G - 380} L 1630,${G - 380} L 1600,${G - 470} L 1530,${G - 470} Z`} fill={time === "night" ? "#fff3a6" : "#ffe9a8"} {...line} />
+        {time === "night" && <circle cx={1565} cy={G - 400} r={130} fill="#fff3a6" opacity={0.25} />}
+        <ellipse cx={1565} cy={G - 6} rx={50} ry={12} fill={INK} />
+      </g>
+      <Plant x={60} />
+      <Night time={time} />
+    </g>
+  );
+}
+
+function Sofa({ x, y, w }: { x: number; y: number; w: number }) {
+  const c = "#c7a3d9";
+  const d = "#b48cc8";
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={200} rx={40} fill={c} {...line} />
+      <rect x={x - 30} y={y + 110} width={w + 60} height={150} rx={30} fill={d} {...line} />
+      <rect x={x + 40} y={y + 120} width={w / 2 - 50} height={70} rx={22} fill={c} {...line} />
+      <rect x={x + w / 2 + 10} y={y + 120} width={w / 2 - 50} height={70} rx={22} fill={c} {...line} />
+      <rect x={x - 60} y={y + 80} width={80} height={190} rx={36} fill={c} {...line} />
+      <rect x={x + w - 20} y={y + 80} width={80} height={190} rx={36} fill={c} {...line} />
+      <rect x={x + 60} y={y + 30} width={110} height={90} rx={24} fill="#ffd166" {...line} transform={`rotate(-8 ${x + 115} ${y + 75})`} />
+    </g>
+  );
+}
+
+function Plant({ x }: { x: number }) {
+  return (
+    <g>
+      <path d={`M ${x - 50},${G - 160} L ${x + 50},${G - 160} L ${x + 38},${G - 30} L ${x - 38},${G - 30} Z`} fill="#e88a5a" {...line} />
+      {[-60, -20, 20, 60].map((a, i) => (
+        <ellipse key={i} cx={x + a * 0.9} cy={G - 240 - (i % 2) * 40} rx={34} ry={78} fill={i % 2 ? "#5fb86a" : "#7bcb79"} {...line} transform={`rotate(${a * 0.6} ${x + a * 0.9} ${G - 240})`} />
+      ))}
+    </g>
+  );
+}
+
+function Bedroom({ time, uid, rain }: { time: TimeOfDay; uid: string; rain: boolean }) {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#ece8ff" />
+      {stars(X0, Y0 + 300, W, 400, 26).map(([x, y, r], i) => <path key={i} d={sparkle(x, y, r * 3)} fill="#d7d0ff" />)}
+      <Window x={560} y={200} w={300} h={300} time={time} uid={uid} rain={rain} curtain="#9cc7ff" />
+      <g>
+        <rect x={80} y={330} width={320} height={22} rx={8} fill="#c98b52" {...line} />
+        <text x={150} y={318} fontSize={90} textAnchor="middle" fontFamily={EMOJI_FONT}>🧸</text>
+        <text x={290} y={318} fontSize={80} textAnchor="middle" fontFamily={EMOJI_FONT}>🚀</text>
+      </g>
+      <Floor color="#dcb894" plank="#c99f78" />
+      <ellipse cx={700} cy={G + 30} rx={420} ry={60} fill="#bfe0ff" stroke={INK} strokeWidth={5} opacity={0.85} />
+      <Bed x={1060} />
+      <Night time={time} />
+      {time === "night" && <circle cx={1010} cy={G - 120} r={90} fill="#fff3a6" opacity={0.35} />}
+      {time === "night" && <path d={sparkle(1010, G - 120, 30)} fill="#ffe066" {...line} strokeWidth={4} />}
+    </g>
+  );
+}
+
+function Bed({ x }: { x: number }) {
+  return (
+    <g>
+      <rect x={x + 420} y={G - 420} width={60} height={420} rx={20} fill="#c98b52" {...line} />
+      <rect x={x} y={G - 230} width={470} height={150} rx={24} fill="#ffffff" {...line} />
+      <rect x={x + 300} y={G - 290} width={150} height={80} rx={34} fill="#fff8e6" {...line} />
+      <path d={`M ${x - 10},${G - 220} Q ${x + 150},${G - 260} ${x + 290},${G - 230} L ${x + 300},${G - 70} L ${x - 10},${G - 70} Z`} fill="#8fc1ff" {...line} />
+      {[[x + 60, G - 170], [x + 170, G - 130], [x + 240, G - 190]].map(([sx, sy], i) => <path key={i} d={sparkle(sx, sy, 16)} fill="#ffe066" />)}
+      <rect x={x - 20} y={G - 80} width={510} height={30} rx={10} fill="#c98b52" {...line} />
+      <rect x={x - 10} y={G - 50} width={30} height={50} fill="#c98b52" {...line} />
+      <rect x={x + 450} y={G - 50} width={30} height={50} fill="#c98b52" {...line} />
+    </g>
+  );
+}
+
+function Park({ time, uid, rain }: { time: TimeOfDay; uid: string; rain: boolean }) {
+  const night = time === "night";
+  const grass = night ? "#4f7a5a" : "#9ed67b";
+  return (
+    <g>
+      <Sky time={time} uid={uid} rain={rain} x={X0} y={Y0} w={W} h={H} />
+      <Celestial time={time} rain={rain} sunAt={[1250, time === "evening" ? 470 : 170]} moonAt={[1250, 170]} />
+      {!rain && !night && <Clouds y={210} spread={[150, 620]} />}
+      <path d={`M ${X0},620 Q 200,480 520,600 T 1200,560 T 2100,600 L 2100,1400 L ${X0},1400 Z`} fill={night ? "#3e6150" : "#c4e8a8"} />
+      <path d={`M ${X0},700 Q 300,600 700,690 T 1500,650 T 2100,700 L 2100,1400 L ${X0},1400 Z`} fill={night ? "#466d55" : "#ade08f"} />
+      <Tree x={980} y={690} s={0.55} night={night} />
+      <rect x={X0} y={G - 90} width={W} height={H} fill={grass} />
+      <path d={`M ${X0},${G - 10} Q 400,${G - 40} 800,${G - 10} T 2100,${G - 10} L 2100,${G + 70} Q 1200,${G + 40} 800,${G + 70} T ${X0},${G + 60} Z`} fill={night ? "#8a8270" : "#f1ddb0"} />
+      <Tree x={150} y={G - 60} s={1} night={night} />
+      <Tree x={1480} y={G - 70} s={1.1} night={night} />
+      {flowers().map(([fx, fy, c], i) => (
+        <g key={i}>
+          <circle cx={fx} cy={fy} r={11} fill={c} stroke={INK} strokeWidth={3} />
+          <circle cx={fx} cy={fy} r={4} fill="#fff3b0" />
+        </g>
+      ))}
+      {rain && [[420, G + 30, 120], [1050, G + 45, 150], [1330, G + 20, 90]].map(([px, py, rx], i) => (
+        <ellipse key={i} cx={px} cy={py} rx={rx} ry={rx * 0.22} fill="#a6d4ff" stroke="#5aa5e6" strokeWidth={4} />
+      ))}
+      <Night time={time} />
+    </g>
+  );
+}
+
+function Tree({ x, y, s, night }: { x: number; y: number; s: number; night: boolean }) {
+  const leaf = night ? "#3f7a4e" : "#6cc070";
+  const leaf2 = night ? "#356b43" : "#5cae62";
+  return (
+    <g transform={`translate(${x},${y}) scale(${s})`}>
+      <path d="M -26,0 L -18,-230 L 18,-230 L 26,0 Z" fill="#a0703f" {...line} />
+      <circle cx={-80} cy={-260} r={110} fill={leaf2} {...line} />
+      <circle cx={80} cy={-270} r={110} fill={leaf2} {...line} />
+      <circle cx={0} cy={-360} r={140} fill={leaf} {...line} />
+    </g>
+  );
+}
+
+function flowers(): [number, number, string][] {
+  const r = rand(5);
+  const colors = ["#ff8fab", "#ffd166", "#ffffff", "#b39ddb"];
+  return Array.from({ length: 16 }, (_, i) => [X0 + 200 + r() * (W - 400), G - 70 + r() * 40 + (i % 2) * 110, colors[i % colors.length]]);
+}
+
+/** 美术馆外景：台阶 + 柱廊。tint 换墙色，好区分「中国美术馆」和「工艺美术馆」 */
+function Museum({ time, uid, tint }: { time: TimeOfDay; uid: string; tint: string }) {
+  const night = time === "night";
+  return (
+    <g>
+      <Sky time={time} uid={uid} rain={false} x={X0} y={Y0} w={W} h={H} />
+      <Celestial time={time} rain={false} sunAt={[1280, 160]} moonAt={[1280, 160]} />
+      {!night && time !== "evening" && <Clouds y={180} spread={[80, 500]} />}
+      <rect x={X0} y={G - 40} width={W} height={H} fill={night ? "#6b7368" : "#c5cfc0"} />
+      <rect x={120} y={G - 620} width={1360} height={580} fill={tint} {...line} />
+      <rect x={80} y={G - 650} width={1440} height={50} fill="#d4c4a8" {...line} />
+      {[220, 420, 620, 820, 1020, 1220].map((x) => (
+        <g key={x}>
+          <rect x={x} y={G - 560} width={70} height={420} fill="#fffaf0" {...line} />
+          <rect x={x - 10} y={G - 580} width={90} height={28} fill="#e8dcc8" {...line} />
+        </g>
+      ))}
+      <rect x={680} y={G - 420} width={240} height={280} fill={night ? "#2a3558" : "#b8d8f0"} {...line} />
+      <path d={`M 680,${G - 420} L 800,${G - 420} L 800,${G - 140} L 680,${G - 140} Z`} fill="#ffffff" opacity={0.25} />
+      {[0, 1, 2].map((i) => (
+        <path key={i} d={`M ${40 + i * 30},${G - 40 - i * 28} H ${1560 - i * 30} L ${1560 - i * 30},${G - i * 28} H ${40 + i * 30} Z`}
+          fill={i % 2 ? "#ebe4d6" : "#f7f1e6"} stroke={INK} strokeWidth={4} />
+      ))}
+      <Night time={time} />
+    </g>
+  );
+}
+
+/** 地铁车厢：绿色八号线味道，座位 + 拉手 */
+function Subway({ tint }: { tint: string }) {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#1f2a33" />
+      <rect x={60} y={120} width={1480} height={780} rx={40} fill={tint} {...line} />
+      <rect x={100} y={160} width={400} height={260} rx={16} fill="#9fd0e8" {...line} />
+      <rect x={560} y={160} width={400} height={260} rx={16} fill="#9fd0e8" {...line} />
+      <rect x={1020} y={160} width={400} height={260} rx={16} fill="#9fd0e8" {...line} />
+      <rect x={100} y={G - 220} width={1400} height={160} rx={20} fill="#2f9e6b" {...line} />
+      {[180, 420, 660, 900, 1140, 1380].map((x) => (
+        <rect key={x} x={x} y={G - 200} width={160} height={120} rx={18} fill="#248a5b" {...line} />
+      ))}
+      {[280, 560, 840, 1120, 1400].map((x) => (
+        <g key={x}>
+          <path d={`M ${x},220 L ${x},520`} stroke={INK} strokeWidth={10} strokeLinecap="round" />
+          <path d={`M ${x},220 L ${x},520`} stroke="#cfd8dc" strokeWidth={5} strokeLinecap="round" />
+          <ellipse cx={x} cy={200} rx={28} ry={14} fill="#ffb74d" {...line} />
+        </g>
+      ))}
+      <rect x={700} y={480} width={200} height={280} rx={12} fill="#90caf9" {...line} />
+      <text x={800} y={640} fontSize={72} textAnchor="middle" fill={INK} opacity={0.35} className="story-font">8</text>
+      <rect x={X0} y={G - 20} width={W} height={H} fill="#37474f" />
+      <path d={`M ${X0},${G - 20} H ${X0 + W}`} stroke="#90a4ae" strokeWidth={8} />
+    </g>
+  );
+}
+
+function Plain({ tint }: { tint: string }) {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill={tint} />
+      {Array.from({ length: 30 * 18 }, (_, i) => {
+        const cx = X0 + (i % 30) * 90 + (Math.floor(i / 30) % 2) * 45;
+        const cy = Y0 + Math.floor(i / 30) * 90;
+        return <circle key={i} cx={cx} cy={cy} r={9} fill="#ffffff" opacity={0.35} />;
+      })}
+    </g>
+  );
+}
+
+function Burst({ tint }: { tint: string }) {
+  const cx = STAGE.w / 2;
+  const cy = STAGE.h / 2;
+  const n = 36;
+  const R = 2000;
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#ffffff" />
+      {Array.from({ length: n }, (_, i) => {
+        const a0 = (i / n) * Math.PI * 2;
+        const a1 = ((i + 0.5) / n) * Math.PI * 2;
+        return <path key={i} d={`M ${cx},${cy} L ${cx + Math.cos(a0) * R},${cy + Math.sin(a0) * R} L ${cx + Math.cos(a1) * R},${cy + Math.sin(a1) * R} Z`} fill={tint} />;
+      })}
+      <circle cx={cx} cy={cy} r={260} fill="#ffffff" opacity={0.85} />
+    </g>
+  );
+}
+
+function sparkle(x: number, y: number, r: number): string {
+  const k = r * 0.3;
+  return `M ${x},${y - r} Q ${x + k},${y - k} ${x + r},${y} Q ${x + k},${y + k} ${x},${y + r} Q ${x - k},${y + k} ${x - r},${y} Q ${x - k},${y - k} ${x},${y - r} Z`;
+}
+
+/** 下雨：斜斜的雨丝，画在角色前面 */
+export function Rain({ x = X0, y = Y0, w = W, h = H, seed = 1 }: { x?: number; y?: number; w?: number; h?: number; seed?: number }) {
+  const r = rand(seed * 97);
+  const n = Math.round((w * h) / 9000);
+  return (
+    <g stroke="#ffffff" strokeWidth={4} strokeLinecap="round" opacity={0.7}>
+      {Array.from({ length: n }, (_, i) => {
+        const sx = x + r() * w;
+        const sy = y + r() * h;
+        return <path key={i} d={`M ${sx},${sy} l -10,34`} stroke={i % 3 ? "#ffffff" : "#bfe0ff"} />;
+      })}
+    </g>
+  );
+}
+
+export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
+  const size = prop.size ?? 90;
+  const x = stageX(prop.x);
+  const y = STAGE.ground - (prop.lift ?? 0) - size / 2;
+  const id = `glow-${uid}`;
+  return (
+    <g>
+      {prop.glow && (
+        <>
+          <defs>
+            <radialGradient id={id}>
+              <stop offset="0" stopColor={prop.glow} stopOpacity={0.85} />
+              <stop offset="1" stopColor={prop.glow} stopOpacity={0} />
+            </radialGradient>
+          </defs>
+          <circle cx={x} cy={y} r={size * 1.1} fill={`url(#${id})`} />
+        </>
+      )}
+      {(prop.lift ?? 0) < 10 && <ellipse cx={x} cy={STAGE.ground} rx={size * 0.4} ry={size * 0.08} fill="#000" opacity={0.12} />}
+      <text x={x} y={y} fontSize={size} textAnchor="middle" dominantBaseline="central" fontFamily={EMOJI_FONT}>{prop.emoji}</text>
+    </g>
+  );
+}

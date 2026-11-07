@@ -1,95 +1,54 @@
-# 儿童书籍动画化系统
+# 小念家的漫画书
 
-## 项目简介
+孩子和家人一起编故事，用代码画成漫画。故事是仓库里的 TypeScript 数据，画面由 SVG 引擎画出来——不用外部生图接口。
 
-儿童书籍动画化系统是一个将童话、故事或科普书籍转换为动画和图片的网页应用，旨在帮助小朋友更生动地阅读书籍内容。系统支持用户上传书籍、生成相关插图、添加动画效果，并提供用户认证和权限管理功能。
+固定角色：小念、爸爸、妈妈（和 [身体奇遇记](https://github.com/handsondad/bodyverse) 同一个系列）。
 
-## 功能特性
+## 本地运行
 
-- **用户认证**：支持用户登录、注册和权限管理
-- **书籍管理**：添加、编辑、删除书籍
-- **书籍导入**：支持PDF和Word文档导入
-- **自定义页面**：支持为书籍创建自定义页面
-- **AI图像生成**：根据书籍内容生成相关插图
-- **动画效果**：为生成的图片添加动画效果
-- **图片管理**：保存生成过的图片，支持选择多个图片
-- **管理员功能**：邀请新用户、设置用户权限
+需要 Node.js 22+。
 
-## 技术栈
-
-- **前端**：HTML5, CSS3, JavaScript
-- **后端**：Node.js, Express
-- **数据存储**：JSON文件存储
-- **认证**：JWT（JSON Web Token）
-- **文件处理**：multer（文件上传）、pdf-parse（PDF解析）、mammoth（Word文档解析）
-- **AI图像生成**：使用文本转图像API
-- **动画效果**：Web Animations API
-
-## 安装和使用
-
-### 安装步骤
-
-1. 克隆项目到本地
-2. 安装依赖：`npm install`
-3. 启动服务器：`npm start`
-4. 访问：http://localhost:3000
-
-### 默认账号
-
-- **管理员账号**：admin@example.com / admin123
-
-### 使用方法
-
-1. **登录系统**：使用默认管理员账号或注册新用户
-2. **添加书籍**：
-   - 手动输入书名和内容
-   - 或上传PDF/Word文档导入
-   - 或使用自定义页面创建
-3. **管理书籍**：在书籍列表中查看、编辑或删除书籍
-4. **查看书籍**：
-   - 点击书籍列表中的"查看"按钮
-   - 使用"上一页"和"下一页"按钮翻页
-   - 点击"生成图片"按钮为当前页面生成插图
-   - 点击"添加动画"按钮为生成的图片添加动画效果
-   - 在图片选择区域选择之前生成的图片
-5. **用户管理**（管理员）：
-   - 邀请新用户
-   - 修改用户权限
-   - 删除用户
-
-## 项目结构
-
-```
-动画图书/
-├── public/            # 静态文件
-│   ├── index.html     # 主页面
-│   └── login.html     # 登录页面
-├── data/              # 数据存储
-│   ├── books.json     # 书籍数据
-│   ├── users.json     # 用户数据
-│   └── images.json    # 图片数据
-├── uploads/           # 上传文件
-├── server.js          # 服务器端代码
-├── package.json       # 项目配置
-└── README.md          # 项目说明
+```bash
+npm install
+npm run dev
 ```
 
-## 未来扩展
+| 命令 | 作用 |
+|---|---|
+| `npm run dev` | 开发服务器 |
+| `npm run typecheck` | 类型检查 |
+| `npm test` | 测试 |
+| `npm run check` | 检查故事内容 |
+| `npm run snapshot -- <故事id>` | 截成 PNG |
+| `npm run build` | 生产构建 |
 
-- 支持更多文件格式的导入
-- 添加语音朗读功能
-- 实现多语言支持
-- 添加用户个人书架
-- 优化AI图像生成质量
-- 增加更多动画效果
+## 加一个新故事
 
-## 注意事项
+见 [AGENTS.md](AGENTS.md)。讲法和画法：
 
-- 系统使用JSON文件存储数据，适合小型应用
-- AI图像生成功能需要网络连接
-- 上传的文件会被临时存储，解析完成后会被删除
-- 请确保服务器有足够的存储空间和处理能力
+- [skills/storyverse-cocreate/SKILL.md](skills/storyverse-cocreate/SKILL.md) — 怎么和孩子共创
+- [skills/storyverse-comic/SKILL.md](skills/storyverse-comic/SKILL.md) — 怎么写分镜、气泡、姿势
 
-## 许可证
+简单说：`npm run story:new -- <id>` → 写 `src/stories/<id>/story.ts` → `npm run check` → `npm run snapshot`。
 
-本项目采用MIT许可证。
+## 部署
+
+推送到 `main` 后，`.github/workflows/deploy.yml` 会跑测试、构建，并发布到 GitHub Pages。仓库 Settings → Pages 的 Source 选 **GitHub Actions**。
+
+## 目录
+
+| 位置 | 内容 |
+|---|---|
+| `src/stories/` | 故事数据 |
+| `src/cast/` | 角色骨架、表情、姿势 |
+| `src/engine/` | 版式、镜头、气泡排布 |
+| `src/scenes/` | 背景 |
+| `src/render/` | SVG 画图 |
+| `src/pages/` | 书架、阅读、样张 |
+| `skills/` | 给代码助手的共创/画法说明 |
+| `ideas/legacy-books.md` | 旧版 AI 生图书的文字素材 |
+| `archive/ai-image` 分支 | 旧的 Express + 生图版本 |
+
+## 许可
+
+代码 MIT（待补完整声明）。字体：站酷快乐体（OFL），子集在 `public/fonts/`。家庭和非商业使用。署名用角色名（小念、爸爸、妈妈），不要写家里其他人的名字。
