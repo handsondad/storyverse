@@ -1,5 +1,6 @@
 import { CAST, CHARACTER_IDS } from "../cast/characters.ts";
-import { CoverView, creditLine } from "../render/PageView.tsx";
+import { CoverView } from "../render/PageView.tsx";
+import { creditLine } from "../story/script.ts";
 import { STORIES } from "../stories/index.ts";
 
 export function ShelfPage() {

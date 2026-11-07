@@ -1,30 +1,34 @@
-import { CAST, INK } from "../cast/characters.ts";
+import { INK } from "../cast/characters.ts";
 import { composeCover, composePage, COVER_TITLE_H } from "../engine/compose.ts";
 import { PAGE } from "../engine/layout.ts";
 import { blockSize, wrap } from "../engine/text.ts";
+import { creditLine } from "../story/script.ts";
 import type { Story } from "../story/types.ts";
 import { PanelView } from "./PanelView.tsx";
 
+/** 动态漫画放到哪儿了：前面的格子全显示，这一格显示到第 beat 个，后面的格子先空着 */
+export type Reveal = { readonly panel: number; readonly beat: number };
+
 /** 一页漫画。n 从 1 数 */
-export function PageView({ story, n, snap = true }: { story: Story; n: number; snap?: boolean }) {
+export function PageView({ story, n, snap = true, reveal }: { story: Story; n: number; snap?: boolean; reveal?: Reveal }) {
   const page = story.pages[n - 1];
   const layouts = composePage(page);
   return (
     <svg viewBox={`0 0 ${PAGE.w} ${PAGE.h}`} className="page-svg" role="img" aria-label={`${story.title} 第 ${n} 页`}
       data-snap={snap ? "" : undefined} data-pages={story.pages.length}>
       <rect width={PAGE.w} height={PAGE.h} fill="#fffdf8" />
-      {page.panels.map((panel, i) => layouts[i] && <PanelView key={i} panel={panel} layout={layouts[i]} uid={`${story.id}-${n}-${i}`} />)}
+      {page.panels.map((panel, i) => {
+        const l = layouts[i];
+        if (!l) return null;
+        if (reveal && i > reveal.panel) {
+          return <rect key={i} x={l.rect.x} y={l.rect.y} width={l.rect.w} height={l.rect.h} rx={12} fill="#fff3e4" stroke="#f1dcc4" strokeWidth={6} />;
+        }
+        const upTo = reveal && i === reveal.panel ? reveal.beat : Infinity;
+        return <g key={i} className={reveal ? "panel-in" : undefined}><PanelView panel={panel} layout={l} uid={`${story.id}-${n}-${i}`} upTo={upTo} /></g>;
+      })}
       <text x={PAGE.w / 2} y={PAGE.h - 10} fontSize={18} textAnchor="middle" fill="#b8a88a" className="story-font">{n}</text>
     </svg>
   );
-}
-
-export function creditLine(story: Story): string {
-  const names = story.credits.by.map((id) => CAST[id].name);
-  if (names.length === 0) return story.credits.note ?? "";
-  if (names.length === 1) return `${names[0]}编的故事`;
-  if (names.length === 2) return `${names[0]}和${names[1]}一起编的故事`;
-  return `${names.slice(0, -1).join("、")}和${names[names.length - 1]}一起编的故事`;
 }
 
 /** 封面：整页一个远景，上面一块书名牌，下面一条署名 */

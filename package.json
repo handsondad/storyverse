@@ -12,7 +12,8 @@
     "check": "node tests/story-rules.mjs",
     "snapshot": "node tools/snapshot.mjs",
     "story:new": "node tools/new-story.mjs",
-    "font": "node tools/font/subset.mjs"
+    "font": "node tools/font/subset.mjs",
+    "voice": "node tools/voice.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",

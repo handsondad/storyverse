@@ -8,6 +8,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { CHARACTER_IDS } from "../src/cast/characters.ts";
 import { storyIssues } from "../src/engine/compose.ts";
 import { textWidth } from "../src/engine/text.ts";
+import { lineHash, storyScript } from "../src/story/script.ts";
+import { VOICE_CLIPS } from "../src/story/voice-manifest.ts";
 import { CHARS_FILE, needsStoryFont } from "../tools/font/subset.mjs";
 import { EXPRESSIONS, PLACES, POSES, SHOTS, TIMES, WEATHERS } from "../src/story/vocab.ts";
 
@@ -113,6 +115,7 @@ async function main() {
     : readdirSync(storiesDir, { withFileTypes: true }).filter((d) => d.isDirectory() && !d.name.startsWith(".")).map((d) => d.name);
 
   let failed = 0;
+  let unvoiced = 0;
   for (const id of ids) {
     if (id === "index.ts") continue;
     try {
@@ -122,6 +125,7 @@ async function main() {
         failed++;
         continue;
       }
+      unvoiced += storyScript(story).filter((l) => l.voice && VOICE_CLIPS[l.key]?.hash !== lineHash(l)).length;
       const problems = checkStory(story);
       if (problems.length) {
         console.error(`✗ ${id}`);
@@ -135,6 +139,8 @@ async function main() {
       failed++;
     }
   }
+  // 没配音不算错：听故事时按字数停顿。要发布就跑一下
+  if (unvoiced) console.log(`提示：${unvoiced} 句还没配音或改过字，跑 npm run voice`);
   if (failed) process.exit(1);
 }
 

@@ -20,6 +20,7 @@ npm run dev
 | `npm test` | 测试 |
 | `npm run check` | 检查故事内容 |
 | `npm run snapshot -- <故事id>` | 截成 PNG |
+| `npm run voice` | 给旁白和台词配音（edge-tts） |
 | `npm run build` | 生产构建 |
 
 ## 加一个新故事
@@ -51,4 +52,4 @@ npm run dev
 
 ## 许可
 
-代码 MIT（待补完整声明）。字体：站酷快乐体（OFL），子集在 `public/fonts/`。家庭和非商业使用。署名用角色名（小念、爸爸、妈妈），不要写家里其他人的名字。
+代码 MIT（待补完整声明）。字体：站酷快乐体（OFL），子集在 `public/fonts/`。配音由微软 Edge 在线语音生成，见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。家庭和非商业使用。署名用角色名（小念、爸爸、妈妈），不要写家里其他人的名字。

@@ -24,6 +24,7 @@
 | `npm run snapshot -- cast <角色id>` | 截角色样张 |
 | `npm run story:new -- <id>` | 新建故事目录 |
 | `npm run font` | 按源码里用到的字重新截取字体 |
+| `npm run voice [-- <故事id>]` | 用 edge-tts 给旁白和台词配音（只配新的和改过的句子） |
 | `npm run build` | 生产构建，输出到 `dist/` |
 
 交付前四个都要过：`npm run typecheck`、`npm test`、`npm run check`、`npm run build`。新故事还要 `npm run snapshot` 自己看一遍图。
@@ -48,6 +49,9 @@
 - `src/render/`：SVG 画图组件
 - `public/fonts/story.woff`：站酷快乐体子集（OFL）
 - `tools/snapshot.mjs`：无头浏览器截 PNG
+- `src/story/script.ts`：把故事摊成按顺序念的台词表，「听故事」和配音工具共用
+- `src/pages/useStoryPlayer.ts`：听故事（一句一句冒出来、放配音、念完自动翻页）
+- `tools/voice.mjs`：配音，输出 `public/voice/<故事>/<页>-<格>-<beat>.mp3` 和 `src/story/voice-manifest.ts`（生成的，别手改）
 - `tests/story-rules.mjs`：内容检查器
 
 旧的 Express 后端和 AI 生图版本在分支 `archive/ai-image`。旧书文字素材在 `ideas/legacy-books.md`。
@@ -58,7 +62,7 @@
 2. 和孩子聊点子，记进 `ideas.md`（见 cocreate skill）
 3. 写 `story.ts`，跑 `npm run check -- <id>` 直到通过
 4. `npm run snapshot -- <id>`，打开 `snapshots/` 看图；挡脸、挤、缺字就改数据再截
-5. 加了新汉字就跑 `npm run font`
+5. 加了新汉字就跑 `npm run font`；台词定了就跑 `npm run voice`（要联网，需要 `python -m pip install edge-tts` 和 ffmpeg）
 6. `npm run typecheck && npm test && npm run build`
 7. 浏览器里从封面翻到最后一页，再看一眼手机宽度（390px）
 
@@ -70,7 +74,7 @@
   - 孩子自己录的声音默认放 `private/`，不进仓库；要公开才手动挪到 `public/voice/`。
   - 不写吓人、暴力、色情内容；不确定就先问大人。
 - **角色**：小念是男孩，用「他」；爸爸「他」；妈妈「她」。
-- **配音**（以后加）：小念 `zh-CN-YunxiaNeural`，爸爸 `zh-CN-YunxiNeural`，妈妈 `zh-CN-XiaoxiaoNeural`。
+- **配音**：小念 `zh-CN-YunxiaNeural`，爸爸 `zh-CN-YunxiNeural`，妈妈 `zh-CN-XiaoxiaoNeural`。旁白也用妈妈的声音（放慢一点），不另找别人的声音。设置在 `src/story/script.ts`。
 - **素材许可**：站酷快乐体是 OFL；新素材要在 `THIRD_PARTY_NOTICES.md` 写明来源。
 - **代码风格**：照周围代码写。中文注释只写代码本身表达不了的约束；改动要小而完整。
 

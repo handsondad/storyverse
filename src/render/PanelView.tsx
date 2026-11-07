@@ -42,9 +42,9 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
         </svg>
       </g>
       {border && <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h} rx={12} fill="none" stroke={INK} strokeWidth={6} />}
-      {layout.captions.filter((c) => c.beat <= upTo).map((c, i) => <CaptionView key={`c${i}`} c={c} />)}
-      {layout.bubbles.filter((b) => b.beat <= upTo).map((b, i) => <BubbleView key={`b${i}`} b={b} />)}
-      {layout.sfx.filter((s) => s.beat <= upTo).map((s, i) => <SfxView key={`s${i}`} s={s} />)}
+      {layout.captions.filter((c) => c.beat <= upTo).map((c) => <g key={`c${c.beat}`} className="pop"><CaptionView c={c} /></g>)}
+      {layout.bubbles.filter((b) => b.beat <= upTo).map((b) => <g key={`b${b.beat}`} className="pop"><BubbleView b={b} /></g>)}
+      {layout.sfx.filter((s) => s.beat <= upTo).map((s) => <g key={`s${s.beat}`} className="pop"><SfxView s={s} /></g>)}
     </g>
   );
 }

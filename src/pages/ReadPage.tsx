@@ -1,6 +1,8 @@
 import { useEffect, useRef, type TouchEvent } from "react";
-import { CoverView, creditLine, PageView } from "../render/PageView.tsx";
+import { CoverView, PageView } from "../render/PageView.tsx";
+import { creditLine } from "../story/script.ts";
 import type { Story } from "../story/types.ts";
+import { useStoryPlayer } from "./useStoryPlayer.ts";
 
 type Props = {
   story: Story;
@@ -17,19 +19,22 @@ export function ReadPage({ story, page }: Props) {
   const prev = at > 0 ? `#/read/${story.id}/${at - 1}` : null;
   const next = at < total ? `#/read/${story.id}/${at + 1}` : null;
   const touch = useRef<{ x: number; y: number } | null>(null);
+  const player = useStoryPlayer(story, at, next);
+  const { toggle } = player;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === "ArrowLeft" && prev) location.hash = prev;
-      else if ((e.key === "ArrowRight" || e.key === " ") && next) {
+      else if (e.key === "ArrowRight" && next) location.hash = next;
+      else if (e.key === " " && !(e.target instanceof HTMLButtonElement)) {
         e.preventDefault();
-        location.hash = next;
+        toggle();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [prev, next]);
+  }, [prev, next, toggle]);
 
   const onTouchStart = (e: TouchEvent) => {
     const t = e.touches[0];
@@ -55,10 +60,10 @@ export function ReadPage({ story, page }: Props) {
         <span className="meta no-snap">{creditLine(story)}</span>
       </div>
 
-      <div className="reader" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        {at === 0 ? <CoverView story={story} snap /> : <PageView story={story} n={at} />}
+      <div className={player.playing ? "reader playing" : "reader"} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        {at === 0 ? <CoverView story={story} snap /> : <PageView story={story} n={at} reveal={player.reveal} />}
 
-        {at === total && (
+        {at === total && !player.reveal && (
           <div className="the-end no-snap">
             <h2>讲完啦</h2>
             <p>{creditLine(story)}</p>
@@ -70,7 +75,10 @@ export function ReadPage({ story, page }: Props) {
           <span className="count">{at === 0 ? "封面" : `${at} / ${total}`}</span>
           {next ? <a className="btn" href={next}>{at === 0 ? "开始看" : "下一页"}</a> : <a className="btn" href="#/">回书架</a>}
         </div>
-        <p className="hint no-snap">左右滑动或按 ← → 翻页</p>
+        <button className={player.playing ? "btn ghost no-snap" : "btn play no-snap"} onClick={toggle}>
+          {player.playing ? "⏸ 先停一下" : "▶ 听故事"}
+        </button>
+        <p className="hint no-snap">左右滑动或按 ← → 翻页，空格键听故事</p>
       </div>
     </div>
   );

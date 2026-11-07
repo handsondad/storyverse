@@ -23,7 +23,8 @@ description: >-
 - [ ] 3. 分镜：先定每一页几格、谁出场、说什么
 - [ ] 4. 写 story.ts → npm run check -- <id>
 - [ ] 5. npm run snapshot -- <id>，对着 PNG 改
-- [ ] 6. typecheck / test / build，浏览器翻一遍
+- [ ] 6. 台词定了：npm run voice -- <id>，在阅读页点「▶ 听故事」和孩子一起听一遍
+- [ ] 7. typecheck / test / build，浏览器翻一遍
 ```
 
 ### 1. 聊点子
@@ -59,6 +60,7 @@ npm run story:new -- <id>          # 若还没有目录
 npm run check -- <id>
 npm run snapshot -- <id>
 npm run font                       # 加了新汉字时
+npm run voice -- <id>              # 台词定了再配；改了字重跑，只会重配改过的句子
 npm run typecheck && npm test && npm run build
 ```
 
