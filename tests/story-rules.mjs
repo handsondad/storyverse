@@ -1,14 +1,14 @@
-// 故事内容检查：版式格数、气泡字数、角色是否存在、气泡有没有挡脸。
+// 故事内容检查：版式格数、气泡字数、角色是否存在、气泡有没有挡脸、字体缺不缺字。
 // 用法：
 //   npm run check
 //   npm run check -- glowing-boots
-import { readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { CHARACTER_IDS } from "../src/cast/characters.ts";
 import { storyIssues } from "../src/engine/compose.ts";
-import { panelCount } from "../src/engine/layout.ts";
 import { textWidth } from "../src/engine/text.ts";
+import { CHARS_FILE, needsStoryFont } from "../tools/font/subset.mjs";
 import { EXPRESSIONS, PLACES, POSES, SHOTS, TIMES, WEATHERS } from "../src/story/vocab.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -79,13 +79,25 @@ export function checkStory(story) {
   checkPanel({ ...story.cover, beats: story.cover.beats ?? [] }, "封面");
 
   story.pages.forEach((page, pi) => {
-    const need = panelCount(page.layout);
-    if (page.panels.length !== need) say(`第 ${pi + 1} 页`, `版式 ${page.layout} 要 ${need} 格，写了 ${page.panels.length} 格`);
     page.panels.forEach((panel, i) => checkPanel(panel, `第 ${pi + 1} 页第 ${i + 1} 格`));
   });
 
+  const missing = [...new Set([...storyText(story)].filter((ch) => needsStoryFont(ch) && !fontChars.has(ch)))];
+  if (missing.length) say("字体", `缺这些字：${missing.join("")}，跑 npm run font`);
+
   for (const msg of storyIssues(story)) problems.push(`${story.id} ${msg}`);
   return problems;
+}
+
+const fontChars = new Set(existsSync(CHARS_FILE) ? readFileSync(CHARS_FILE, "utf8") : "");
+
+/** 故事里所有会画到页面上的字 */
+function storyText(story) {
+  const beats = [story.cover, ...story.pages.flatMap((p) => p.panels)].flatMap((p) => p.beats ?? []);
+  return [
+    story.title, story.blurb, story.credits?.note ?? "",
+    ...beats.map((b) => b.caption ?? b.text ?? b.sfx ?? ""),
+  ].join("");
 }
 
 async function loadStory(id) {

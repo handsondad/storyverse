@@ -5,7 +5,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const cacheDir = join(root, "tools/font/.cache");
@@ -23,16 +23,18 @@ function walk(dir, out = []) {
   return out;
 }
 
-function collect() {
+/** 中日韩文字和全角标点要靠站酷快乐体；英文、数字、表情符号交给系统字体也不会出方框 */
+export const needsStoryFont = (ch) => {
+  const code = ch.codePointAt(0);
+  return (code >= 0x3000 && code <= 0x9fff) || (code >= 0xff00 && code <= 0xffef);
+};
+
+export function collect() {
   const set = new Set();
   for (let c = 0x20; c < 0x7f; c++) set.add(String.fromCharCode(c));
   for (const ch of "，。！？、：；“”‘’（）《》…—·～「」【】") set.add(ch);
   for (const file of [...walk(join(root, "src")), join(root, "index.html")]) {
-    for (const ch of readFileSync(file, "utf8")) {
-      const code = ch.codePointAt(0);
-      // 只要中日韩文字和全角标点；表情符号交给系统字体
-      if ((code >= 0x3000 && code <= 0x9fff) || (code >= 0xff00 && code <= 0xffef)) set.add(ch);
-    }
+    for (const ch of readFileSync(file, "utf8")) if (needsStoryFont(ch)) set.add(ch);
   }
   return [...set].sort().join("");
 }
@@ -57,7 +59,10 @@ async function main() {
   console.log(`${[...chars].length} 个字 → public/fonts/story.woff（${(size / 1024).toFixed(0)} KB）`);
 }
 
-main().catch((err) => {
-  console.error(err.message);
-  process.exit(1);
-});
+const entry = process.argv[1] && pathToFileURL(resolve(process.argv[1])).href;
+if (entry === import.meta.url) {
+  main().catch((err) => {
+    console.error(err.message);
+    process.exit(1);
+  });
+}
