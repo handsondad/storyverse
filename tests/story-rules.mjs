@@ -36,6 +36,9 @@ export function checkStory(story) {
   if (!/^[a-z][a-z0-9-]*$/.test(story.id)) say("id", "只能用小写字母、数字和短横线，且以字母开头");
   if (chars(story.title) > LIMITS.title) say("书名", `超过 ${LIMITS.title} 个字`);
   if (chars(story.blurb) > LIMITS.blurb) say("简介", `超过 ${LIMITS.blurb} 个字`);
+  const day = story.when?.date ?? "";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || Number.isNaN(Date.parse(day))) say("时间", "when.date 要写故事发生的那天，格式 YYYY-MM-DD");
+  if (story.when?.label && chars(story.when.label) > 8) say("时间", "when.label 不超过 8 个字");
   if (!story.credits?.by?.length) say("署名", "credits.by 至少要有一个角色（nian / dad / mom）");
   for (const id of story.credits?.by ?? []) {
     if (!CHARACTER_IDS.includes(id)) say("署名", `credits.by 里不能写「${id}」，只能是小念、爸爸、妈妈`);
@@ -97,7 +100,7 @@ const fontChars = new Set(existsSync(CHARS_FILE) ? readFileSync(CHARS_FILE, "utf
 function storyText(story) {
   const beats = [story.cover, ...story.pages.flatMap((p) => p.panels)].flatMap((p) => p.beats ?? []);
   return [
-    story.title, story.blurb, story.credits?.note ?? "",
+    story.title, story.blurb, story.credits?.note ?? "", story.when?.label ?? "",
     ...beats.map((b) => b.caption ?? b.text ?? b.sfx ?? ""),
   ].join("");
 }

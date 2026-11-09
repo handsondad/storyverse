@@ -8,9 +8,10 @@ const story: Story = {
   id: "wrong-museum",
   title: "走错美术馆",
   blurb: "六一要去工艺美术馆，妈妈扫一眼通知，却带到了另一个馆。",
+  when: { date: "2025-06-01", label: "六一儿童节" },
   credits: {
     by: ["nian", "dad", "mom"],
-    date: "2025-06-01",
+    date: "2026-11-07",
   },
   cover: {
     scene: { place: "subway", time: "morning" },

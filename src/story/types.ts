@@ -73,7 +73,7 @@ export type Credits = {
    * 他们既是故事里的人，也是创作者；不要写家里其他人的名字。
    */
   readonly by: readonly CharacterId[];
-  /** 完成日期，YYYY-MM-DD */
+  /** 编完的日期，YYYY-MM-DD；故事发生的日子写在 Story.when */
   readonly date: string;
   readonly note?: string;
 };
@@ -84,6 +84,13 @@ export type Story = {
   readonly title: string;
   /** 一句话介绍，显示在书架上 */
   readonly blurb: string;
+  /** 故事发生在哪天；编出来的故事写第一次讲它的那天。首页的时间绳按这个排 */
+  readonly when: {
+    /** YYYY-MM-DD */
+    readonly date: string;
+    /** 那天是什么日子，比如「六一儿童节」，≤8 个字 */
+    readonly label?: string;
+  };
   readonly credits: Credits;
   /** 封面画面：一个舞台，只有画，没有气泡 */
   readonly cover: Omit<Panel, "beats" | "shot">;

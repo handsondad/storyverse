@@ -8,6 +8,7 @@ const story: Story = {
   id: "glowing-boots",
   title: "会发光的小雨鞋",
   blurb: "门口出现一双会发光的雨鞋，小念和爸爸妈妈一起去找彩虹。",
+  when: { date: "2026-04-22" },
   credits: {
     by: ["nian", "dad", "mom"],
     date: "2026-11-07",

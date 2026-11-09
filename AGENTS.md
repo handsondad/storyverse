@@ -33,7 +33,7 @@
 
 | 路由 | 页面 | 文件 |
 |---|---|---|
-| `#/` | 书架 | `src/pages/ShelfPage.tsx` |
+| `#/` | 首页时间绳（按 `story.when.date` 排，位置在 `src/pages/timeline.ts`） | `src/pages/ShelfPage.tsx` |
 | `#/read/<id>/0` | 封面 | `src/pages/ReadPage.tsx` |
 | `#/read/<id>/<n>` | 第 n 页（从 1 数） | 同上 |
 | `#/cast/<角色>` | 角色样张（姿势 + 表情） | `src/pages/CastPage.tsx` |
