@@ -89,6 +89,19 @@ description: >-
 - 欢呼 → `pose: "cheer"` + `face: "happy"`
 - 捧东西 → `pose: "hold"` + `hold: "🎁"`
 
+### 画出来的道具
+
+表情符号里没有的东西用 `thing` 画，和 `emoji` 只写一个。现在有乳胶枕：
+
+```ts
+{ thing: { kind: "pillow", puff: 0.1, sealed: true, label: "2017" }, x: 0.55, size: 230 }
+```
+
+- `puff` 0～1：鼓起来多少，连着几格慢慢变大就能看出变化
+- `sealed`：装在密封袋里；`label` 是袋上的小标签（≤6 个字）
+- 拿在手里、放在脚前面的道具写 `front: true`，画在人前面（不算被挡）
+- 窄格子里拟声字没地方放时，别硬塞到主角道具上，写进旁白就行
+
 ### 椅子和饭桌
 
 - `seat: "chair"`（大人的椅子）或 `"high-chair"`（小孩的高脚餐椅），配 `pose: "sit"`；不写 `seat` 时 `sit` 坐小凳子

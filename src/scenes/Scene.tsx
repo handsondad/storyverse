@@ -4,8 +4,8 @@
  */
 import { INK } from "../cast/characters.ts";
 import { EMOJI_FONT } from "../cast/Figure.tsx";
-import { STAGE, stageX } from "../engine/stage.ts";
-import type { Prop, SceneSpec } from "../story/types.ts";
+import { STAGE, stageX, thingHeight } from "../engine/stage.ts";
+import type { Prop, SceneSpec, Thing } from "../story/types.ts";
 import type { TimeOfDay } from "../story/vocab.ts";
 
 const X0 = -500;
@@ -472,7 +472,8 @@ export function Rain({ x = X0, y = Y0, w = W, h = H, seed = 1 }: { x?: number; y
 export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
   const size = prop.size ?? 90;
   const x = stageX(prop.x);
-  const y = STAGE.ground - (prop.lift ?? 0) - size / 2;
+  const bottom = STAGE.ground - (prop.lift ?? 0);
+  const y = bottom - (prop.thing ? thingHeight(prop.thing, size) : size) / 2;
   const id = `glow-${uid}`;
   return (
     <g>
@@ -488,7 +489,53 @@ export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
         </>
       )}
       {(prop.lift ?? 0) < 10 && <ellipse cx={x} cy={STAGE.ground} rx={size * 0.4} ry={size * 0.08} fill="#000" opacity={0.12} />}
-      <text x={x} y={y} fontSize={size} textAnchor="middle" dominantBaseline="central" fontFamily={EMOJI_FONT}>{prop.emoji}</text>
+      {prop.thing
+        ? <Pillow x={x} bottom={bottom} w={size} thing={prop.thing} />
+        : <text x={x} y={y} fontSize={size} textAnchor="middle" dominantBaseline="central" fontFamily={EMOJI_FONT}>{prop.emoji}</text>}
+    </g>
+  );
+}
+
+/** 乳胶枕：一高一低两道弧，上面一排排透气小孔。密封着的时候套一层透明袋子 */
+function Pillow({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const bag = thing.sealed ? 30 : 0;
+  const h = thingHeight(thing, w) - bag;
+  const y = bottom - bag / 2;
+  const L = x - w / 2;
+  const R = x + w / 2;
+  const T = y - h;
+  const r = Math.min(h * 0.35, 22);
+  const d = `M ${L},${y - r} Q ${L},${y} ${L + r},${y} L ${R - r},${y} Q ${R},${y} ${R},${y - r}
+    C ${R},${T + h * 0.05} ${R - w * 0.2},${T - h * 0.06} ${x + w * 0.16},${T + h * 0.08}
+    Q ${x},${T + h * 0.24} ${x - w * 0.18},${T + h * 0.16}
+    C ${L + w * 0.18},${T + h * 0.08} ${L},${T + h * 0.18} ${L},${y - r} Z`;
+  const holes: [number, number][] = [];
+  const rows = Math.max(1, Math.floor((h * 0.55) / 22));
+  for (let i = 0; i < rows; i += 1) {
+    const hy = y - h * 0.22 - i * 22;
+    for (let hx = L + 34 + (i % 2) * 14; hx < R - 30; hx += 30) holes.push([hx, hy]);
+  }
+  return (
+    <g>
+      <path d={d} fill="#fff4d6" {...line} strokeWidth={5} />
+      <path d={`M ${L + 20},${y - h * 0.12} Q ${x},${y - h * 0.02} ${R - 20},${y - h * 0.12}`} stroke="#e9d6a6" strokeWidth={6} fill="none" strokeLinecap="round" />
+      {holes.map(([hx, hy], i) => <circle key={i} cx={hx} cy={hy} r={3.5} fill="#e2cc96" />)}
+      {thing.sealed && (
+        <g>
+          <rect x={L - 18} y={T - bag / 2 - 8} width={w + 36} height={h + bag + 8} rx={14} fill="#cfe8ff" fillOpacity={0.45} stroke="#6fa8d6" strokeWidth={4} />
+          {[L - 18, R + 18].map((sx) => (
+            <path key={sx} d={`M ${sx},${T - bag / 2 - 8} ${Array.from({ length: 6 }, (_, k) => `l ${k % 2 ? 8 : -8},${(h + bag + 8) / 6}`).join(" ")}`}
+              fill="none" stroke="#6fa8d6" strokeWidth={3} />
+          ))}
+          <path d={`M ${L + 10},${T - 4} l 40,${h * 0.5} M ${L + 34},${T - 8} l 24,${h * 0.35}`} stroke="#ffffff" strokeWidth={6} strokeLinecap="round" opacity={0.8} />
+          {thing.label && (
+            <g>
+              <rect x={R - 96} y={T - bag / 2 - 2} width={84} height={34} rx={6} fill="#ffd166" {...line} strokeWidth={3} />
+              <text x={R - 54} y={T - bag / 2 + 16} fontSize={24} textAnchor="middle" dominantBaseline="central" fill={INK} className="story-font">{thing.label}</text>
+            </g>
+          )}
+        </g>
+      )}
     </g>
   );
 }

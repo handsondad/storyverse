@@ -8,7 +8,7 @@ import type { Shot } from "../story/vocab.ts";
 import { placeBubbles, placeCaptions, type BubbleBox, type CaptionBox, type Face } from "./bubbles.ts";
 import { frame } from "./camera.ts";
 import { layoutPage, overlaps, PAGE, panelCount, type Rect } from "./layout.ts";
-import { placeActors, propBox, type Box, type PlacedActor } from "./stage.ts";
+import { placeActors, propBox, propName, type Box, type PlacedActor } from "./stage.ts";
 import { textWidth } from "./text.ts";
 
 const SFX_SPOTS: readonly (readonly [number, number])[] = [
@@ -87,11 +87,11 @@ export function composePanel(panel: Panel, rect: Rect): PanelLayout {
   }
   const { actors, camera } = staged;
   const scale = rect.w / camera.w;
-  (panel.props ?? []).forEach((p) => {
+  (panel.props ?? []).filter((p) => !p.front).forEach((p) => {
     const pb = propBox(p);
     const area = (pb.maxX - pb.minX) * (pb.maxY - pb.minY);
     const hidden = Math.max(0, ...actors.flatMap((a) => coreBoxes(a).map((c) => boxOverlap(pb, c))));
-    if (hidden > area * 0.4) issues.push(`道具 ${p.emoji} 被人挡住了一大半，挪一下 x 或 lift`);
+    if (hidden > area * 0.4) issues.push(`道具 ${propName(p)} 被人挡住了一大半，挪一下 x 或 lift`);
   });
   const base = { rect, camera, scale };
 

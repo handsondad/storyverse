@@ -68,6 +68,12 @@ export function checkStory(story) {
       if (a.tip !== undefined && !a.seat) say(where, `${a.who} 写了 tip 就要写 seat：是椅子在翘`);
       if (a.tip !== undefined && (a.tip < 0 || a.tip > 90)) say(where, `tip ${a.tip} 应在 0～90 度`);
     }
+    for (const p of panel.props ?? []) {
+      if (!p.emoji === !p.thing) say(where, "道具的 emoji 和 thing 只写一个");
+      if (p.thing && p.thing.kind !== "pillow") say(where, `没有能画的东西 ${p.thing.kind}`);
+      if (p.thing?.puff !== undefined && (p.thing.puff < 0 || p.thing.puff > 1)) say(where, `puff ${p.thing.puff} 应在 0～1`);
+      if (p.thing?.label && chars(p.thing.label) > 6) say(where, "thing.label 不超过 6 个字");
+    }
 
     let bubbleCount = 0;
     for (const beat of panel.beats ?? []) {
@@ -104,10 +110,11 @@ const fontChars = new Set(existsSync(CHARS_FILE) ? readFileSync(CHARS_FILE, "utf
 
 /** 故事里所有会画到页面上的字 */
 function storyText(story) {
-  const beats = [story.cover, ...story.pages.flatMap((p) => p.panels)].flatMap((p) => p.beats ?? []);
+  const panels = [story.cover, ...story.pages.flatMap((p) => p.panels)];
   return [
     story.title, story.blurb, story.credits?.note ?? "", story.when?.label ?? "",
-    ...beats.map((b) => b.caption ?? b.text ?? b.sfx ?? ""),
+    ...panels.flatMap((p) => p.beats ?? []).map((b) => b.caption ?? b.text ?? b.sfx ?? ""),
+    ...panels.flatMap((p) => p.props ?? []).map((p) => p.thing?.label ?? ""),
   ].join("");
 }
 

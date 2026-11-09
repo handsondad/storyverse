@@ -3,7 +3,7 @@ import { CAST } from "../cast/characters.ts";
 import { POSE_ANGLES } from "../cast/poses.ts";
 import { solve, type Pt, type Skeleton } from "../cast/rig.ts";
 import type { CharacterSpec } from "../cast/types.ts";
-import type { Actor, Panel, Prop } from "../story/types.ts";
+import type { Actor, Panel, Prop, Thing } from "../story/types.ts";
 import { SLOTS } from "../story/vocab.ts";
 
 /** 每一格的舞台：1600×1000，地面在 880 */
@@ -87,5 +87,17 @@ export function propBox(p: Prop): Box {
   const size = p.size ?? 90;
   const x = stageX(p.x);
   const y = STAGE.ground - (p.lift ?? 0);
-  return { minX: x - size / 2, maxX: x + size / 2, minY: y - size, maxY: y };
+  const h = p.thing ? thingHeight(p.thing, size) : size;
+  return { minX: x - size / 2, maxX: x + size / 2, minY: y - h, maxY: y };
+}
+
+/** 画出来的东西有多高；size 是它的宽 */
+export function thingHeight(t: Thing, size: number): number {
+  const puff = Math.min(1, Math.max(0, t.puff ?? 1));
+  return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
+}
+
+/** 检查器报问题时怎么称呼一个道具 */
+export function propName(p: Prop): string {
+  return p.emoji ?? (p.thing?.kind === "pillow" ? "枕头" : "道具");
 }

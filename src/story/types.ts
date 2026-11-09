@@ -25,9 +25,21 @@ export type Actor = {
   readonly tip?: number;
 };
 
-/** 舞台上的道具：一个表情符号 */
+/** 表情符号里没有的东西，由引擎画出来 */
+export type Thing = {
+  /** pillow：乳胶枕 */
+  readonly kind: "pillow";
+  /** 鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
+  readonly puff?: number;
+  /** 还装在密封袋里；label 是袋子上贴的小标签，比如年份 */
+  readonly sealed?: boolean;
+  readonly label?: string;
+};
+
+/** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */
 export type Prop = {
-  readonly emoji: string;
+  readonly emoji?: string;
+  readonly thing?: Thing;
   /** 横向位置 0～1 */
   readonly x: number;
   /** 离地多高（舞台单位），默认 0 就是放在地上 */
@@ -36,6 +48,8 @@ export type Prop = {
   readonly size?: number;
   /** 发光，用在有魔法的东西上 */
   readonly glow?: string;
+  /** 画在人前面：拿在手里、抱在怀里的东西 */
+  readonly front?: boolean;
 };
 
 /**

@@ -28,7 +28,7 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
       <g clipPath={`url(#${clip})`}>
         <svg x={rect.x} y={rect.y} width={rect.w} height={rect.h} viewBox={`${camera.x} ${camera.y} ${camera.w} ${camera.h}`} preserveAspectRatio="none">
           <Background scene={panel.scene} uid={uid} />
-          {(panel.props ?? []).map((p, i) => <PropView key={i} prop={p} uid={`${uid}-p${i}`} />)}
+          {(panel.props ?? []).map((p, i) => !p.front && <PropView key={i} prop={p} uid={`${uid}-p${i}`} />)}
           {layout.actors.map((a, i) => (
             <g key={i} transform={`translate(${a.x},${STAGE.ground})`}>
               <ellipse cx={0} cy={4} rx={a.spec.body.shoulder * 1.6} ry={a.spec.body.limb * 0.5} fill="#000" opacity={0.12} />
@@ -37,6 +37,7 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
             </g>
           ))}
           {panel.scene.table && <Table {...panel.scene.table} />}
+          {(panel.props ?? []).map((p, i) => p.front && <PropView key={i} prop={p} uid={`${uid}-p${i}`} />)}
           {panel.scene.weather === "rain" && (panel.scene.place === "park" || panel.scene.place === "museum") && (
             <Rain seed={uid.length + rect.x} />
           )}
