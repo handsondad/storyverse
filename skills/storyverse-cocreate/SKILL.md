@@ -70,7 +70,7 @@ npm run typecheck && npm test && npm run build
 小念、爸爸、妈妈既是故事里的人，也是创作者。署名只用他们：
 
 ```ts
-when: { date: "2025-06-01", label: "六一儿童节" },  // 故事发生的那天，只记这一个日子
+when: { date: "2026-06-01", label: "六一儿童节" },  // 故事发生的那天，只记这一个日子
 credits: {
   by: ["nian", "dad", "mom"],  // 只能是固定角色，不要写家里其他人的名字
 }

@@ -1,14 +1,14 @@
 import type { Story } from "../../story/types.ts";
 
 /**
- * 真实经历改写：2025-06-01 六一，妈妈把「工艺美术馆」看成「美术馆」，
+ * 真实经历改写：2026-06-01 六一，妈妈把「工艺美术馆」看成「美术馆」，
  * 一家先去了中国美术馆，再坐八号线赶回工艺美术馆。
  */
 const story: Story = {
   id: "wrong-museum",
   title: "走错美术馆",
   blurb: "六一要去工艺美术馆，妈妈扫一眼通知，却带到了另一个馆。",
-  when: { date: "2025-06-01", label: "六一儿童节" },
+  when: { date: "2026-06-01", label: "六一儿童节" },
   credits: {
     by: ["nian", "dad", "mom"],
   },
