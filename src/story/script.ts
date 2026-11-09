@@ -8,10 +8,14 @@ import type { Story } from "./types.ts";
 /** 旁白也只用家里人的声音：妈妈的声音放慢一点来讲 */
 export const NARRATOR: CharacterId = "mom";
 
-export const VOICES: Record<CharacterId, { readonly voice: string; readonly rate: string }> = {
+type Voice = { readonly voice: string; readonly rate: string; readonly pitch?: string };
+
+export const VOICES: Record<CharacterId, Voice> = {
   nian: { voice: CAST.nian.voice, rate: "+0%" },
   dad: { voice: CAST.dad.voice, rate: "-5%" },
   mom: { voice: CAST.mom.voice, rate: "+0%" },
+  // 中文里没有现成的老人声音：最低沉的男声放慢、压低一点
+  laoye: { voice: CAST.laoye.voice, rate: "-15%", pitch: "-8Hz" },
 };
 const NARRATOR_RATE = "-12%";
 
@@ -25,7 +29,7 @@ export type Line = {
   readonly kind: "title" | "caption" | "say" | "sfx";
   readonly text: string;
   /** 谁来念；拟声字不念 */
-  readonly voice: { readonly voice: string; readonly rate: string } | null;
+  readonly voice: Voice | null;
 };
 
 /** 「小念、爸爸和妈妈一起编的故事」 */
@@ -57,7 +61,8 @@ export function storyScript(story: Story): Line[] {
 
 /** 同一个声音念同一句话，指纹就不变；改了字或换了声音，旧音频就过期。FNV-1a，浏览器和 Node 算出来一样 */
 export function lineHash(line: Line): string {
-  const s = `${line.voice?.voice}|${line.voice?.rate}|${line.text}`;
+  const pitch = line.voice?.pitch ? `|${line.voice.pitch}` : "";
+  const s = `${line.voice?.voice}|${line.voice?.rate}${pitch}|${line.text}`;
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i);

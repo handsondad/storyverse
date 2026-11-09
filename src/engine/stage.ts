@@ -1,6 +1,7 @@
+import { chairCorners, chairPoint, seating } from "../cast/chair.ts";
 import { CAST } from "../cast/characters.ts";
 import { POSE_ANGLES } from "../cast/poses.ts";
-import { solve, type Skeleton } from "../cast/rig.ts";
+import { solve, type Pt, type Skeleton } from "../cast/rig.ts";
 import type { CharacterSpec } from "../cast/types.ts";
 import type { Actor, Panel, Prop } from "../story/types.ts";
 import { SLOTS } from "../story/vocab.ts";
@@ -25,6 +26,8 @@ export type PlacedActor = {
   /** 舞台坐标下的头（用于对焦、躲开脸、气泡尾巴） */
   readonly head: { readonly cx: number; readonly cy: number; readonly rx: number; readonly ry: number; readonly top: number };
   readonly box: Box;
+  /** 身子（肩到胯），道具挡没挡住看这个 */
+  readonly torso: Box;
 };
 
 export function actorX(a: Actor): number {
@@ -51,16 +54,33 @@ export function placeActors(panel: Pick<Panel, "actors">, squeeze = 1): PlacedAc
     const skeleton = solve(spec.body, POSE_ANGLES[actor.pose ?? "stand"]);
     const flip = facing === "left" ? -1 : 1;
     const g = STAGE.ground;
+    const chair = actor.seat ? seating(spec.body, skeleton, actor.seat, actor.tip) : null;
+    const move = chair ? chair.map : (p: Pt) => p;
+    const onStage = (p: Pt): Pt => {
+      const q = move(p);
+      return [x + q[0] * flip, g + q[1]];
+    };
     const b = skeleton.bounds;
-    const box = flip > 0
-      ? { minX: x + b.minX, maxX: x + b.maxX, minY: g + b.minY, maxY: g + b.maxY }
-      : { minX: x - b.maxX, maxX: x - b.minX, minY: g + b.minY, maxY: g + b.maxY };
+    const corners: Pt[] = [[b.minX, b.minY], [b.maxX, b.minY], [b.minX, b.maxY], [b.maxX, b.maxY]];
+    const box = boxOf([
+      ...corners.map(onStage),
+      ...(chair ? chairCorners(chair).map((p) => chairPoint(chair, p)).map((q): Pt => [x + q[0] * flip, g + q[1]]) : []),
+    ]);
     const h = skeleton.head;
+    const [cx, cy] = onStage(h.c);
+    const half = spec.body.shoulder * 1.1;
+    const torso = boxOf([skeleton.shoulderC, skeleton.pelvis].flatMap((p): Pt[] => [[p[0] - half, p[1]], [p[0] + half, p[1]]]).map(onStage));
     return {
-      actor, spec, x, facing, skeleton, box,
-      head: { cx: x + h.c[0] * flip, cy: g + h.c[1], rx: h.rx, ry: h.ry, top: g + skeleton.top },
+      actor, spec, x, facing, skeleton, box, torso,
+      head: { cx, cy, rx: h.rx, ry: h.ry, top: cy - (h.c[1] - skeleton.top) },
     };
   });
+}
+
+function boxOf(ps: readonly Pt[]): Box {
+  const xs = ps.map((p) => p[0]);
+  const ys = ps.map((p) => p[1]);
+  return { minX: Math.min(...xs), maxX: Math.max(...xs), minY: Math.min(...ys), maxY: Math.max(...ys) };
 }
 
 export function propBox(p: Prop): Box {

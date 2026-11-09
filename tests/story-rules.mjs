@@ -5,13 +5,14 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { CHARACTER_IDS } from "../src/cast/characters.ts";
+import { CHARACTER_IDS, CREATOR_IDS } from "../src/cast/characters.ts";
 import { storyIssues } from "../src/engine/compose.ts";
 import { textWidth } from "../src/engine/text.ts";
 import { lineHash, storyScript } from "../src/story/script.ts";
 import { VOICE_CLIPS } from "../src/story/voice-manifest.ts";
 import { CHARS_FILE, needsStoryFont } from "../tools/font/subset.mjs";
 import { EXPRESSIONS, PLACES, POSES, SHOTS, TIMES, WEATHERS } from "../src/story/vocab.ts";
+import { SEATS } from "../src/cast/chair.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const storiesDir = join(root, "src/stories");
@@ -41,7 +42,7 @@ export function checkStory(story) {
   if (story.when?.label && chars(story.when.label) > 8) say("时间", "when.label 不超过 8 个字");
   if (!story.credits?.by?.length) say("署名", "credits.by 至少要有一个角色（nian / dad / mom）");
   for (const id of story.credits?.by ?? []) {
-    if (!CHARACTER_IDS.includes(id)) say("署名", `credits.by 里不能写「${id}」，只能是小念、爸爸、妈妈`);
+    if (!CREATOR_IDS.includes(id)) say("署名", `credits.by 里不能写「${id}」，只能是小念、爸爸、妈妈`);
   }
   if (!story.pages?.length) say("全书", "至少要有一页");
 
@@ -50,6 +51,8 @@ export function checkStory(story) {
     if (panel.scene.time && !TIMES.includes(panel.scene.time)) say(where, `没有时间 ${panel.scene.time}`);
     if (panel.scene.weather && !WEATHERS.includes(panel.scene.weather)) say(where, `没有天气 ${panel.scene.weather}`);
     if (panel.shot && !SHOTS.includes(panel.shot)) say(where, `没有景别 ${panel.shot}`);
+    const table = panel.scene.table;
+    if (table && !(table.from >= 0 && table.to <= 1 && table.from < table.to)) say(where, "table 的 from、to 要在 0～1，而且 from < to");
     if (panel.actors.length === 0 && !(panel.props?.length)) say(where, "格子里至少要有一个角色或道具");
     if (panel.actors.length > LIMITS.actorsPerPanel) say(where, `角色超过 ${LIMITS.actorsPerPanel} 个`);
 
@@ -61,6 +64,9 @@ export function checkStory(story) {
       if (a.pose && !POSES.includes(a.pose)) say(where, `没有姿势 ${a.pose}`);
       if (a.face && !EXPRESSIONS.includes(a.face)) say(where, `没有表情 ${a.face}`);
       if (typeof a.at === "number" && (a.at < 0 || a.at > 1)) say(where, `站位 ${a.at} 应在 0～1`);
+      if (a.seat && !SEATS.includes(a.seat)) say(where, `没有椅子 ${a.seat}`);
+      if (a.tip !== undefined && !a.seat) say(where, `${a.who} 写了 tip 就要写 seat：是椅子在翘`);
+      if (a.tip !== undefined && (a.tip < 0 || a.tip > 90)) say(where, `tip ${a.tip} 应在 0～90 度`);
     }
 
     let bubbleCount = 0;

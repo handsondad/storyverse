@@ -78,8 +78,8 @@ let index = (await import("node:fs")).readFileSync(indexPath, "utf8");
 if (!index.includes(`./${id}/story.ts`)) {
   const importName = id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
   index = index.replace(
-    /import type \{ Story \} from "\.\.\/story\/types\.ts";\n/,
-    `import type { Story } from "../story/types.ts";\nimport ${importName} from "./${id}/story.ts";\n`,
+    /import type \{ Story \} from "\.\.\/story\/types\.ts";(\r?\n)/,
+    (_m, eol) => `import type { Story } from "../story/types.ts";${eol}import ${importName} from "./${id}/story.ts";${eol}`,
   );
   index = index.replace(
     /export const STORIES: readonly Story\[\] = \[([^\]]*)\]/,

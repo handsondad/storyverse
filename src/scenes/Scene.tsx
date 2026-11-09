@@ -27,6 +27,8 @@ export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
   const time = scene.time ?? "day";
   switch (scene.place) {
     case "living-room": return <LivingRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
+    case "dining-room": return <DiningRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
+    case "bathroom": return <Bathroom />;
     case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
@@ -198,6 +200,80 @@ function Plant({ x }: { x: number }) {
       {[-60, -20, 20, 60].map((a, i) => (
         <ellipse key={i} cx={x + a * 0.9} cy={G - 240 - (i % 2) * 40} rx={34} ry={78} fill={i % 2 ? "#5fb86a" : "#7bcb79"} {...line} transform={`rotate(${a * 0.6} ${x + a * 0.9} ${G - 240})`} />
       ))}
+    </g>
+  );
+}
+
+function DiningRoom({ time, uid, rain }: { time: TimeOfDay; uid: string; rain: boolean }) {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#fdf0d8" />
+      {Array.from({ length: 30 }, (_, i) => (
+        <circle key={i} cx={X0 + (i % 10) * 270 + (Math.floor(i / 10) % 2) * 135} cy={Y0 + 200 + Math.floor(i / 10) * 200} r={14} fill="#f6dfb8" />
+      ))}
+      <rect x={X0} y={G - 300} width={W} height={230} fill="#cfe3c8" />
+      <path d={`M ${X0},${G - 300} L ${X0 + W},${G - 300}`} {...line} strokeWidth={4} opacity={0.5} />
+      <Window x={1080} y={200} w={330} h={300} time={time} uid={uid} rain={rain} curtain="#ffd28a" />
+      <g>
+        <circle cx={300} cy={260} r={70} fill="#ffffff" {...line} />
+        <path d="M 300,260 L 300,215 M 300,260 L 332,276" {...line} strokeWidth={7} />
+        <circle cx={300} cy={260} r={7} fill={INK} />
+      </g>
+      <g>
+        <rect x={-180} y={G - 330} width={340} height={260} rx={16} fill="#c98b52" {...line} />
+        <path d={`M -10,${G - 320} L -10,${G - 80}`} {...line} strokeWidth={4} opacity={0.6} />
+        <circle cx={-30} cy={G - 200} r={9} fill={INK} />
+        <circle cx={10} cy={G - 200} r={9} fill={INK} />
+        <text x={-80} y={G - 375} fontSize={80} textAnchor="middle" fontFamily={EMOJI_FONT}>🫖</text>
+        <text x={70} y={G - 375} fontSize={80} textAnchor="middle" fontFamily={EMOJI_FONT}>🍎</text>
+      </g>
+      <Floor color="#e3b98e" plank="#d2a273" />
+      <g>
+        <path d={`M 800,${Y0} L 800,150`} {...line} strokeWidth={5} />
+        <path d="M 690,230 Q 800,110 910,230 Z" fill="#ffb84d" {...line} />
+        {time === "night" || time === "evening" ? <ellipse cx={800} cy={245} rx={120} ry={30} fill="#fff3a6" opacity={0.5} /> : null}
+      </g>
+      <Night time={time} />
+    </g>
+  );
+}
+
+function Bathroom() {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#e4f3fb" />
+      {Array.from({ length: 22 }, (_, i) => <path key={`v${i}`} d={`M ${X0 + i * 120},${Y0} L ${X0 + i * 120},${G}`} stroke="#c9e3f0" strokeWidth={5} />)}
+      {Array.from({ length: 14 }, (_, i) => <path key={`h${i}`} d={`M ${X0},${Y0 + i * 120} L ${X0 + W},${Y0 + i * 120}`} stroke="#c9e3f0" strokeWidth={5} />)}
+      <rect x={X0} y={G - 40} width={W} height={H} fill="#b9d7e6" />
+      <path d={`M ${X0},${G - 40} L ${X0 + W},${G - 40}`} {...line} strokeWidth={4} opacity={0.5} />
+      <rect x={910} y={170} width={300} height={330} rx={150} fill="#d9f2ff" {...line} />
+      <path d="M 960,260 L 1010,210 M 975,320 L 1060,235" stroke="#ffffff" strokeWidth={14} strokeLinecap="round" />
+      <path d={`M 1110,${G - 470} l 0,-40 l -60,0`} {...line} strokeWidth={14} fill="none" />
+      <path d={`M 1110,${G - 470} l 0,-40 l -60,0`} stroke="#cfd8dc" strokeWidth={6} fill="none" strokeLinecap="round" />
+      <path d={`M 880,${G - 460} L 1240,${G - 460} Q 1230,${G - 330} 1060,${G - 320} Q 890,${G - 330} 880,${G - 460} Z`} fill="#ffffff" {...line} />
+      <rect x={1030} y={G - 330} width={60} height={290} fill="#ffffff" {...line} />
+      <rect x={1320} y={G - 560} width={110} height={260} rx={20} fill="#ff9fb2" {...line} />
+      <path d={`M 1300,${G - 560} L 1450,${G - 560}`} {...line} strokeWidth={10} />
+      <text x={950} y={G - 470} fontSize={70} textAnchor="middle" fontFamily={EMOJI_FONT}>🧼</text>
+      <text x={1200} y={G - 470} fontSize={60} textAnchor="middle" fontFamily={EMOJI_FONT}>🪥</text>
+    </g>
+  );
+}
+
+/** 饭桌：画在人前面，桌面离地 TABLE_TOP */
+export const TABLE_TOP = 205;
+
+export function Table({ from, to }: { from: number; to: number }) {
+  const x0 = stageX(from);
+  const x1 = stageX(to);
+  const top = G - TABLE_TOP;
+  const wood = "#d9a066";
+  return (
+    <g>
+      {[x0 + 40, x1 - 70].map((x) => <rect key={x} x={x} y={top + 20} width={30} height={TABLE_TOP - 20} rx={8} fill="#c48a52" {...line} />)}
+      <rect x={x0} y={top + 18} width={x1 - x0} height={44} rx={8} fill="#c48a52" {...line} />
+      <rect x={x0 - 24} y={top} width={x1 - x0 + 48} height={30} rx={12} fill={wood} {...line} />
+      <path d={`M ${x0 + 10},${top + 9} L ${x1 - 10},${top + 9}`} stroke="#ffffff" strokeWidth={5} strokeLinecap="round" opacity={0.35} />
     </g>
   );
 }

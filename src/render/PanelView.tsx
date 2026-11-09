@@ -2,7 +2,7 @@ import { INK } from "../cast/characters.ts";
 import { Figure } from "../cast/Figure.tsx";
 import type { PanelLayout } from "../engine/compose.ts";
 import { STAGE } from "../engine/stage.ts";
-import { Background, PropView, Rain } from "../scenes/Scene.tsx";
+import { Background, PropView, Rain, Table } from "../scenes/Scene.tsx";
 import type { Panel } from "../story/types.ts";
 import { BubbleView, CaptionView, SfxView } from "./Bubble.tsx";
 
@@ -33,9 +33,10 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
             <g key={i} transform={`translate(${a.x},${STAGE.ground})`}>
               <ellipse cx={0} cy={4} rx={a.spec.body.shoulder * 1.6} ry={a.spec.body.limb * 0.5} fill="#000" opacity={0.12} />
               <Figure spec={a.spec} pose={a.actor.pose} face={a.actor.face} facing={a.facing} hold={a.actor.hold}
-                talking={talking.has(a.actor.who)} />
+                talking={talking.has(a.actor.who)} seat={a.actor.seat} tip={a.actor.tip} />
             </g>
           ))}
+          {panel.scene.table && <Table {...panel.scene.table} />}
           {panel.scene.weather === "rain" && (panel.scene.place === "park" || panel.scene.place === "museum") && (
             <Rain seed={uid.length + rect.x} />
           )}

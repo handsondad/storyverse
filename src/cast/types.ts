@@ -22,7 +22,8 @@ export type BodySpec = {
   readonly hand: number;
 };
 
-export type HairStyle = "spiky" | "short" | "bob";
+/** receding：头顶光光的，只剩两鬓和后脑勺一圈 */
+export type HairStyle = "spiky" | "short" | "bob" | "receding";
 
 export type Look = {
   readonly skin: string;
@@ -37,6 +38,10 @@ export type Look = {
   readonly glasses?: string;
   /** 发卡之类的小点缀 */
   readonly accent?: string;
+  /** 胡子的颜色 */
+  readonly mustache?: string;
+  /** 眼角、额头的皱纹 */
+  readonly wrinkles?: boolean;
   /** 脸颊红晕的浓淡 0～1 */
   readonly blush: number;
 };

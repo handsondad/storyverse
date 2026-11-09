@@ -4,7 +4,8 @@
  * 舞台坐标：每一格里都是一个 1600×1000 的舞台，地面在 y = 880，角色脚踩地面。
  * 镜头（shot）决定这一格从舞台里框出哪一块，所以同一个站位，远景、中景、特写都能用。
  */
-import type { CharacterId } from "../cast/characters.ts";
+import type { SeatKind } from "../cast/chair.ts";
+import type { CharacterId, CreatorId } from "../cast/characters.ts";
 import type { LayoutId } from "../engine/layout.ts";
 import type { BubbleKind, Expression, Place, Pose, Shot, Slot, TimeOfDay, Weather } from "./vocab.ts";
 
@@ -18,6 +19,10 @@ export type Actor = {
   readonly facing?: "left" | "right";
   /** 手里拿的东西，一个表情符号，比如 "☂️"；配 pose: "hold" 最自然 */
   readonly hold?: string;
+  /** 坐在椅子上（配 pose: "sit" 或 "push"）：chair 大人的椅子，high-chair 小孩的高脚餐椅 */
+  readonly seat?: SeatKind;
+  /** 连人带椅子往后翘多少度：15～30 是前腿翘起来，80 左右是整个倒在地上 */
+  readonly tip?: number;
 };
 
 /** 舞台上的道具：一个表情符号 */
@@ -50,6 +55,8 @@ export type SceneSpec = {
   readonly weather?: Weather;
   /** plain / burst 用的底色 */
   readonly tint?: string;
+  /** 一张饭桌，画在人前面；from / to 是左右两头的位置（0～1） */
+  readonly table?: { readonly from: number; readonly to: number };
 };
 
 export type Panel = {
@@ -69,10 +76,10 @@ export type Page = {
 
 export type Credits = {
   /**
-   * 一起编故事的人：只能是固定角色（小念 / 爸爸 / 妈妈）。
-   * 他们既是故事里的人，也是创作者；不要写家里其他人的名字。
+   * 一起编故事的人：只能是小念 / 爸爸 / 妈妈。他们既是故事里的人，也是创作者。
+   * 姥爷这样的角色可以出场，但不署名；不要写家里人的真名。
    */
-  readonly by: readonly CharacterId[];
+  readonly by: readonly CreatorId[];
   readonly note?: string;
 };
 

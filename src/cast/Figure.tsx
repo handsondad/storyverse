@@ -1,5 +1,6 @@
 import type { Expression, Pose } from "../story/vocab.ts";
 import { INK } from "./characters.ts";
+import { chairTransform, seating, type Seating, type SeatKind } from "./chair.ts";
 import { BackHair, FACES, Head, ow, type Mark } from "./Head.tsx";
 import { POSE_ANGLES, type Hand } from "./poses.ts";
 import { solve, type Limb, type Pt, type Skeleton } from "./rig.ts";
@@ -15,10 +16,13 @@ type FigureProps = {
   talking?: boolean;
   hold?: string;
   blink?: boolean;
+  /** 坐在椅子上；tip 是连人带椅子往后翘的角度 */
+  seat?: SeatKind;
+  tip?: number;
 };
 
 /** 一个角色，脚底中点在 (0, 0)。外面用 translate 放到舞台上 */
-export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink }: FigureProps) {
+export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink, seat, tip }: FigureProps) {
   const sk = solve(spec.body, POSE_ANGLES[pose]);
   const angles = POSE_ANGLES[pose];
   const flip = facing === "left" ? -1 : 1;
@@ -27,13 +31,38 @@ export function Figure({ spec, pose = "stand", face = "neutral", facing = "right
   const longSleeve = look.top.sleeve === "long";
   const [hx, hy] = sk.head.c;
   const headT = `translate(${hx},${hy}) rotate(${sk.head.angle})`;
+  const chair = seat ? seating(body, sk, seat, tip) : null;
 
+  return (
+    <g>
+      {chair && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Chair s={chair} spec={spec} /></g>}
+      <g transform={chair ? mirrored(chair, flip) : undefined}>
+        <FigureBody spec={spec} sk={sk} pose={pose} face={face} flip={flip} talking={talking} hold={hold} blink={blink}
+          headT={headT} stool={!!angles.seat && !chair} line={line} longSleeve={longSleeve} />
+      </g>
+    </g>
+  );
+}
+
+/** 翻转层里的变换，搬到翻转层外面：转的方向和转轴都跟着镜像 */
+function mirrored(s: Seating, flip: number): string {
+  return `translate(0,${-s.rise}) rotate(${-s.tip * flip} ${s.pivot * flip} 0) translate(0,${s.dy})`;
+}
+
+type BodyProps = {
+  spec: CharacterSpec; sk: Skeleton; pose: Pose; face: Expression; flip: number; talking: boolean; hold?: string; blink?: boolean;
+  headT: string; stool: boolean; line: number; longSleeve: boolean;
+};
+
+function FigureBody({ spec, sk, pose, face, flip, talking, hold, blink, headT, stool, line, longSleeve }: BodyProps) {
+  const angles = POSE_ANGLES[pose];
+  const { look, body } = spec;
   return (
     <g>
       <g transform={`scale(${flip},1)`}>
         <g transform={headT}><BackHair spec={spec} /></g>
         <Arm limb={sk.armL} spec={spec} hand={angles.handL} long={longSleeve} shade />
-        {angles.seat && <Stool sk={sk} spec={spec} />}
+        {stool && <Stool sk={sk} spec={spec} />}
         <Legs sk={sk} spec={spec} />
         <Torso sk={sk} spec={spec} />
         <Neck sk={sk} spec={spec} />
@@ -266,6 +295,35 @@ function Stool({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
       <path d={`M ${cx - half * 0.75},${seatY} L ${cx - half * 0.85},0 M ${cx + half * 0.75},${seatY} L ${cx + half * 0.85},0`} stroke={INK} strokeWidth={body.limb * 0.45 + o * 2} strokeLinecap="round" />
       <path d={`M ${cx - half * 0.75},${seatY} L ${cx - half * 0.85},0 M ${cx + half * 0.75},${seatY} L ${cx + half * 0.85},0`} stroke={wood} strokeWidth={body.limb * 0.45} strokeLinecap="round" />
       <rect x={cx - half} y={seatY - body.limb * 0.1} width={half * 2} height={body.limb * 0.6} rx={body.limb * 0.3} fill={wood} />
+    </g>
+  );
+}
+
+/** 带靠背的椅子；high-chair 是小孩的高脚餐椅，多一根踏脚横杆 */
+function Chair({ s, spec }: { s: Seating; spec: CharacterSpec }) {
+  const o = ow(spec) * 2;
+  const high = s.kind === "high-chair";
+  const wood = high ? "#f4b26a" : "#c98b52";
+  const w = 15;
+  const splay = high ? 22 : 6;
+  const legs = [
+    `M ${s.back + 10},${s.seat} L ${s.back - splay},0`,
+    `M ${s.front - 10},${s.seat} L ${s.front + splay},0`,
+    `M ${s.back + 6},${s.seat} L ${s.pivot + w / 2},${s.rest + 20}`,
+  ].join(" ");
+  const bar = high ? `M ${s.back - splay * 0.4},${s.seat * 0.4} L ${s.front + splay * 0.4},${s.seat * 0.4}` : "";
+  const restH = (s.seat - s.rest) * 0.5;
+  // 另一侧的两条腿，错开一点画在后面，侧面看也是四条腿
+  const far = `M ${s.back + 24},${s.seat} L ${s.back + 14 - splay},-12 M ${s.front + 4},${s.seat} L ${s.front + 14 + splay},-12`;
+  return (
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <path d={far} fill="none" stroke={INK} strokeWidth={w + o} />
+      <path d={far} fill="none" stroke={wood} strokeWidth={w} />
+      <path d={far} fill="none" stroke="#000" strokeOpacity={0.18} strokeWidth={w} />
+      <path d={`${legs} ${bar}`} fill="none" stroke={INK} strokeWidth={w + o} />
+      <path d={`${legs} ${bar}`} fill="none" stroke={wood} strokeWidth={w} />
+      <rect x={s.pivot} y={s.rest} width={w * 2.2} height={restH} rx={w} fill={wood} stroke={INK} strokeWidth={o} />
+      <rect x={s.back - 8} y={s.seat - 6} width={s.front - s.back + 22} height={22} rx={10} fill={wood} stroke={INK} strokeWidth={o} />
     </g>
   );
 }

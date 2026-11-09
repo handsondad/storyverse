@@ -8,7 +8,7 @@ import type { Shot } from "../story/vocab.ts";
 import { placeBubbles, placeCaptions, type BubbleBox, type CaptionBox, type Face } from "./bubbles.ts";
 import { frame } from "./camera.ts";
 import { layoutPage, overlaps, PAGE, panelCount, type Rect } from "./layout.ts";
-import { placeActors, propBox, STAGE, type Box, type PlacedActor } from "./stage.ts";
+import { placeActors, propBox, type Box, type PlacedActor } from "./stage.ts";
 import { textWidth } from "./text.ts";
 
 const SFX_SPOTS: readonly (readonly [number, number])[] = [
@@ -47,12 +47,7 @@ function inFrame(a: PlacedActor, cam: Rect, body: boolean): boolean {
 /** 头和身子（不算胳膊腿），舞台坐标；道具藏在这后面就看不见了 */
 function coreBoxes(a: PlacedActor): Box[] {
   const h = a.head;
-  const s = a.skeleton;
-  const half = a.spec.body.shoulder * 1.1;
-  return [
-    { minX: h.cx - h.rx, maxX: h.cx + h.rx, minY: h.top, maxY: h.cy + h.ry },
-    { minX: a.x - half, maxX: a.x + half, minY: STAGE.ground + s.shoulderC[1], maxY: STAGE.ground + s.pelvis[1] },
-  ];
+  return [{ minX: h.cx - h.rx, maxX: h.cx + h.rx, minY: h.top, maxY: h.cy + h.ry }, a.torso];
 }
 
 function boxOverlap(a: Box, b: Box): number {
@@ -107,7 +102,7 @@ export function composePanel(panel: Panel, rect: Rect): PanelLayout {
     const r = Math.max(a.head.rx, a.head.ry) * 1.08 * scale;
     const [, top] = toPage(base, 0, a.head.top);
     faces.set(a.actor.who, { cx, cy, r, top });
-    const [x0, y0] = toPage(base, a.box.minX, a.head.cy + a.head.ry);
+    const [x0, y0] = toPage(base, a.box.minX, Math.min(a.head.cy + a.head.ry, a.box.maxY));
     const [x1, y1] = toPage(base, a.box.maxX, a.box.maxY);
     bodies.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
   }

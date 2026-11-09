@@ -86,6 +86,8 @@ export function Head({ spec, face, talking, blink }: HeadProps) {
       <g transform={`translate(${t * 1.2},${ry * 0.56})`}>
         <MouthShape kind={mouth} w={rx * 0.2} line={line} />
       </g>
+      {look.wrinkles && <Wrinkles rx={rx} ry={ry} t={t} ex={ex + ew * 2.1} ey={ey} line={line} />}
+      {look.mustache && <Mustache x={t * 1.3} y={ry * 0.45} w={rx * 0.38} h={ry * 0.16} color={look.mustache} line={line} />}
       {f.marks?.includes("tears") && [-1, 1].map((s) => (
         <path key={s} d={`M ${s * ex + t},${ey + eh * 0.6} q ${s * rx * 0.05},${ry * 0.3} ${s * rx * 0.02},${ry * 0.55}`}
           fill="none" stroke="#7cc4ff" strokeWidth={line * 1.6} strokeLinecap="round" opacity={0.9} />
@@ -215,11 +217,40 @@ function Glasses({ x, t, y, w, h, color, line }: { x: number; t: number; y: numb
   );
 }
 
+function Wrinkles({ rx, ry, t, ex, ey, line }: { rx: number; ry: number; t: number; ex: number; ey: number; line: number }) {
+  const s = { fill: "none", stroke: INK, strokeWidth: line * 0.55, strokeLinecap: "round" as const, opacity: 0.4 };
+  return (
+    <g>
+      {[-1, 1].map((side) => (
+        <path key={side} d={`M ${side * ex + t},${ey - ry * 0.07} l ${side * rx * 0.08},${-ry * 0.05} M ${side * ex + t},${ey + ry * 0.03} l ${side * rx * 0.09},${ry * 0.02}`} {...s} />
+      ))}
+      <path d={`M ${t - rx * 0.3},${-ry * 0.5} Q ${t},${-ry * 0.58} ${t + rx * 0.3},${-ry * 0.5} M ${t - rx * 0.22},${-ry * 0.38} Q ${t},${-ry * 0.45} ${t + rx * 0.22},${-ry * 0.38}`} {...s} />
+    </g>
+  );
+}
+
+function Mustache({ x, y, w, h, color, line }: { x: number; y: number; w: number; h: number; color: string; line: number }) {
+  const d = `M ${x - w},${y + h * 0.5} Q ${x - w * 0.55},${y - h} ${x},${y - h * 0.15} Q ${x + w * 0.55},${y - h} ${x + w},${y + h * 0.5}
+    Q ${x + w * 0.45},${y + h * 0.65} ${x},${y + h * 0.15} Q ${x - w * 0.45},${y + h * 0.65} ${x - w},${y + h * 0.5} Z`;
+  return <path d={d} fill={color} stroke={INK} strokeWidth={line * 0.45} strokeLinejoin="round" />;
+}
+
 function FrontHair({ spec }: { spec: CharacterSpec }) {
   const { headRx: rx, headRy: ry } = spec.body;
   const { hair, hairStyle, accent } = spec.look;
   const p = (x: number, y: number) => `${x * rx},${y * ry}`;
   const common = { fill: hair, stroke: INK, strokeWidth: ow(spec) * 2, strokeLinejoin: "round" as const };
+  if (hairStyle === "receding") {
+    const side = (s: number) => `M ${p(s * 1.1, 0.12)} C ${p(s * 1.24, -0.24)} ${p(s * 1.12, -0.62)} ${p(s * 0.7, -0.8)}
+      C ${p(s * 0.66, -0.56)} ${p(s * 0.7, -0.3)} ${p(s * 0.82, -0.04)} Z`;
+    return (
+      <g>
+        <path d={`${side(-1)} ${side(1)}`} {...common} strokeWidth={ow(spec) * 1.4} />
+        <path d={`M ${p(-0.16, -0.98)} q ${rx * 0.1},${-ry * 0.16} ${rx * 0.22},${-ry * 0.02} M ${p(0.08, -1.0)} q ${rx * 0.08},${-ry * 0.12} ${rx * 0.18},0`}
+          fill="none" stroke={INK} strokeWidth={ow(spec) * 1.2} strokeLinecap="round" opacity={0.55} />
+      </g>
+    );
+  }
   if (hairStyle === "spiky") {
     const d = `M ${p(-1.05, 0.12)} C ${p(-1.14, -0.55)} ${p(-0.78, -1.02)} ${p(-0.32, -1.08)}
       L ${p(-0.2, -1.36)} L ${p(0.02, -1.1)} L ${p(0.3, -1.32)} L ${p(0.38, -1.05)}

@@ -72,7 +72,8 @@ async function make(line) {
   mkdirSync(dirname(out), { recursive: true });
   for (let attempt = 1; ; attempt += 1) {
     try {
-      await run("python", ["-m", "edge_tts", "--voice", line.voice.voice, `--rate=${line.voice.rate}`, "--text", line.text, "--write-media", raw]);
+      const pitch = line.voice.pitch ? [`--pitch=${line.voice.pitch}`] : [];
+      await run("python", ["-m", "edge_tts", "--voice", line.voice.voice, `--rate=${line.voice.rate}`, ...pitch, "--text", line.text, "--write-media", raw]);
       break;
     } catch (error) {
       if (attempt >= 4) throw error;
@@ -92,7 +93,8 @@ await Promise.all(Array.from({ length: parallel }, async () => {
   for (let line = queue.shift(); line; line = queue.shift()) {
     try {
       await make(line);
-      save();
+      // 中途存一下，断了好续；Windows 上编辑器偶尔会锁住文件，存不上就等最后一起存
+      try { save(); } catch { /* 最后还会再存 */ }
       done += 1;
       if (done % 10 === 0 || done === todo.length) console.log(`${done}/${todo.length}`);
     } catch (error) {
@@ -101,6 +103,14 @@ await Promise.all(Array.from({ length: parallel }, async () => {
     }
   }
 }));
-save();
+for (let attempt = 1; ; attempt += 1) {
+  try {
+    save();
+    break;
+  } catch (error) {
+    if (attempt >= 5) throw error;
+    await new Promise((r) => setTimeout(r, 500 * attempt));
+  }
+}
 console.log(failed ? `完成 ${done} 句，失败 ${failed} 句，再跑一次会只补失败的` : `全部完成：${done} 句`);
 process.exitCode = failed ? 1 : 0;

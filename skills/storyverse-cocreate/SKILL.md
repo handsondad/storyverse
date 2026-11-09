@@ -19,7 +19,7 @@ description: >-
 
 ```
 - [ ] 1. 聊点子 → ideas.md
-- [ ] 2. 定角色（先用小念/爸爸/妈妈；新角色以后再说）
+- [ ] 2. 定角色（小念/爸爸/妈妈；家里其他人只出场、不署名）
 - [ ] 3. 分镜：先定每一页几格、谁出场、说什么
 - [ ] 4. 写 story.ts → npm run check -- <id>
 - [ ] 5. npm run snapshot -- <id>，对着 PNG 改
@@ -42,7 +42,7 @@ description: >-
 
 ### 2. 定角色
 
-第一版只用 `nian` / `dad` / `mom`。想换衣服颜色，改 `src/cast/characters.ts` 里的 `look`，先跑 `npm run snapshot -- cast <id>` 给孩子看样张。
+主角是 `nian` / `dad` / `mom`。家里其他人可以作为角色出场，现在有姥爷 `laoye`；他们不署名。故事里出现还没有的家人，先问大人要不要加，再照 `laoye` 在 `src/cast/characters.ts` 里加一个（`look` 管长相，`voice` 选一个声音），并在 `src/story/script.ts` 的 `VOICES` 里配上。想换衣服颜色，改 `look`，先跑 `npm run snapshot -- cast <id>` 给孩子看样张。
 
 ### 3. 分镜
 
