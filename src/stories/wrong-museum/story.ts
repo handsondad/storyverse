@@ -11,7 +11,6 @@ const story: Story = {
   when: { date: "2025-06-01", label: "六一儿童节" },
   credits: {
     by: ["nian", "dad", "mom"],
-    date: "2026-11-07",
   },
   cover: {
     scene: { place: "subway", time: "morning" },

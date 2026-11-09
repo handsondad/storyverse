@@ -73,8 +73,6 @@ export type Credits = {
    * 他们既是故事里的人，也是创作者；不要写家里其他人的名字。
    */
   readonly by: readonly CharacterId[];
-  /** 编完的日期，YYYY-MM-DD；故事发生的日子写在 Story.when */
-  readonly date: string;
   readonly note?: string;
 };
 

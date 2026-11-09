@@ -11,7 +11,6 @@ const story: Story = {
   when: { date: "2026-04-22" },
   credits: {
     by: ["nian", "dad", "mom"],
-    date: "2026-11-07",
   },
   cover: {
     scene: { place: "park", time: "morning", weather: "rain" },

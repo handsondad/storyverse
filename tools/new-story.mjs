@@ -43,7 +43,6 @@ const story: Story = {
   when: { date: "${new Date().toISOString().slice(0, 10)}" },
   credits: {
     by: ["nian", "dad"],
-    date: "${new Date().toISOString().slice(0, 10)}",
   },
   cover: {
     scene: { place: "park", time: "day" },
