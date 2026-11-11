@@ -127,7 +127,42 @@ const shushu: CharacterSpec = {
   bubble: "#eef1f4",
 };
 
-export const CAST = { nian, dad, mom, laoye, ayi, shushu } as const;
+/** 不是家里人的小孩：男孩都是哥哥，女孩都是姐姐，只出场、不署名。身子和小念一样大 */
+const gege: CharacterSpec = {
+  id: "gege",
+  name: "哥哥",
+  pronoun: "他",
+  age: "小孩",
+  about: "外面遇到的大一点的男孩（公园里、邻居家……）",
+  voice: "zh-CN-YunxiaNeural",
+  body: nian.body,
+  look: {
+    skin: "#f7d2ae", hair: "#2a1f19", hairStyle: "short", eyeScale: 1,
+    top: { color: "#5cc27a", sleeve: "short", collar: "round" },
+    bottom: { kind: "shorts", color: "#3f5f8f" },
+    shoes: "#3d6fd1", socks: "#ffffff", blush: 0.4,
+  },
+  bubble: "#eaf8ec",
+};
+
+const jiejie: CharacterSpec = {
+  id: "jiejie",
+  name: "姐姐",
+  pronoun: "她",
+  age: "小孩",
+  about: "外面遇到的大一点的女孩（公园里、邻居家……）",
+  voice: "zh-CN-XiaoyiNeural",
+  body: nian.body,
+  look: {
+    skin: "#ffdcc0", hair: "#4a2e22", hairStyle: "bob", eyeScale: 1,
+    top: { color: "#ff8fb1", sleeve: "short", collar: "round" },
+    bottom: { kind: "skirt", color: "#ff8fb1" },
+    shoes: "#e85d4a", socks: "#ffffff", accent: "#ff5a5a", blush: 0.5,
+  },
+  bubble: "#fff0f5",
+};
+
+export const CAST = { nian, dad, mom, laoye, ayi, shushu, gege, jiejie } as const;
 export type CharacterId = keyof typeof CAST;
 export const CHARACTER_IDS = Object.keys(CAST) as CharacterId[];
 

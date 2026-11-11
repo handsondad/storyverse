@@ -23,10 +23,10 @@ const story: Story = {
   cover: {
     scene: night,
     actors: [
-      { who: "mom", at: 0.38, pose: "hug", face: "sad", facing: "right" },
+      { who: "mom", at: 0.42, pose: "hug", face: "sad", facing: "right" },
       { who: "dad", at: 0.76, pose: "hold", face: "scared", facing: "left", hold: "💊" },
     ],
-    props: [inArms(0.38, { sick: true, patch: true })],
+    props: [inArms(0.42, { sick: true, patch: true })],
   },
   pages: [
     {

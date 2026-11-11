@@ -83,6 +83,8 @@ description: >-
 | `laoye` | 姥爷（白头发、白胡子、棕色开衫）；只出场，不署名 | 米色 |
 | `ayi` | 阿姨：外面遇到的女的都用她（紫上衣） | 浅粉 |
 | `shushu` | 叔叔：外面遇到的男的都用他（灰衬衫） | 浅灰 |
+| `gege` | 哥哥：外面遇到的大一点的男孩（绿 T 恤），身子和小念一样大 | 浅绿 |
+| `jiejie` | 姐姐：外面遇到的大一点的女孩（粉裙子、红发卡） | 浅粉 |
 
 阿姨、叔叔只出场，不署名。是哪一行就加 `outfit`：`{ who: "ayi", outfit: "nurse", ... }` 是护士（白护士帽、粉护士服），`outfit: "doctor"` 是白大褂（医生、药店药师）。新职业装加在 `src/cast/characters.ts` 的 `OUTFITS` 里，不要为一个职业新建角色。
 
@@ -107,7 +109,7 @@ description: >-
 - `sealed`：装在密封袋里；`label` 是袋上的小标签，或者腕带上的字（≤8 个字）
 - 宝宝写了 `diaper` 就画成只穿纸尿裤仰面躺着（头朝左）：`high` 捂到肚脐上、`low` 在肚脐下、`airy` 透气款往下折；`navel` 是 `stump`（脐带还没掉）/ `sore`（一圈淡红）/ `healed`。放在卧室大床上用 `x: 0.814, lift: 200, size: 300`；肚子特写用纯色背景、`size: 1000, lift: 100`（见 `src/stories/belly-button/story.ts`）
 - 宝宝写了 `kick` 就画成侧面：穿黄连体衣仰面躺在爬行垫上，小腿举起来蹬（头朝左）；`up` / `left` / `right` 换着写像在来回蹬，`ball: true` 脚丫上顶个小球；`grab` 小手抱着脚丫，`toes` 啃脚趾头；`giggle: true` 张嘴咯咯笑。宝宝不会说话，咿咿呜呜写进旁白，别给他气泡。放在客厅地上用 `x: 0.46, size: 460, front: true`（别放沙发前，腿和沙发会糊在一起），特写用纯色背景 `size: 900, lift: 40`（见 `src/stories/kick-ball/story.ts`）
-- 宝宝写 `move` 就是会爬会坐的样子（还是黄连体衣、侧面）：`crawl` 往左爬，`sit` 坐着脸朝右；`cry: true` 哇哇大哭（坐着时一手捂头），`flip: true` 左右翻过来。放在卧室床上用 `lift: 230, size: 360`；抱在大人怀里：大人 `pose: "hug"` 面朝右站在 at，宝宝 `move: "sit", flip: true, x: at + 110/1400, lift: 250, size: 380, front: true`（见 `src/stories/bed-edge/story.ts` 的 `inArms`）。会爬会坐的宝宝还能写 `hair: "fuzz"`（毛茸茸一层）/ `"bald"`（刚理的小光头，亮亮的），`hat: "party"` 戴生日帽，`sick: true` 生病（小脸烧得红红的、没精神），`patch: true` 额头贴退烧贴
+- 宝宝写 `move` 就是会爬会坐的样子（还是黄连体衣、侧面）：`crawl` 往左爬，`sit` 坐着脸朝右；`cry: true` 哇哇大哭（坐着时一手捂头），`flip: true` 左右翻过来。放在卧室床上用 `lift: 230, size: 360`；抱在大人怀里：大人 `pose: "hug"` 面朝右站在 at，宝宝 `move: "sit", flip: true, x: at + 110/1400, lift: 250, size: 380, front: true`（见 `src/stories/bed-edge/story.ts` 的 `inArms`）。会爬会坐的宝宝还能写 `hair: "fuzz"`（毛茸茸一层）/ `"bald"`（刚理的小光头，亮亮的），`hat: "party"` 戴生日帽，`sick: true` 生病（小脸烧得红红的、没精神），`patch: true` 额头贴退烧贴；`color` 换连体衣颜色，别人家的宝宝都换个颜色，黄色留给小念
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）
 - 大人小孩戴生日帽：角色写 `hat: "party"`
@@ -134,6 +136,7 @@ description: >-
 | `dining-room` | 餐厅（挂钟、吊灯、餐边柜），配 `table` |
 | `bathroom` | 卫生间（瓷砖、洗手池、镜子） |
 | `hospital` | 医院走廊（双开门、扶手、长椅、四点钟的挂钟），门上牌子写 `sign`，默认「产房」，比如 `sign: "儿科"` |
+| `gateball` | 体育公园的门球场（人造草皮、小球门、门柱、围网和「门球场」牌子） |
 | `pharmacy` | 药店（药架、绿十字灯牌、「福」），配 `table` 就是画在人前面的柜台 |
 | `street` | 街上一排小店，过年拉着卷帘门、贴「放假」、挂红灯笼；中间那家的招牌写 `sign`（默认「药店」）。招牌字小，用 `wide` 才看得见 |
 | `park` | 公园（树、草、天空） |

@@ -73,6 +73,8 @@ export type Thing = {
   readonly sick?: boolean;
   /** crawl / sit 的宝宝额头上贴着退烧贴 */
   readonly patch?: boolean;
+  /** crawl / sit 的宝宝连体衣的颜色，默认黄色（小念）；别人家的宝宝换个颜色，免得像小念 */
+  readonly color?: string;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

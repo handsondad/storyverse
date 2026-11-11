@@ -11,7 +11,7 @@ export const POSE_LABELS: Record<Pose, string> = {
 };
 
 export const PLACE_LABELS: Record<Place, string> = {
-  "living-room": "客厅", "dining-room": "餐厅", bathroom: "卫生间", hospital: "医院走廊", park: "公园", bedroom: "卧室", museum: "美术馆", subway: "地铁", pharmacy: "药店", street: "街上", plain: "纯色", burst: "放射线",
+  "living-room": "客厅", "dining-room": "餐厅", bathroom: "卫生间", hospital: "医院走廊", park: "公园", bedroom: "卧室", museum: "美术馆", subway: "地铁", pharmacy: "药店", street: "街上", gateball: "门球场", plain: "纯色", burst: "放射线",
 };
 
 export const SHOT_LABELS: Record<Shot, string> = { wide: "远景", medium: "中景", close: "特写" };

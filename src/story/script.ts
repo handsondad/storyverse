@@ -18,6 +18,9 @@ export const VOICES: Record<CharacterId, Voice> = {
   laoye: { voice: CAST.laoye.voice, rate: "-15%", pitch: "-8Hz" },
   ayi: { voice: CAST.ayi.voice, rate: "+0%" },
   shushu: { voice: CAST.shushu.voice, rate: "+0%" },
+  // 哥哥和小念同一个男孩声音，压低一点区分开；姐姐用阿姨的声音提高一点，听着像小孩
+  gege: { voice: CAST.gege.voice, rate: "+5%", pitch: "-6Hz" },
+  jiejie: { voice: CAST.jiejie.voice, rate: "+5%", pitch: "+12Hz" },
 };
 const NARRATOR_RATE = "-12%";
 

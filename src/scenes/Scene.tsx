@@ -34,6 +34,7 @@ export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
     case "hospital": return <Hospital sign={scene.sign ?? "产房"} />;
     case "pharmacy": return <Pharmacy />;
     case "street": return <Street time={time} uid={uid} sign={scene.sign ?? "药店"} />;
+    case "gateball": return <Gateball time={time} uid={uid} />;
     case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
@@ -377,6 +378,47 @@ function Street({ time, uid, sign }: { time: TimeOfDay; uid: string; sign: strin
       <rect x={X0} y={G - 40} width={W} height={H} fill="#c9c4bc" />
       {Array.from({ length: 24 }, (_, i) => <path key={i} d={`M ${X0 + i * 140},${G - 40} L ${X0 + i * 140 - 50},${G + 400}`} stroke="#b3ada4" strokeWidth={4} />)}
       <path d={`M ${X0},${G - 40} L ${X0 + W},${G - 40}`} {...line} strokeWidth={4} />
+      <Night time={time} />
+    </g>
+  );
+}
+
+/** 体育公园里的门球场：绿色人造草皮、白边线、几个小球门和中间的门柱，后面是围网和树 */
+function Gateball({ time, uid }: { time: TimeOfDay; uid: string }) {
+  const night = time === "night";
+  const turf = night ? "#3f7a55" : "#5cbf7a";
+  const top = G - 230;
+  const wicket = (x: number, y: number, s: number) => (
+    <g key={`${x},${y}`}>
+      <path d={`M ${x - 18 * s},${y} L ${x - 18 * s},${y - 34 * s} Q ${x},${y - 46 * s} ${x + 18 * s},${y - 34 * s} L ${x + 18 * s},${y}`} fill="none" stroke={INK} strokeWidth={11 * s} strokeLinejoin="round" />
+      <path d={`M ${x - 18 * s},${y} L ${x - 18 * s},${y - 34 * s} Q ${x},${y - 46 * s} ${x + 18 * s},${y - 34 * s} L ${x + 18 * s},${y}`} fill="none" stroke="#ffffff" strokeWidth={5 * s} strokeLinejoin="round" />
+    </g>
+  );
+  return (
+    <g>
+      <Sky time={time} uid={uid} rain={false} x={X0} y={Y0} w={W} h={H} />
+      <Celestial time={time} rain={false} sunAt={[1300, 150]} moonAt={[1300, 150]} />
+      {!night && time !== "evening" && <Clouds y={170} spread={[120, 560]} />}
+      <path d={`M ${X0},560 Q 300,470 700,550 T 1500,520 T 2100,560 L 2100,1400 L ${X0},1400 Z`} fill={night ? "#3e6150" : "#b9e3a0"} />
+      <Tree x={60} y={top + 10} s={0.8} night={night} />
+      <Tree x={1540} y={top + 10} s={0.9} night={night} />
+      <rect x={X0} y={top - 210} width={W} height={210} fill="#2f8f5b" opacity={0.18} />
+      {Array.from({ length: 60 }, (_, i) => (
+        <path key={i} d={`M ${X0 + i * 50},${top - 210} l 50,210 M ${X0 + i * 50 + 50},${top - 210} l -50,210`} stroke="#2f7a4f" strokeWidth={2.5} opacity={0.5} />
+      ))}
+      {Array.from({ length: 14 }, (_, i) => <rect key={i} x={X0 + i * 220} y={top - 230} width={14} height={232} fill="#7a8f86" {...line} strokeWidth={3} />)}
+      <path d={`M ${X0},${top - 222} L ${X0 + W},${top - 222}`} stroke={INK} strokeWidth={8} />
+      <rect x={640} y={top - 190} width={320} height={84} rx={12} fill="#ffffff" {...line} />
+      <text x={800} y={top - 147} fontSize={50} textAnchor="middle" dominantBaseline="central" fill="#2f8f5b" className="story-font">门球场</text>
+      <rect x={X0} y={top} width={W} height={H} fill={turf} />
+      {Array.from({ length: 14 }, (_, i) => <rect key={i} x={X0 + i * 220} y={top} width={110} height={H} fill="#ffffff" opacity={0.07} />)}
+      <path d={`M ${X0},${top + 40} L ${X0 + W},${top + 40}`} stroke="#ffffff" strokeWidth={8} opacity={0.9} />
+      <path d={`M 120,${top + 40} L 40,${G + 200} M 1480,${top + 40} L 1560,${G + 200}`} stroke="#ffffff" strokeWidth={8} opacity={0.9} />
+      {[[300, top + 110, 0.9], [1220, top + 95, 0.9], [560, top + 70, 0.7]].map(([x, y, s]) => wicket(x, y, s))}
+      <g>
+        <path d={`M 860,${top + 110} L 860,${top - 30}`} stroke={INK} strokeWidth={16} strokeLinecap="round" />
+        {[0, 1, 2, 3].map((i) => <path key={i} d={`M 860,${top + 100 - i * 35} l 0,-18`} stroke={i % 2 ? "#ffffff" : "#e8453c"} strokeWidth={9} />)}
+      </g>
       <Night time={time} />
     </g>
   );
@@ -913,14 +955,15 @@ function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
   const hy = bottom - w * 0.42;
   const shoulder: Pt = [x + w * 0.01, bottom - w * 0.25];
   const hand: Pt = thing.cry ? [hx - r * 0.35, hy - r * 0.92] : [x + w * 0.13, bottom - w * 0.13];
+  const romper = thing.color ?? ROMPER;
   return (
     <g>
-      {babyLimb(`M ${hip[0]},${hip[1]} L ${x + w * 0.12},${bottom - limb * 0.9} L ${x + w * 0.22},${bottom - limb * 0.6}`, limb, ROMPER)}
+      {babyLimb(`M ${hip[0]},${hip[1]} L ${x + w * 0.12},${bottom - limb * 0.9} L ${x + w * 0.22},${bottom - limb * 0.6}`, limb, romper)}
       <ellipse cx={x + w * 0.235} cy={bottom - limb * 0.9} rx={limb * 0.6} ry={limb * 0.9} fill={BABY_SKIN} {...line} strokeWidth={5} />
-      <ellipse cx={x - w * 0.01} cy={bottom - w * 0.15} rx={w * 0.1} ry={w * 0.14} fill={ROMPER} {...line} strokeWidth={5} />
-      {!thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
+      <ellipse cx={x - w * 0.01} cy={bottom - w * 0.15} rx={w * 0.1} ry={w * 0.14} fill={romper} {...line} strokeWidth={5} />
+      {!thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, romper)}
       {!thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
-      {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
+      {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, romper)}
       <BabyHead cx={hx} cy={hy} r={r} w={w} thing={thing} />
       {thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
     </g>
@@ -932,10 +975,11 @@ function CrawlingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: n
   const limb = w * 0.05;
   const r = w * 0.12;
   const cy = bottom - w * 0.2;
-  const leg = (dx: number) => babyLimb(`M ${x + w * 0.12 + dx},${cy} L ${x + w * 0.1 + dx},${bottom - limb * 0.6} L ${x + w * 0.26 + dx},${bottom - limb * 0.8}`, limb, ROMPER);
+  const romper = thing.color ?? ROMPER;
+  const leg = (dx: number) => babyLimb(`M ${x + w * 0.12 + dx},${cy} L ${x + w * 0.1 + dx},${bottom - limb * 0.6} L ${x + w * 0.26 + dx},${bottom - limb * 0.8}`, limb, romper);
   const arm = (dx: number) => (
     <g>
-      {babyLimb(`M ${x - w * 0.12 + dx},${cy - w * 0.02} L ${x - w * 0.15 + dx},${bottom - limb * 0.7}`, limb, ROMPER)}
+      {babyLimb(`M ${x - w * 0.12 + dx},${cy - w * 0.02} L ${x - w * 0.15 + dx},${bottom - limb * 0.7}`, limb, romper)}
       <ellipse cx={x - w * 0.16 + dx} cy={bottom - limb * 0.6} rx={limb * 0.8} ry={limb * 0.55} fill={BABY_SKIN} {...line} strokeWidth={5} />
     </g>
   );
@@ -943,7 +987,7 @@ function CrawlingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: n
     <g>
       {leg(w * 0.04)}
       {arm(w * 0.05)}
-      <ellipse cx={x} cy={cy} rx={w * 0.18} ry={w * 0.085} fill={ROMPER} {...line} strokeWidth={5} />
+      <ellipse cx={x} cy={cy} rx={w * 0.18} ry={w * 0.085} fill={romper} {...line} strokeWidth={5} />
       {leg(0)}
       {arm(0)}
       <g transform={`translate(${2 * (x - w * 0.25)},0) scale(-1,1)`}>
