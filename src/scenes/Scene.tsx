@@ -4,6 +4,7 @@
  */
 import { INK } from "../cast/characters.ts";
 import { EMOJI_FONT } from "../cast/Figure.tsx";
+import type { Pt } from "../cast/rig.ts";
 import { STAGE, stageX, thingHeight } from "../engine/stage.ts";
 import type { Prop, SceneSpec, Thing } from "../story/types.ts";
 import type { TimeOfDay } from "../story/vocab.ts";
@@ -534,8 +535,9 @@ export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
 function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
   switch (p.thing.kind) {
     case "pillow": return <Pillow {...p} />;
-    case "baby": return p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
+    case "baby": return p.thing.kick ? <KickingBaby {...p} /> : p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
     case "band": return <Band {...p} />;
+    case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
   }
 }
 
@@ -606,6 +608,83 @@ function LyingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: numb
       <path d={`M ${hx - r * 0.1},${cy - r * 0.55} q ${-r * 0.14},${r * 0.16} 0,${r * 0.32} M ${hx - r * 0.1},${cy + r * 0.23} q ${-r * 0.14},${r * 0.16} 0,${r * 0.32}`} {...eye} />
       <path d={`M ${hx + r * 0.4},${cy - r * 0.12} q ${r * 0.12},${r * 0.12} 0,${r * 0.24}`} {...eye} />
       {[-1, 1].map((s) => <ellipse key={s} cx={hx + r * 0.25} cy={cy + s * r * 0.62} rx={r * 0.1} ry={r * 0.17} fill="#ff7b7b" opacity={0.45} />)}
+    </g>
+  );
+}
+
+/** 侧面：穿连体衣的宝宝仰面躺在爬行垫上，头朝左，两条小腿举起来蹬，脚丫上可以顶个小球 */
+function KickingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const skin = "#ffd9b8";
+  const romper = "#ffe08a";
+  const matH = w * 0.04;
+  const top = bottom - matH;
+  const r = w * 0.12;
+  const hx = x - w * 0.3;
+  const hy = top - r;
+  const cy = top - w * 0.075;
+  const limb = w * 0.05;
+  const turn = thing.kick === "left" ? -1 : thing.kick === "right" ? 1 : 0;
+  const hip: Pt = [x + w * 0.05, cy];
+  const knee: Pt = [x + w * 0.17, cy - w * 0.17];
+  const foot: Pt = [x + w * 0.11 + turn * w * 0.05, cy - w * 0.31];
+  const ballR = w * 0.075;
+  const sausage = (d: string, color: string, key: string) => (
+    <g key={key}>
+      <path d={d} fill="none" stroke={INK} strokeWidth={limb + 10} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={color} strokeWidth={limb} strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+  const leg = (dx: number, key: string) => {
+    const k: Pt = [knee[0] + dx, knee[1] + dx * 0.4];
+    const f: Pt = [foot[0] + dx, foot[1] + dx * 0.4];
+    return (
+      <g key={key}>
+        {sausage(`M ${hip[0]},${hip[1]} L ${k[0]},${k[1]} L ${f[0]},${f[1]}`, romper, `${key}l`)}
+        <ellipse cx={f[0]} cy={f[1] - limb * 0.35} rx={limb * 0.95} ry={limb * 0.6} fill={skin} transform={`rotate(${turn * 14} ${f[0]} ${f[1]})`} {...line} strokeWidth={5} />
+      </g>
+    );
+  };
+  const eye = { fill: "none", stroke: INK, strokeWidth: Math.max(3, w * 0.008), strokeLinecap: "round" as const };
+  return (
+    <g>
+      <rect x={x - w * 0.5} y={top} width={w} height={matH} rx={matH / 2} fill="#9fd8c4" {...line} strokeWidth={5} />
+      {[0.2, 0.4, 0.6, 0.8].map((f) => <rect key={f} x={x - w * 0.5 + w * f - w * 0.04} y={top + 3} width={w * 0.08} height={matH - 6} fill={f === 0.4 || f === 0.8 ? "#ffc4d6" : "#fff2b8"} />)}
+      {leg(w * 0.035, "far")}
+      <ellipse cx={x - w * 0.07} cy={cy} rx={w * 0.17} ry={w * 0.075} fill={romper} {...line} strokeWidth={5} />
+      {sausage(`M ${x - w * 0.14},${cy - w * 0.04} L ${x - w * 0.1},${cy - w * 0.15}`, romper, "arm")}
+      <circle cx={x - w * 0.1} cy={cy - w * 0.16} r={limb * 0.7} fill={skin} {...line} strokeWidth={5} />
+      {leg(0, "near")}
+      <circle cx={hx} cy={hy} r={r} fill={skin} {...line} strokeWidth={5} />
+      <path d={`M ${hx - r * 0.2},${hy - r * 0.98} q ${r * 0.2},${-r * 0.3} ${r * 0.4},${-r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />
+      <path d={`M ${hx + r * 0.1},${hy - r * 0.45} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
+      <path d={`M ${hx + r * 0.5},${hy - r * 0.05} q ${r * 0.2},${r * 0.25} ${r * 0.42},${-r * 0.02}`} {...eye} />
+      <ellipse cx={hx + r * 0.2} cy={hy + r * 0.05} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />
+      {thing.ball && (
+        <g>
+          <Ball cx={foot[0] + w * 0.018} cy={foot[1] - limb * 0.9 - ballR} r={ballR} spin={turn * 35} />
+          {[-1, 1].map((s) => (
+            <path key={s} d={`M ${foot[0] + w * 0.018 + s * ballR * 1.35},${foot[1] - limb * 0.9 - ballR * 1.6} q ${s * ballR * 0.5},${ballR * 0.6} 0,${ballR * 1.2}`}
+              fill="none" stroke={INK} strokeWidth={Math.max(3, w * 0.007)} strokeLinecap="round" opacity={0.55} />
+          ))}
+        </g>
+      )}
+    </g>
+  );
+}
+
+/** 红黄蓝三色小球；spin 是转了多少度 */
+function Ball({ cx, cy, r, spin }: { cx: number; cy: number; r: number; spin: number }) {
+  const id = `ball-${Math.round(cx)}-${Math.round(cy)}-${Math.round(r)}`;
+  return (
+    <g>
+      <clipPath id={id}><circle cx={cx} cy={cy} r={r} /></clipPath>
+      <g clipPath={`url(#${id})`} transform={`rotate(${spin} ${cx} ${cy})`}>
+        <rect x={cx - r} y={cy - r} width={r * 2} height={r * 2} fill="#ffd84d" />
+        <rect x={cx - r} y={cy - r} width={r * 0.75} height={r * 2} fill="#ff6b6b" />
+        <rect x={cx + r * 0.25} y={cy - r} width={r * 0.75} height={r * 2} fill="#5b8def" />
+      </g>
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke={INK} strokeWidth={Math.max(4, r * 0.08)} />
+      <ellipse cx={cx - r * 0.35} cy={cy - r * 0.4} rx={r * 0.22} ry={r * 0.12} fill="#ffffff" opacity={0.7} />
     </g>
   );
 }

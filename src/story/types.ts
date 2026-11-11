@@ -29,7 +29,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 裹在襁褓里的小宝宝；band 宝宝手腕上的腕带（特写） */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球 */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -44,6 +44,13 @@ export type Thing = {
   readonly diaper?: "high" | "low" | "airy";
   /** 宝宝的肚脐：stump 脐带还没掉；sore 周围红了一圈；healed 长好了。high 纸尿裤会盖住 */
   readonly navel?: "stump" | "sore" | "healed";
+  /**
+   * 写了就画成侧面：宝宝穿着连体衣仰面躺在爬行垫上，两条小腿举起来蹬（头朝左）。
+   * up 脚丫朝上；left / right 脚丫往一边转，连着几格换着写就像在来回蹬
+   */
+  readonly kick?: "up" | "left" | "right";
+  /** 蹬腿的宝宝脚丫上顶着小球（跟着 kick 转） */
+  readonly ball?: boolean;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

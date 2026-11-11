@@ -98,12 +98,13 @@ export function thingHeight(t: Thing, size: number): number {
       const puff = Math.min(1, Math.max(0, t.puff ?? 1));
       return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
     }
-    case "baby": return size * (t.diaper ? 0.5 : 0.62);
+    case "baby": return t.kick ? size * (t.ball ? 0.62 : 0.46) : size * (t.diaper ? 0.5 : 0.62);
     case "band": return size * 0.42;
+    case "ball": return size;
   }
 }
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {

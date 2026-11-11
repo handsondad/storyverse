@@ -95,7 +95,7 @@ description: >-
 
 ### 画出来的道具
 
-表情符号里没有的东西用 `thing` 画，和 `emoji` 只写一个。现在有乳胶枕、小宝宝、腕带：
+表情符号里没有的东西用 `thing` 画，和 `emoji` 只写一个。现在有乳胶枕、小宝宝、腕带、小球：
 
 ```ts
 { thing: { kind: "pillow", puff: 0.1, sealed: true, label: "2017" }, x: 0.55, size: 230 }
@@ -106,6 +106,8 @@ description: >-
 - `puff` 0～1：鼓起来多少，连着几格慢慢变大就能看出变化
 - `sealed`：装在密封袋里；`label` 是袋上的小标签，或者腕带上的字（≤8 个字）
 - 宝宝写了 `diaper` 就画成只穿纸尿裤仰面躺着（头朝左）：`high` 捂到肚脐上、`low` 在肚脐下、`airy` 透气款往下折；`navel` 是 `stump`（脐带还没掉）/ `sore`（一圈淡红）/ `healed`。放在卧室大床上用 `x: 0.814, lift: 200, size: 300`；肚子特写用纯色背景、`size: 1000, lift: 100`（见 `src/stories/belly-button/story.ts`）
+- 宝宝写了 `kick` 就画成侧面：穿黄连体衣仰面躺在爬行垫上，小腿举起来蹬（头朝左）；`up` / `left` / `right` 换着写像在来回蹬，`ball: true` 脚丫上顶个小球。放在客厅地上用 `x: 0.46, size: 460, front: true`（别放沙发前，腿和沙发会糊在一起），特写用纯色背景 `size: 900, lift: 40`（见 `src/stories/kick-ball/story.ts`）
+- 单独一个红黄蓝小球：`{ thing: { kind: "ball" }, x, lift, size: 60 }`，飞在空中就把 `lift` 写高
 - 宝宝抱在半躺的妈妈怀里：`lift: 290`、离妈妈 20 个舞台单位（见 `src/stories/born/story.ts` 的 `baby()`）
 - 拿在手里、放在脚前面的道具写 `front: true`，画在人前面（不算被挡）
 - 窄格子里拟声字没地方放时，别硬塞到主角道具上，写进旁白就行
