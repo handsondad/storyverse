@@ -77,16 +77,23 @@ button, a { font-family: inherit; }
 
 /* 首页时间绳：位置在 src/pages/timeline.ts 里算好，这里只管样子 */
 .line {
-  margin-top: 22px; padding: 10px 0 6px; border-radius: var(--radius-md);
+  position: relative; margin-top: 22px; padding: 10px 0 6px; border-radius: var(--radius-md);
   background: linear-gradient(180deg, #e9f5ff 0%, #fdf6ec 70%, #f6ead8 100%);
   border: 3px solid var(--border-color); box-shadow: var(--shadow-md);
 }
-.line-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: thin; }
-.line-track { position: relative; height: 250px; margin: 0 auto; }
+/* 能左右滑，但不要滚动条 */
+.line-scroll {
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -ms-overflow-style: none;
+  overscroll-behavior-x: contain; cursor: grab; user-select: none; -webkit-user-select: none;
+}
+.line-scroll::-webkit-scrollbar { display: none; }
+.line-scroll.dragging { cursor: grabbing; }
+.line-scroll.dragging .tag, .line-scroll.dragging .year-flag { pointer-events: none; }
+.line-track { position: relative; margin: 0 auto; }
 .rope { position: absolute; left: 0; top: 0; overflow: visible; }
 .rope path { fill: none; stroke: #9a6b3f; stroke-width: 4; stroke-linecap: round; }
 .pole {
-  position: absolute; top: 14px; width: 18px; height: 226px; border-radius: 9px;
+  position: absolute; top: 14px; width: 18px; border-radius: 9px;
   background: linear-gradient(90deg, #c98b52, #a86e3c); border: 3px solid var(--ink);
 }
 .pole::before {
@@ -94,12 +101,26 @@ button, a { font-family: inherit; }
   border-radius: 7px; background: #c98b52; border: 3px solid var(--ink);
 }
 
+/* 两头还有东西时，边上淡出一点 */
+.line::before, .line::after {
+  content: ""; position: absolute; top: 0; bottom: 0; width: 56px; z-index: 2; pointer-events: none;
+  opacity: 0; transition: opacity 200ms;
+}
+.line::before { left: 0; border-radius: var(--radius-md) 0 0 var(--radius-md); background: linear-gradient(90deg, #f2f4f4, rgba(242, 244, 244, 0)); }
+.line::after { right: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; background: linear-gradient(270deg, #f2f4f4, rgba(242, 244, 244, 0)); }
+.line.more-left::before, .line.more-right::after { opacity: 1; }
+
+/* 展开那一年开头的小旗：点它收起 */
 .year-flag {
-  position: absolute; height: 34px; padding-top: 6px; text-align: center; font-size: 18px; color: #fff;
-  background: var(--accent-blue); border: 3px solid var(--ink); border-top-width: 0;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+  position: absolute; display: flex; flex-direction: column; align-items: center;
+  height: 84px; padding: 8px 0 0; border: 3px solid var(--ink); border-top-width: 0; cursor: pointer;
+  background: var(--accent-blue); color: #fff; font: inherit; line-height: 1.2;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 82%, 0 100%);
   transform-origin: top center; animation: sway 5s ease-in-out infinite alternate;
 }
+.flag-year { font-size: 20px; }
+.flag-fold { margin-top: 4px; font-size: 13px; opacity: 0.85; }
+.year-flag:hover .flag-fold { opacity: 1; text-decoration: underline; }
 
 .tag {
   position: absolute; padding: 0; border: 0; background: none; cursor: pointer;
@@ -127,7 +148,21 @@ button, a { font-family: inherit; }
 }
 .tag:focus-visible { outline: none; }
 .tag:focus-visible .card { outline: 3px solid var(--focus); outline-offset: 3px; }
+/* 年份卡：夹着那年最新一本的小封面 */
+.year-card .card { padding: 12px 10px 10px; }
+.year-card .thumb { display: block; width: 100px; height: auto; border: 3px solid #fff; border-radius: 4px; background: #fff; box-shadow: 0 1px 0 rgba(61, 48, 39, 0.25); }
+.year-card .name { font-size: 15px; color: var(--text-secondary); }
+.year-card:hover .card { translate: 0 -4px; }
 @keyframes sway { from { rotate: -1.8deg; } to { rotate: 1.8deg; } }
+
+/* 窄屏：挂件小一号（和 timeline.ts 的 COMPACT 对应） */
+.line.compact .tag .card { padding: 10px 8px 9px; }
+.line.compact .tag .day { font-size: 20px; }
+.line.compact .tag .name { font-size: 16px; }
+.line.compact .year-card .thumb { width: 84px; }
+.line.compact .year-card .name { font-size: 13px; }
+.line.compact .year-flag { height: 76px; }
+.line.compact .flag-year { font-size: 17px; }
 
 .line-hint { margin: 0; text-align: center; font-size: 14px; color: var(--text-muted); }
 

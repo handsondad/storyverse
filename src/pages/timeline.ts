@@ -1,61 +1,83 @@
 /**
- * 首页的时间绳：故事按发生的日子从左往右挂在一根晾衣绳上，跨年的地方挂一面年份小旗。
+ * 首页的时间绳：每一年收成一张年份卡（那年最新一本的封面 + 几个故事），点开一年，那一年的故事
+ * 按日子从左往右夹在绳子上，年份卡变成开头的一面小旗。一次只开一年。
  * 绳子是一条二次贝塞尔曲线，两头高、中间垂下去；挂件的高度跟着绳子走。
+ * 绳子比屏幕长就左右滑（滚动条藏起来）。和《小念的成长时光轴》首页是同一根绳子。
  */
 import type { Story } from "../story/types.ts";
 
-export const LINE = {
-  tagW: 168,
-  yearW: 60,
-  gap: 26,
+export type LineSize = {
+  readonly tagW: number;
+  readonly yearW: number;
+  readonly flagW: number;
+  readonly gap: number;
   /** 两头留给立杆 */
-  pad: 64,
+  readonly pad: number;
   /** 绳子中间垂下多少 */
-  sag: 36,
+  readonly sag: number;
   /** 绳子两头的高度 */
-  top: 28,
-} as const;
+  readonly top: number;
+  /** 整根绳子连挂件有多高 */
+  readonly rowH: number;
+};
 
+export const LINE: LineSize = { tagW: 168, yearW: 150, flagW: 84, gap: 26, pad: 64, sag: 36, top: 28, rowH: 300 };
+/** 手机上挂件小一号 */
+export const COMPACT: LineSize = { tagW: 132, yearW: 124, flagW: 72, gap: 14, pad: 40, sag: 24, top: 24, rowH: 262 };
+export const sizeFor = (room: number): LineSize => (room > 0 && room < 560 ? COMPACT : LINE);
+
+type Look = { readonly x: number; readonly y: number; readonly tilt: number; readonly color: string };
 export type LineItem =
-  | { readonly kind: "year"; readonly year: number; readonly x: number; readonly y: number }
-  | { readonly kind: "story"; readonly story: Story; readonly x: number; readonly y: number; readonly tilt: number; readonly color: string };
+  | ({ readonly kind: "year"; readonly year: number; readonly stories: readonly Story[] } & Look)
+  | { readonly kind: "flag"; readonly year: number; readonly x: number; readonly y: number }
+  | ({ readonly kind: "story"; readonly story: Story } & Look);
 
 const TILTS = [-3, 2.5, -1.5, 3, -2.5, 1.5];
 const COLORS = ["#ffe3c2", "#d9ecff", "#dff5e8", "#ffe0ea", "#efe4ff", "#fff2b8"];
 
 export const byDate = (a: Story, b: Story) => a.when.date.localeCompare(b.when.date) || a.id.localeCompare(b.id);
+export const yearOf = (s: Story) => Number(s.when.date.slice(0, 4));
 
 /** 绳子在横坐标 x 处垂下多少（0 是两头的高度） */
-export function sagAt(x: number, width: number): number {
-  const t = Math.min(1, Math.max(0, (x - LINE.pad / 2) / (width - LINE.pad)));
-  return 4 * LINE.sag * t * (1 - t);
+export function sagAt(x: number, width: number, size: LineSize = LINE): number {
+  const t = Math.min(1, Math.max(0, (x - size.pad / 2) / (width - size.pad)));
+  return 4 * size.sag * t * (1 - t);
 }
 
-/** minWidth：框比挂件宽时，把绳子拉满，多出来的地方平均分到挂件之间 */
-export function layoutLine(stories: readonly Story[], minWidth = 0): { items: LineItem[]; width: number } {
-  const sorted = [...stories].sort(byDate);
-  const slots: ({ kind: "year"; year: number } | { kind: "story"; story: Story })[] = [];
-  let year = NaN;
-  for (const story of sorted) {
-    const y = Number(story.when.date.slice(0, 4));
-    if (y !== year) slots.push({ kind: "year", year: (year = y) });
-    slots.push({ kind: "story", story });
-  }
-  const widthOf = (s: (typeof slots)[number]) => (s.kind === "year" ? LINE.yearW : LINE.tagW);
-  const content = slots.reduce((sum, s) => sum + widthOf(s), 0) + LINE.gap * Math.max(0, slots.length - 1);
-  const extra = Math.max(0, minWidth - content - LINE.pad * 2) / (slots.length + 1);
-  const gap = LINE.gap + extra;
-  const width = content + LINE.pad * 2 + extra * (slots.length + 1);
+/** 每一年的故事，从早到晚 */
+export function byYear(stories: readonly Story[]): Map<number, Story[]> {
+  const years = new Map<number, Story[]>();
+  for (const s of [...stories].sort(byDate)) years.set(yearOf(s), [...(years.get(yearOf(s)) ?? []), s]);
+  return years;
+}
 
-  let left = LINE.pad + extra;
+/**
+ * open：展开的那一年（null 全收着）。room：框有多宽；框比挂件宽时绳子拉满，
+ * 挂件之间稍微松一点，整串居中，不会散得太开。
+ */
+export function layoutLine(stories: readonly Story[], open: number | null, room = 0, size: LineSize = LINE): { items: LineItem[]; width: number } {
+  type Slot = { kind: "year"; year: number; stories: Story[] } | { kind: "flag"; year: number } | { kind: "story"; story: Story };
+  const slots: Slot[] = [];
+  for (const [year, list] of byYear(stories)) {
+    if (year === open) slots.push({ kind: "flag", year }, ...list.map((story) => ({ kind: "story" as const, story })));
+    else slots.push({ kind: "year", year, stories: list });
+  }
+  const widthOf = (s: Slot) => (s.kind === "year" ? size.yearW : s.kind === "flag" ? size.flagW : size.tagW);
+  const content = slots.reduce((sum, s) => sum + widthOf(s), 0) + size.gap * Math.max(0, slots.length - 1);
+  const width = Math.max(room, content + size.pad * 2);
+  const free = width - size.pad * 2 - content;
+  const extra = Math.min(free / (slots.length + 1), size.tagW / 2);
+
+  let left = size.pad + (free - extra * Math.max(0, slots.length - 1)) / 2;
   let n = 0;
   const items = slots.map((s): LineItem => {
     const x = left + widthOf(s) / 2;
-    left += widthOf(s) + gap;
-    const y = sagAt(x, width);
-    if (s.kind === "year") return { kind: "year", year: s.year, x, y };
+    left += widthOf(s) + size.gap + extra;
+    const y = sagAt(x, width, size);
+    if (s.kind === "flag") return { kind: "flag", year: s.year, x, y };
     const i = n++;
-    return { kind: "story", story: s.story, x, y, tilt: TILTS[i % TILTS.length], color: COLORS[i % COLORS.length] };
+    const look = { x, y, tilt: TILTS[i % TILTS.length], color: COLORS[i % COLORS.length] };
+    return s.kind === "year" ? { kind: "year", year: s.year, stories: s.stories, ...look } : { kind: "story", story: s.story, ...look };
   });
   return { items, width };
 }
