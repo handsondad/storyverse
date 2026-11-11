@@ -94,6 +94,21 @@ export function Head({ spec, face, talking, blink }: HeadProps) {
       ))}
       {look.glasses && <Glasses x={ex} t={t} y={ey} w={ew * 3.3} h={eh * 2.5} color={look.glasses} line={line * 0.9} />}
       <FrontHair spec={spec} />
+      {look.cap && <NurseCap rx={rx} ry={ry} t={t} color={look.cap} line={line} />}
+    </g>
+  );
+}
+
+function NurseCap({ rx, ry, t, color, line }: { rx: number; ry: number; t: number; color: string; line: number }) {
+  const x = t * 0.6;
+  const y = -ry * 1.12;
+  const w = rx * 0.62;
+  const h = ry * 0.36;
+  const c = h * 0.32;
+  return (
+    <g>
+      <path d={`M ${x - w},${y + h} L ${x - w * 0.8},${y} L ${x + w * 0.8},${y} L ${x + w},${y + h} Z`} fill={color} stroke={INK} strokeWidth={line * 0.8} strokeLinejoin="round" />
+      <path d={`M ${x},${y + h / 2 - c} L ${x},${y + h / 2 + c} M ${x - c},${y + h / 2} L ${x + c},${y + h / 2}`} stroke="#ff6b81" strokeWidth={line * 0.9} strokeLinecap="round" />
     </g>
   );
 }

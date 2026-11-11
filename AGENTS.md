@@ -4,7 +4,7 @@
 
 「小念家的漫画书」：孩子和家人一起编故事，用代码画成漫画，发布到 GitHub Pages。没有后端，没有 AI 生图；故事是 `src/stories/` 里的 TypeScript 数据，画面由 SVG 引擎按数据画出来。
 
-固定角色：小念（男孩）、爸爸、妈妈，是主角也是创作者。家里其他人只作为角色出场，目前有姥爷（`laoye`，妈妈的爸爸）。和《身体奇遇记》是同一个系列。
+固定角色：小念（男孩）、爸爸、妈妈，是主角也是创作者。家里其他人只作为角色出场，目前有姥爷（`laoye`，妈妈的爸爸）。外人按职业出场，目前有护士（`nurse`）。和《身体奇遇记》是同一个系列。
 
 技术栈：React 18 + TypeScript（strict）+ Vite 5。Hash 路由，相对路径资源，部署在任意子路径下都能打开。
 
@@ -45,7 +45,7 @@
 - `src/stories/index.ts`：书架列表
 - `src/cast/`：角色骨架、表情、姿势；`chair.ts` 是椅子和往后翘（画图、排版共用一套数）
 - `src/engine/`：版式、镜头、气泡排布、折行（纯函数）
-- `src/scenes/`：背景（客厅、餐厅、卫生间、公园、卧室、美术馆、地铁、纯色、放射线）和饭桌
+- `src/scenes/`：背景（客厅、餐厅、卫生间、医院走廊、公园、卧室、美术馆、地铁、纯色、放射线）和饭桌
 - `src/render/`：SVG 画图组件
 - `public/fonts/story.woff`：站酷快乐体子集（OFL）
 - `tools/snapshot.mjs`：无头浏览器截 PNG
@@ -73,8 +73,8 @@
   - 不写真名、学校、住址。
   - 孩子自己录的声音默认放 `private/`，不进仓库；要公开才手动挪到 `public/voice/`。
   - 不写吓人、暴力、色情内容；不确定就先问大人。
-- **角色**：小念是男孩，用「他」；爸爸「他」；妈妈「她」；姥爷「他」。加新家人角色要先问大人。
-- **配音**：小念 `zh-CN-YunxiaNeural`，爸爸 `zh-CN-YunxiNeural`，妈妈 `zh-CN-XiaoxiaoNeural`，姥爷 `zh-CN-YunjianNeural`（放慢、压低）。旁白也用妈妈的声音（放慢一点），不另找别人的声音。设置在 `src/story/script.ts`。
+- **角色**：小念是男孩，用「他」；爸爸「他」；妈妈「她」；姥爷「他」；护士「她」。加新家人角色要先问大人。
+- **配音**：小念 `zh-CN-YunxiaNeural`，爸爸 `zh-CN-YunxiNeural`，妈妈 `zh-CN-XiaoxiaoNeural`，姥爷 `zh-CN-YunjianNeural`（放慢、压低），护士 `zh-CN-XiaoyiNeural`。旁白也用妈妈的声音（放慢一点），不另找别人的声音。设置在 `src/story/script.ts`。
 - **素材许可**：站酷快乐体是 OFL；新素材要在 `THIRD_PARTY_NOTICES.md` 写明来源。
 - **代码风格**：照周围代码写。中文注释只写代码本身表达不了的约束；改动要小而完整。
 

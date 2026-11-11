@@ -42,6 +42,7 @@ export const POSE_ANGLES: Record<Pose, PoseAngles> = {
   run: { armL: [48, 34], armR: [58, -84], legL: [34, 54], legR: [48, -64], lean: 12, lift: 0.03 },
   sit: { armL: [-22, -38], armR: [22, -48], legL: [-76, 76], legR: [76, -76], seat: true, thighScale: 0.82 },
   push: { armL: [-60, -20], armR: [62, 14], legL: [-84, 0], legR: [86, 0], lean: -14, tilt: -4, thighScale: 0.9 },
+  recline: { armL: [-24, -84], armR: [30, -96], legL: [-88, 0], legR: [88, 0], lean: -38, tilt: 22, thighScale: 0.95 },
   crouch: { armL: [34, -56], armR: [38, -60], legL: [58, -96], legR: [58, -96], lean: 10 },
   shrug: { armL: [38, 78], armR: [38, 78], ...legs, tilt: -8, handL: "open", handR: "open" },
   hug: { armL: [-72, 4], armR: [76, -4], ...legs, lean: 6, handL: "open", handR: "open" },

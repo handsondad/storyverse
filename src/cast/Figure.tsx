@@ -40,6 +40,7 @@ export function Figure({ spec, pose = "stand", face = "neutral", facing = "right
         <FigureBody spec={spec} sk={sk} pose={pose} face={face} flip={flip} talking={talking} hold={hold} blink={blink}
           headT={headT} stool={!!angles.seat && !chair} line={line} longSleeve={longSleeve} />
       </g>
+      {chair?.kind === "bed" && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Blanket s={chair} spec={spec} /></g>}
     </g>
   );
 }
@@ -299,8 +300,52 @@ function Stool({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
   );
 }
 
+/** 医院推床：斜靠背、白床垫、金属架子和轮子；远处一侧有护栏 */
+function Bed({ s, spec }: { s: Seating; spec: CharacterSpec }) {
+  const o = ow(spec) * 2;
+  const metal = "#aab6c2";
+  const sheet = "#eef6ff";
+  const frame = [
+    `M ${s.back + 40},${s.seat + 30} L ${s.back + 40},-24`,
+    `M ${s.front - 40},${s.seat + 30} L ${s.front - 40},-24`,
+    `M ${s.back + 20},${s.seat + 44} L ${s.front - 20},${s.seat + 44}`,
+  ].join(" ");
+  const rail = `M ${s.hinge + 30},${s.seat - 46} L ${s.front - 70},${s.seat - 46} M ${s.hinge + 40},${s.seat - 46} L ${s.hinge + 40},${s.seat} M ${s.front - 80},${s.seat - 46} L ${s.front - 80},${s.seat}`;
+  const rest = `M ${s.hinge + 10},${s.seat + 6} L ${s.back + 30},${s.rest}`;
+  return (
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <path d={`${frame} ${rail}`} fill="none" stroke={INK} strokeWidth={12 + o} />
+      <path d={`${frame} ${rail}`} fill="none" stroke={metal} strokeWidth={12} />
+      {[s.back + 40, s.front - 40].map((x) => <circle key={x} cx={x} cy={-16} r={16} fill="#5d6670" stroke={INK} strokeWidth={o} />)}
+      <path d={rest} fill="none" stroke={INK} strokeWidth={46 + o} />
+      <path d={rest} fill="none" stroke={sheet} strokeWidth={46} />
+      <rect x={s.back + 10} y={s.seat - 4} width={s.front - s.back - 10} height={36} rx={16} fill={sheet} stroke={INK} strokeWidth={o} />
+    </g>
+  );
+}
+
+/** 盖在腿上的被子，画在人前面 */
+function Blanket({ s, spec }: { s: Seating; spec: CharacterSpec }) {
+  const o = ow(spec) * 2;
+  const { limb, hip } = spec.body;
+  const x0 = s.hinge - hip * 0.4;
+  const x1 = s.front - 6;
+  const top = s.seat - limb * 2.1;
+  const y1 = s.seat + 14;
+  const d = `M ${x0},${y1} L ${x0},${top + 30} Q ${x0 + 10},${top} ${x0 + 60},${top + 6}
+    Q ${(x0 + x1) / 2},${top - 10} ${x1 - 40},${top + 10} Q ${x1},${top + 14} ${x1},${top + 50} L ${x1},${y1} Z`;
+  return (
+    <g>
+      <path d={d} fill="#bfe0ff" stroke={INK} strokeWidth={o} strokeLinejoin="round" />
+      <path d={`M ${x0 + 30},${top + 34} Q ${(x0 + x1) / 2},${top + 20} ${x1 - 30},${top + 38}`} fill="none" stroke="#ffffff" strokeWidth={8} strokeLinecap="round" opacity={0.7} />
+      {[0.3, 0.55, 0.8].map((k) => <circle key={k} cx={x0 + (x1 - x0) * k} cy={y1 - 22} r={7} fill="#ffffff" opacity={0.8} />)}
+    </g>
+  );
+}
+
 /** 带靠背的椅子；high-chair 是小孩的高脚餐椅，多一根踏脚横杆 */
 function Chair({ s, spec }: { s: Seating; spec: CharacterSpec }) {
+  if (s.kind === "bed") return <Bed s={s} spec={spec} />;
   const o = ow(spec) * 2;
   const high = s.kind === "high-chair";
   const wood = high ? "#f4b26a" : "#c98b52";

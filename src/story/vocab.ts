@@ -33,6 +33,7 @@ export const POSES = [
   "run",    // 跑
   "sit",    // 坐在小凳子上（写了 seat 就坐椅子）
   "push",   // 坐着，两条腿往前伸直蹬，身子往后仰
+  "recline", // 半躺着（配 seat: "bed"）
   "crouch", // 蹲下
   "shrug",  // 摊手
   "hug",    // 张开手臂往前抱
@@ -41,8 +42,12 @@ export const POSES = [
 export type Pose = (typeof POSES)[number];
 
 /** 地点。plain 是纯色底，burst 是漫画里"轰"一下的放射线底 */
-export const PLACES = ["living-room", "dining-room", "bathroom", "park", "bedroom", "museum", "subway", "plain", "burst"] as const;
+export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "park", "bedroom", "museum", "subway", "plain", "burst"] as const;
 export type Place = (typeof PLACES)[number];
+
+/** 画出来的道具（表情符号里没有的东西） */
+export const THINGS = ["pillow", "baby", "band"] as const;
+export type ThingKind = (typeof THINGS)[number];
 
 export const TIMES = ["morning", "day", "evening", "night"] as const;
 export type TimeOfDay = (typeof TIMES)[number];

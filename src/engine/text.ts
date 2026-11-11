@@ -20,7 +20,7 @@ export function textWidth(text: string, size: number): number {
 }
 
 /**
- * 按最大宽度折行，标点不放在行首。
+ * 按最大宽度折行，标点不放在行首，数字不放在行尾（「16点」「2024年」不拆开）。
  * maxWidth 是像素；返回每一行的文字。尽量让每行一样长（4 个字 + 1 个字 不如 3 + 2 好看）。
  */
 export function wrap(text: string, size: number, maxWidth: number): string[] {
@@ -35,7 +35,8 @@ export function wrap(text: string, size: number, maxWidth: number): string[] {
   for (let i = 0; i < chars.length; i++) {
     const ch = chars[i];
     const cw = charWidth(ch) * size;
-    if (line && w + cw > target && !NO_LINE_START.includes(ch) && !NO_LINE_END.includes(chars[i - 1])) {
+    const prev = chars[i - 1];
+    if (line && w + cw > target && !NO_LINE_START.includes(ch) && !NO_LINE_END.includes(prev) && !/\d/.test(prev)) {
       out.push(line);
       line = "";
       w = 0;

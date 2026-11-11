@@ -83,7 +83,28 @@ const laoye: CharacterSpec = {
   bubble: "#f4ece0",
 };
 
-export const CAST = { nian, dad, mom, laoye } as const;
+/** 不是家里人：医院里的护士阿姨，只在故事里出场 */
+const nurse: CharacterSpec = {
+  id: "nurse",
+  name: "护士",
+  pronoun: "她",
+  age: "大人",
+  about: "医院里的护士阿姨，戴白色护士帽，穿粉色护士服，说话利索",
+  voice: "zh-CN-XiaoyiNeural",
+  body: {
+    headRx: 64, headRy: 70, neck: 14, torso: 150, shoulder: 50, hip: 34,
+    upperArm: 84, foreArm: 80, thigh: 108, shin: 105, limb: 27, hand: 16,
+  },
+  look: {
+    skin: "#fbd7b5", hair: "#2e211b", hairStyle: "bob", eyeScale: 0.85,
+    top: { color: "#f59ab5", sleeve: "short", collar: "round" },
+    bottom: { kind: "pants", color: "#f59ab5" },
+    shoes: "#ffffff", cap: "#ffffff", blush: 0.3,
+  },
+  bubble: "#ffeef3",
+};
+
+export const CAST = { nian, dad, mom, laoye, nurse } as const;
 export type CharacterId = keyof typeof CAST;
 export const CHARACTER_IDS = Object.keys(CAST) as CharacterId[];
 

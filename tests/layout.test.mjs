@@ -52,3 +52,9 @@ test("中文折行：标点不落在行首", () => {
   }
   assert.ok(textWidth("小念", 34) > textWidth("ab", 34));
 });
+
+test("中文折行：数字和后面的字不拆开", () => {
+  for (const line of wrap("哦……是16点04分！", 34, 34 * 5)) {
+    assert.ok(!/\d$/.test(line), `行尾是数字：${line}`);
+  }
+});

@@ -16,6 +16,7 @@ export const VOICES: Record<CharacterId, Voice> = {
   mom: { voice: CAST.mom.voice, rate: "+0%" },
   // 中文里没有现成的老人声音：最低沉的男声放慢、压低一点
   laoye: { voice: CAST.laoye.voice, rate: "-15%", pitch: "-8Hz" },
+  nurse: { voice: CAST.nurse.voice, rate: "+0%" },
 };
 const NARRATOR_RATE = "-12%";
 

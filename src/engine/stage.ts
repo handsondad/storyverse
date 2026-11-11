@@ -93,11 +93,19 @@ export function propBox(p: Prop): Box {
 
 /** 画出来的东西有多高；size 是它的宽 */
 export function thingHeight(t: Thing, size: number): number {
-  const puff = Math.min(1, Math.max(0, t.puff ?? 1));
-  return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
+  switch (t.kind) {
+    case "pillow": {
+      const puff = Math.min(1, Math.max(0, t.puff ?? 1));
+      return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
+    }
+    case "baby": return size * 0.62;
+    case "band": return size * 0.42;
+  }
 }
+
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {
-  return p.emoji ?? (p.thing?.kind === "pillow" ? "枕头" : "道具");
+  return p.emoji ?? (p.thing ? THING_NAMES[p.thing.kind] : "道具");
 }

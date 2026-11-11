@@ -42,7 +42,7 @@ description: >-
 
 ### 2. 定角色
 
-主角是 `nian` / `dad` / `mom`。家里其他人可以作为角色出场，现在有姥爷 `laoye`；他们不署名。故事里出现还没有的家人，先问大人要不要加，再照 `laoye` 在 `src/cast/characters.ts` 里加一个（`look` 管长相，`voice` 选一个声音），并在 `src/story/script.ts` 的 `VOICES` 里配上。想换衣服颜色，改 `look`，先跑 `npm run snapshot -- cast <id>` 给孩子看样张。
+主角是 `nian` / `dad` / `mom`。家里其他人可以作为角色出场，现在有姥爷 `laoye`；他们不署名。真事里遇到的外人（比如医院的护士阿姨 `nurse`）也只出场、不署名，按职业叫，不写名字。故事里出现还没有的家人，先问大人要不要加，再照 `laoye` 在 `src/cast/characters.ts` 里加一个（`look` 管长相，`voice` 选一个声音），并在 `src/story/script.ts` 的 `VOICES` 里配上。想换衣服颜色，改 `look`，先跑 `npm run snapshot -- cast <id>` 给孩子看样张。
 
 ### 3. 分镜
 

@@ -7,7 +7,7 @@
 import type { SeatKind } from "../cast/chair.ts";
 import type { CharacterId, CreatorId } from "../cast/characters.ts";
 import type { LayoutId } from "../engine/layout.ts";
-import type { BubbleKind, Expression, Place, Pose, Shot, Slot, TimeOfDay, Weather } from "./vocab.ts";
+import type { BubbleKind, Expression, Place, Pose, Shot, Slot, ThingKind, TimeOfDay, Weather } from "./vocab.ts";
 
 export type Actor = {
   readonly who: CharacterId;
@@ -27,12 +27,13 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow：乳胶枕 */
-  readonly kind: "pillow";
-  /** 鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
+  /** pillow 乳胶枕；baby 裹在襁褓里的小宝宝；band 宝宝手腕上的腕带（特写） */
+  readonly kind: ThingKind;
+  /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
-  /** 还装在密封袋里；label 是袋子上贴的小标签，比如年份 */
+  /** 枕头还装在密封袋里 */
   readonly sealed?: boolean;
+  /** 枕头袋子上的小标签，或者腕带上写的字 */
   readonly label?: string;
 };
 

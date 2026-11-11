@@ -29,6 +29,7 @@ export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
     case "living-room": return <LivingRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "dining-room": return <DiningRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "bathroom": return <Bathroom />;
+    case "hospital": return <Hospital />;
     case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
@@ -256,6 +257,40 @@ function Bathroom() {
       <path d={`M 1300,${G - 560} L 1450,${G - 560}`} {...line} strokeWidth={10} />
       <text x={950} y={G - 470} fontSize={70} textAnchor="middle" fontFamily={EMOJI_FONT}>🧼</text>
       <text x={1200} y={G - 470} fontSize={60} textAnchor="middle" fontFamily={EMOJI_FONT}>🪥</text>
+    </g>
+  );
+}
+
+/** 医院走廊：产房的双开门、扶手、长椅、挂钟 */
+function Hospital() {
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#eaf6f1" />
+      {[150, 750, 1350].map((x) => <rect key={x} x={x - 120} y={Y0 + 380} width={240} height={36} rx={10} fill="#ffffff" {...line} strokeWidth={4} />)}
+      <rect x={X0} y={G - 280} width={W} height={210} fill="#cfe9df" />
+      <path d={`M ${X0},${G - 300} L ${X0 + W},${G - 300}`} stroke={INK} strokeWidth={18} strokeLinecap="round" />
+      <path d={`M ${X0},${G - 300} L ${X0 + W},${G - 300}`} stroke="#c9d3db" strokeWidth={10} strokeLinecap="round" />
+      <g>
+        <rect x={960} y={G - 560} width={440} height={490} fill="#9ecfe8" {...line} />
+        <path d={`M 1180,${G - 560} L 1180,${G - 70}`} {...line} />
+        {[1020, 1240].map((x) => <rect key={x} x={x} y={G - 500} width={100} height={120} rx={8} fill="#e3f4fb" {...line} strokeWidth={4} />)}
+        {[1160, 1200].map((x) => <path key={x} d={`M ${x},${G - 340} l 0,60`} {...line} strokeWidth={8} />)}
+        <rect x={1060} y={G - 650} width={240} height={70} rx={12} fill="#ff8fa3" {...line} />
+        <text x={1180} y={G - 615} fontSize={44} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">产房</text>
+      </g>
+      <g>
+        <circle cx={620} cy={300} r={64} fill="#ffffff" {...line} />
+        <path d="M 620,300 L 648,316 M 620,300 L 620,250" {...line} strokeWidth={7} />
+        <circle cx={620} cy={300} r={7} fill={INK} />
+      </g>
+      <g>
+        <rect x={120} y={G - 200} width={360} height={36} rx={12} fill="#7fc4a8" {...line} />
+        <rect x={130} y={G - 270} width={340} height={60} rx={14} fill="#7fc4a8" {...line} />
+        {[150, 450].map((x) => <path key={x} d={`M ${x},${G - 164} L ${x},${G - 70}`} {...line} strokeWidth={10} />)}
+      </g>
+      <rect x={X0} y={G - 70} width={W} height={H} fill="#dfe7ec" />
+      {Array.from({ length: 24 }, (_, i) => <path key={i} d={`M ${X0 + i * 120},${G - 70} L ${X0 + i * 120 - 40},${G + 400}`} stroke="#c8d3da" strokeWidth={4} />)}
+      <path d={`M ${X0},${G - 70} L ${X0 + W},${G - 70}`} {...line} strokeWidth={4} opacity={0.5} />
     </g>
   );
 }
@@ -490,8 +525,61 @@ export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
       )}
       {(prop.lift ?? 0) < 10 && <ellipse cx={x} cy={STAGE.ground} rx={size * 0.4} ry={size * 0.08} fill="#000" opacity={0.12} />}
       {prop.thing
-        ? <Pillow x={x} bottom={bottom} w={size} thing={prop.thing} />
+        ? <ThingView x={x} bottom={bottom} w={size} thing={prop.thing} />
         : <text x={x} y={y} fontSize={size} textAnchor="middle" dominantBaseline="central" fontFamily={EMOJI_FONT}>{prop.emoji}</text>}
+    </g>
+  );
+}
+
+function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
+  switch (p.thing.kind) {
+    case "pillow": return <Pillow {...p} />;
+    case "baby": return <Baby {...p} />;
+    case "band": return <Band {...p} />;
+  }
+}
+
+/** 裹在襁褓里睡着的小宝宝，头朝左 */
+function Baby({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.62;
+  const cy = bottom - h / 2;
+  const r = h * 0.4;
+  const hx = x - w * 0.28;
+  const hy = cy - h * 0.04;
+  const wrap = "#cfe6ff";
+  const eye = { fill: "none", stroke: INK, strokeWidth: 4, strokeLinecap: "round" as const };
+  return (
+    <g>
+      <ellipse cx={x + w * 0.08} cy={cy} rx={w * 0.42} ry={h * 0.46} fill={wrap} {...line} strokeWidth={5} />
+      <circle cx={hx} cy={hy} r={r * 1.28} fill={wrap} {...line} strokeWidth={5} />
+      <path d={`M ${x - w * 0.05},${cy - h * 0.32} Q ${x + w * 0.15},${cy + h * 0.05} ${x + w * 0.42},${cy - h * 0.1}`} fill="none" stroke="#ffffff" strokeWidth={6} strokeLinecap="round" opacity={0.8} />
+      <path d={`M ${x + w * 0.02},${cy + h * 0.38} Q ${x + w * 0.2},${cy + h * 0.1} ${x + w * 0.46},${cy + h * 0.12}`} fill="none" stroke={INK} strokeWidth={3} opacity={0.3} />
+      <circle cx={hx} cy={hy} r={r} fill="#ffd9b8" {...line} strokeWidth={4} />
+      <path d={`M ${hx - r * 0.15},${hy - r * 0.95} q ${r * 0.25},${-r * 0.3} ${r * 0.35},${r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={5} strokeLinecap="round" />
+      <path d={`M ${hx - r * 0.5},${hy - r * 0.05} q ${r * 0.16},${r * 0.14} ${r * 0.32},0 M ${hx + r * 0.18},${hy - r * 0.05} q ${r * 0.16},${r * 0.14} ${r * 0.32},0`} {...eye} />
+      <path d={`M ${hx - r * 0.12},${hy + r * 0.38} q ${r * 0.12},${r * 0.12} ${r * 0.24},0`} {...eye} strokeWidth={3.5} />
+      {[-1, 1].map((s) => <ellipse key={s} cx={hx + s * r * 0.55} cy={hy + r * 0.3} rx={r * 0.18} ry={r * 0.1} fill="#ff7b7b" opacity={0.45} />)}
+    </g>
+  );
+}
+
+/** 腕带特写：胖乎乎的小手腕上套一条腕带，上面写着字 */
+function Band({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const h = w * 0.42;
+  const cy = bottom - h / 2;
+  const arm = h * 0.62;
+  const bw = w * 0.62;
+  const bh = h * 0.78;
+  return (
+    <g>
+      <rect x={x - w * 0.5} y={cy - arm / 2} width={w * 0.86} height={arm} rx={arm / 2} fill="#ffd9b8" {...line} strokeWidth={5} />
+      <circle cx={x + w * 0.38} cy={cy} r={arm * 0.72} fill="#ffd9b8" {...line} strokeWidth={5} />
+      <path d={`M ${x + w * 0.38},${cy - arm * 0.3} q ${arm * 0.3},${arm * 0.3} 0,${arm * 0.6}`} fill="none" stroke={INK} strokeWidth={3} opacity={0.4} />
+      <rect x={x - bw / 2 - w * 0.06} y={cy - bh / 2} width={bw} height={bh} rx={18} fill="#ffffff" {...line} strokeWidth={5} />
+      <rect x={x - bw / 2 - w * 0.06} y={cy - bh / 2} width={bw * 0.16} height={bh} rx={14} fill="#9fd3ff" {...line} strokeWidth={4} />
+      {thing.label && (
+        <text x={x - w * 0.06 + bw * 0.08} y={cy} fontSize={bh * 0.42} textAnchor="middle" dominantBaseline="central" fill={INK} className="story-font">{thing.label}</text>
+      )}
     </g>
   );
 }

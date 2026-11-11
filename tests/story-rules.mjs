@@ -11,7 +11,7 @@ import { textWidth } from "../src/engine/text.ts";
 import { lineHash, storyScript } from "../src/story/script.ts";
 import { VOICE_CLIPS } from "../src/story/voice-manifest.ts";
 import { CHARS_FILE, needsStoryFont } from "../tools/font/subset.mjs";
-import { EXPRESSIONS, PLACES, POSES, SHOTS, TIMES, WEATHERS } from "../src/story/vocab.ts";
+import { EXPRESSIONS, PLACES, POSES, SHOTS, THINGS, TIMES, WEATHERS } from "../src/story/vocab.ts";
 import { SEATS } from "../src/cast/chair.ts";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -70,9 +70,9 @@ export function checkStory(story) {
     }
     for (const p of panel.props ?? []) {
       if (!p.emoji === !p.thing) say(where, "道具的 emoji 和 thing 只写一个");
-      if (p.thing && p.thing.kind !== "pillow") say(where, `没有能画的东西 ${p.thing.kind}`);
+      if (p.thing && !THINGS.includes(p.thing.kind)) say(where, `没有能画的东西 ${p.thing.kind}`);
       if (p.thing?.puff !== undefined && (p.thing.puff < 0 || p.thing.puff > 1)) say(where, `puff ${p.thing.puff} 应在 0～1`);
-      if (p.thing?.label && chars(p.thing.label) > 6) say(where, "thing.label 不超过 6 个字");
+      if (p.thing?.label && chars(p.thing.label) > 8) say(where, "thing.label 不超过 8 个字");
     }
 
     let bubbleCount = 0;
