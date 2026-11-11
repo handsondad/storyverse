@@ -534,7 +534,7 @@ export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
 function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
   switch (p.thing.kind) {
     case "pillow": return <Pillow {...p} />;
-    case "baby": return <Baby {...p} />;
+    case "baby": return p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
     case "band": return <Band {...p} />;
   }
 }
@@ -559,6 +559,65 @@ function Baby({ x, bottom, w }: { x: number; bottom: number; w: number }) {
       <path d={`M ${hx - r * 0.5},${hy - r * 0.05} q ${r * 0.16},${r * 0.14} ${r * 0.32},0 M ${hx + r * 0.18},${hy - r * 0.05} q ${r * 0.16},${r * 0.14} ${r * 0.32},0`} {...eye} />
       <path d={`M ${hx - r * 0.12},${hy + r * 0.38} q ${r * 0.12},${r * 0.12} ${r * 0.24},0`} {...eye} strokeWidth={3.5} />
       {[-1, 1].map((s) => <ellipse key={s} cx={hx + s * r * 0.55} cy={hy + r * 0.3} rx={r * 0.18} ry={r * 0.1} fill="#ff7b7b" opacity={0.45} />)}
+    </g>
+  );
+}
+
+/** 只穿纸尿裤、仰面躺着的宝宝，从上往下看，头朝左，两条小腿像青蛙一样弯着 */
+function LyingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const h = w * 0.5;
+  const cy = bottom - h / 2;
+  const skin = "#ffd9b8";
+  const r = h * 0.4;
+  const hx = x - w * 0.3;
+  const limb = h * 0.17;
+  const nx = x + w * 0.02;
+  const diaperL = thing.diaper === "high" ? x - w * 0.06 : x + w * 0.07;
+  const diaperR = x + w * 0.24;
+  const dh = h * 0.34;
+  const sausage = (d: string, key: string) => (
+    <g key={key}>
+      <path d={d} fill="none" stroke={INK} strokeWidth={limb + 10} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={skin} strokeWidth={limb} strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+  const eye = { fill: "none", stroke: INK, strokeWidth: Math.max(3, w * 0.008), strokeLinecap: "round" as const };
+  return (
+    <g>
+      {[-1, 1].map((s) => sausage(`M ${x + w * 0.16},${cy + s * h * 0.16} L ${x + w * 0.3},${cy + s * h * 0.38} L ${x + w * 0.42},${cy + s * h * 0.24}`, `leg${s}`))}
+      {[-1, 1].map((s) => sausage(`M ${x - w * 0.12},${cy + s * h * 0.26} L ${x - w * 0.16},${cy + s * h * 0.44} L ${x - w * 0.22},${cy + s * h * 0.36}`, `arm${s}`))}
+      <ellipse cx={x} cy={cy} rx={w * 0.2} ry={h * 0.36} fill={skin} {...line} strokeWidth={5} />
+      {thing.diaper !== "high" && <Navel x={nx} y={cy} r={w * 0.022} kind={thing.navel ?? "stump"} />}
+      <g>
+        <rect x={diaperL} y={cy - dh} width={diaperR - diaperL} height={dh * 2} rx={dh * 0.5}
+          fill={thing.diaper === "airy" ? "#f2fbff" : "#ffffff"} {...line} strokeWidth={5} />
+        {thing.diaper === "airy" && (
+          <>
+            <rect x={diaperL} y={cy - dh} width={w * 0.035} height={dh * 2} rx={w * 0.015} fill="#bfe6ff" {...line} strokeWidth={4} />
+            {[-0.5, 0, 0.5].flatMap((fy) => [0.45, 0.7].map((fx) => (
+              <circle key={`${fx}${fy}`} cx={diaperL + (diaperR - diaperL) * fx} cy={cy + dh * fy} r={w * 0.009} fill="#9fd3ff" />
+            )))}
+          </>
+        )}
+        {thing.diaper !== "airy" && <path d={`M ${diaperL + w * 0.03},${cy - dh * 0.55} q ${w * 0.03},${dh * 0.55} 0,${dh * 1.1}`} fill="none" stroke="#d6e4f0" strokeWidth={5} strokeLinecap="round" />}
+      </g>
+      <circle cx={hx} cy={cy} r={r} fill={skin} {...line} strokeWidth={5} />
+      <path d={`M ${hx - r * 0.75},${cy - r * 0.2} q ${-r * 0.3},${r * 0.2} 0,${r * 0.4}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />
+      <path d={`M ${hx - r * 0.1},${cy - r * 0.55} q ${-r * 0.14},${r * 0.16} 0,${r * 0.32} M ${hx - r * 0.1},${cy + r * 0.23} q ${-r * 0.14},${r * 0.16} 0,${r * 0.32}`} {...eye} />
+      <path d={`M ${hx + r * 0.4},${cy - r * 0.12} q ${r * 0.12},${r * 0.12} 0,${r * 0.24}`} {...eye} />
+      {[-1, 1].map((s) => <ellipse key={s} cx={hx + r * 0.25} cy={cy + s * r * 0.62} rx={r * 0.1} ry={r * 0.17} fill="#ff7b7b" opacity={0.45} />)}
+    </g>
+  );
+}
+
+/** 肚脐：脐带根、发炎的一圈红、长好的小窝 */
+function Navel({ x, y, r, kind }: { x: number; y: number; r: number; kind: "stump" | "sore" | "healed" }) {
+  if (kind === "healed") return <path d={`M ${x - r * 0.6},${y - r * 0.4} q ${r * 0.9},${r * 0.4} 0,${r * 0.8}`} fill="none" stroke={INK} strokeWidth={Math.max(3, r * 0.3)} strokeLinecap="round" opacity={0.6} />;
+  return (
+    <g>
+      {kind === "sore" && <circle cx={x} cy={y} r={r * 2.6} fill="#ff8a8a" opacity={0.45} />}
+      {kind === "sore" && <circle cx={x} cy={y} r={r * 1.7} fill="#ff6b6b" opacity={0.35} />}
+      <ellipse cx={x} cy={y} rx={r} ry={r * 0.8} fill="#c9a46a" stroke={INK} strokeWidth={Math.max(3, r * 0.25)} />
     </g>
   );
 }

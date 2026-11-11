@@ -5,7 +5,7 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { CHARACTER_IDS, CREATOR_IDS } from "../src/cast/characters.ts";
+import { CHARACTER_IDS, CREATOR_IDS, OUTFIT_IDS } from "../src/cast/characters.ts";
 import { storyIssues } from "../src/engine/compose.ts";
 import { textWidth } from "../src/engine/text.ts";
 import { lineHash, storyScript } from "../src/story/script.ts";
@@ -65,6 +65,7 @@ export function checkStory(story) {
       if (a.face && !EXPRESSIONS.includes(a.face)) say(where, `没有表情 ${a.face}`);
       if (typeof a.at === "number" && (a.at < 0 || a.at > 1)) say(where, `站位 ${a.at} 应在 0～1`);
       if (a.seat && !SEATS.includes(a.seat)) say(where, `没有椅子 ${a.seat}`);
+      if (a.outfit && !OUTFIT_IDS.includes(a.outfit)) say(where, `没有这身衣服 ${a.outfit}（有：${OUTFIT_IDS.join("、")}）`);
       if (a.tip !== undefined && !a.seat) say(where, `${a.who} 写了 tip 就要写 seat：是椅子在翘`);
       if (a.tip !== undefined && (a.tip < 0 || a.tip > 90)) say(where, `tip ${a.tip} 应在 0～90 度`);
     }
@@ -73,6 +74,10 @@ export function checkStory(story) {
       if (p.thing && !THINGS.includes(p.thing.kind)) say(where, `没有能画的东西 ${p.thing.kind}`);
       if (p.thing?.puff !== undefined && (p.thing.puff < 0 || p.thing.puff > 1)) say(where, `puff ${p.thing.puff} 应在 0～1`);
       if (p.thing?.label && chars(p.thing.label) > 8) say(where, "thing.label 不超过 8 个字");
+      if ((p.thing?.diaper || p.thing?.navel) && p.thing.kind !== "baby") say(where, "diaper、navel 只给 baby 用");
+      if (p.thing?.diaper && !["high", "low", "airy"].includes(p.thing.diaper)) say(where, `没有这种纸尿裤 ${p.thing.diaper}`);
+      if (p.thing?.navel && !["stump", "sore", "healed"].includes(p.thing.navel)) say(where, `navel 只能是 stump / sore / healed`);
+      if (p.thing?.navel && !p.thing.diaper) say(where, "襁褓里看不见肚脐：写 navel 就要写 diaper");
     }
 
     let bubbleCount = 0;

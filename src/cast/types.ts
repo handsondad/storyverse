@@ -42,7 +42,7 @@ export type Look = {
   readonly mustache?: string;
   /** 眼角、额头的皱纹 */
   readonly wrinkles?: boolean;
-  /** 护士帽的颜色 */
+  /** 护士帽的颜色（一般由 outfit 给） */
   readonly cap?: string;
   /** 脸颊红晕的浓淡 0～1 */
   readonly blush: number;

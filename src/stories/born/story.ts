@@ -44,12 +44,12 @@ const story: Story = {
           shot: "wide",
           actors: [
             mom(0.36, "left"),
-            { who: "nurse", at: 0.6, pose: "hug", face: "happy", facing: "left" },
+            { who: "ayi", outfit: "nurse", at: 0.6, pose: "hug", face: "happy", facing: "left" },
           ],
           props: [baby(0.36, "left")],
           beats: [
             { caption: "门开了，护士阿姨推着妈妈和宝宝出来了。" },
-            { say: "nurse", text: "妈妈和宝宝都很好！" },
+            { say: "ayi", text: "妈妈和宝宝都很好！" },
           ],
         },
         {
@@ -70,12 +70,12 @@ const story: Story = {
           actors: [
             { who: "dad", at: 0.16, pose: "stand", face: "happy", facing: "right" },
             mom(0.44, "right"),
-            { who: "nurse", at: 0.8, pose: "hold", face: "neutral", facing: "left", hold: "📋" },
+            { who: "ayi", outfit: "nurse", at: 0.8, pose: "hold", face: "neutral", facing: "left", hold: "📋" },
           ],
           props: [baby(0.44, "right")],
           beats: [
             { caption: "护士阿姨要和爸爸核对宝宝腕带上的信息。" },
-            { say: "nurse", text: "来，您念一下腕带。" },
+            { say: "ayi", text: "来，您念一下腕带。" },
           ],
         },
         {
@@ -90,11 +90,11 @@ const story: Story = {
           scene: hall,
           actors: [
             { who: "dad", at: 0.34, pose: "stand", face: "proud", facing: "right" },
-            { who: "nurse", at: 0.68, pose: "stand", face: "surprised", facing: "left" },
+            { who: "ayi", outfit: "nurse", at: 0.68, pose: "stand", face: "surprised", facing: "left" },
           ],
           beats: [
             { say: "dad", text: "男孩，14点02分！" },
-            { say: "nurse", text: "啊？什么情况？", kind: "shout" },
+            { say: "ayi", text: "啊？什么情况？", kind: "shout" },
           ],
         },
       ],
@@ -123,7 +123,7 @@ const story: Story = {
           actors: [
             { who: "dad", at: 0.16, pose: "shrug", face: "shy", facing: "right" },
             mom(0.44, "right", { face: "laugh" }),
-            { who: "nurse", at: 0.8, pose: "stand", face: "laugh", facing: "left" },
+            { who: "ayi", outfit: "nurse", at: 0.8, pose: "stand", face: "laugh", facing: "left" },
           ],
           props: [baby(0.44, "right")],
           beats: [

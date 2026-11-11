@@ -1,4 +1,4 @@
-import type { CharacterSpec } from "./types.ts";
+import type { CharacterSpec, Look } from "./types.ts";
 
 /** 线条颜色：深棕，不用纯黑，和页面文字同一个色系 */
 export const INK = "#3d3027";
@@ -83,13 +83,16 @@ const laoye: CharacterSpec = {
   bubble: "#f4ece0",
 };
 
-/** 不是家里人：医院里的护士阿姨，只在故事里出场 */
-const nurse: CharacterSpec = {
-  id: "nurse",
-  name: "护士",
+/**
+ * 不是家里人的大人：女的都是阿姨，男的都是叔叔，只出场、不署名。
+ * 护士、司机这样的职业不另加角色，给阿姨、叔叔换一身 outfit（见 OUTFITS）。
+ */
+const ayi: CharacterSpec = {
+  id: "ayi",
+  name: "阿姨",
   pronoun: "她",
   age: "大人",
-  about: "医院里的护士阿姨，戴白色护士帽，穿粉色护士服，说话利索",
+  about: "外面遇到的阿姨（护士、店员、邻居……），换上 outfit 就是哪一行",
   voice: "zh-CN-XiaoyiNeural",
   body: {
     headRx: 64, headRy: 70, neck: 14, torso: 150, shoulder: 50, hip: 34,
@@ -97,14 +100,34 @@ const nurse: CharacterSpec = {
   },
   look: {
     skin: "#fbd7b5", hair: "#2e211b", hairStyle: "bob", eyeScale: 0.85,
-    top: { color: "#f59ab5", sleeve: "short", collar: "round" },
-    bottom: { kind: "pants", color: "#f59ab5" },
-    shoes: "#ffffff", cap: "#ffffff", blush: 0.3,
+    top: { color: "#b18cd9", sleeve: "long", collar: "round" },
+    bottom: { kind: "pants", color: "#5d5a6e" },
+    shoes: "#7a4b3a", blush: 0.3,
   },
   bubble: "#ffeef3",
 };
 
-export const CAST = { nian, dad, mom, laoye, nurse } as const;
+const shushu: CharacterSpec = {
+  id: "shushu",
+  name: "叔叔",
+  pronoun: "他",
+  age: "大人",
+  about: "外面遇到的叔叔（医生、司机、保安……），换上 outfit 就是哪一行",
+  voice: "zh-CN-YunyangNeural",
+  body: {
+    headRx: 66, headRy: 72, neck: 14, torso: 168, shoulder: 62, hip: 40,
+    upperArm: 92, foreArm: 86, thigh: 114, shin: 110, limb: 32, hand: 18,
+  },
+  look: {
+    skin: "#efc49c", hair: "#231b16", hairStyle: "short", eyeScale: 0.78,
+    top: { color: "#8a9aa8", sleeve: "long", collar: "shirt" },
+    bottom: { kind: "pants", color: "#3f4552" },
+    shoes: "#3a2d25", blush: 0.15,
+  },
+  bubble: "#eef1f4",
+};
+
+export const CAST = { nian, dad, mom, laoye, ayi, shushu } as const;
 export type CharacterId = keyof typeof CAST;
 export const CHARACTER_IDS = Object.keys(CAST) as CharacterId[];
 
@@ -114,4 +137,19 @@ export type CreatorId = (typeof CREATOR_IDS)[number];
 
 export function isCharacterId(id: string): id is CharacterId {
   return Object.prototype.hasOwnProperty.call(CAST, id);
+}
+
+/** 职业装：盖在角色自己的衣服上，谁都能穿 */
+export const OUTFITS = {
+  nurse: {
+    top: { color: "#f59ab5", sleeve: "short", collar: "round" },
+    bottom: { kind: "pants", color: "#f59ab5" },
+    shoes: "#ffffff", cap: "#ffffff",
+  },
+} as const satisfies Record<string, Partial<Look>>;
+export type OutfitId = keyof typeof OUTFITS;
+export const OUTFIT_IDS = Object.keys(OUTFITS) as OutfitId[];
+
+export function dressed(spec: CharacterSpec, outfit?: OutfitId): CharacterSpec {
+  return outfit ? { ...spec, look: { ...spec.look, ...OUTFITS[outfit] } } : spec;
 }

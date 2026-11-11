@@ -5,7 +5,7 @@
  * 镜头（shot）决定这一格从舞台里框出哪一块，所以同一个站位，远景、中景、特写都能用。
  */
 import type { SeatKind } from "../cast/chair.ts";
-import type { CharacterId, CreatorId } from "../cast/characters.ts";
+import type { CharacterId, CreatorId, OutfitId } from "../cast/characters.ts";
 import type { LayoutId } from "../engine/layout.ts";
 import type { BubbleKind, Expression, Place, Pose, Shot, Slot, ThingKind, TimeOfDay, Weather } from "./vocab.ts";
 
@@ -23,6 +23,8 @@ export type Actor = {
   readonly seat?: SeatKind;
   /** 连人带椅子往后翘多少度：15～30 是前腿翘起来，80 左右是整个倒在地上 */
   readonly tip?: number;
+  /** 换一身职业装，比如阿姨穿 nurse 就是护士 */
+  readonly outfit?: OutfitId;
 };
 
 /** 表情符号里没有的东西，由引擎画出来 */
@@ -35,6 +37,13 @@ export type Thing = {
   readonly sealed?: boolean;
   /** 枕头袋子上的小标签，或者腕带上写的字 */
   readonly label?: string;
+  /**
+   * 写了就画成光着身子、只穿纸尿裤躺着的宝宝（从上往下看，头朝左），不写是襁褓。
+   * high 纸尿裤捂到肚脐上面；low 边在肚脐下面；airy 透气款，边往下折，带小透气孔
+   */
+  readonly diaper?: "high" | "low" | "airy";
+  /** 宝宝的肚脐：stump 脐带还没掉；sore 周围红了一圈；healed 长好了。high 纸尿裤会盖住 */
+  readonly navel?: "stump" | "sore" | "healed";
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

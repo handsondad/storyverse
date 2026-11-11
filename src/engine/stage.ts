@@ -1,5 +1,5 @@
 import { chairCorners, chairPoint, seating } from "../cast/chair.ts";
-import { CAST } from "../cast/characters.ts";
+import { CAST, dressed } from "../cast/characters.ts";
 import { POSE_ANGLES } from "../cast/poses.ts";
 import { solve, type Pt, type Skeleton } from "../cast/rig.ts";
 import type { CharacterSpec } from "../cast/types.ts";
@@ -48,7 +48,7 @@ export function placeActors(panel: Pick<Panel, "actors">, squeeze = 1): PlacedAc
   const xs = panel.actors.map(actorX);
   const mid = xs.length ? (Math.min(...xs) + Math.max(...xs)) / 2 : STAGE.w / 2;
   return panel.actors.map((actor, i) => {
-    const spec = CAST[actor.who];
+    const spec = dressed(CAST[actor.who], actor.outfit);
     const x = mid + (xs[i] - mid) * squeeze;
     const facing = defaultFacing(actor, panel.actors);
     const skeleton = solve(spec.body, POSE_ANGLES[actor.pose ?? "stand"]);
@@ -98,7 +98,7 @@ export function thingHeight(t: Thing, size: number): number {
       const puff = Math.min(1, Math.max(0, t.puff ?? 1));
       return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
     }
-    case "baby": return size * 0.62;
+    case "baby": return size * (t.diaper ? 0.5 : 0.62);
     case "band": return size * 0.42;
   }
 }
