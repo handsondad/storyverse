@@ -146,6 +146,10 @@ export const OUTFITS = {
     bottom: { kind: "pants", color: "#f59ab5" },
     shoes: "#ffffff", cap: "#ffffff",
   },
+  /** 白大褂：医生、药店里的药师都穿 */
+  doctor: {
+    top: { color: "#ffffff", sleeve: "long", collar: "shirt" },
+  },
 } as const satisfies Record<string, Partial<Look>>;
 export type OutfitId = keyof typeof OUTFITS;
 export const OUTFIT_IDS = Object.keys(OUTFITS) as OutfitId[];

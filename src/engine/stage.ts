@@ -104,10 +104,11 @@ export function thingHeight(t: Thing, size: number): number {
     case "band": return size * 0.42;
     case "ball": return size;
     case "clipper": return size * 0.4;
+    case "box": return size * 0.8;
   }
 }
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {

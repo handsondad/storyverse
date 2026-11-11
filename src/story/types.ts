@@ -31,7 +31,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子 */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名） */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -69,6 +69,10 @@ export type Thing = {
   readonly hair?: "fuzz" | "bald";
   /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽 */
   readonly hat?: "party";
+  /** crawl / sit 的宝宝生病了：小脸烧得红红的，眼睛没精神 */
+  readonly sick?: boolean;
+  /** crawl / sit 的宝宝额头上贴着退烧贴 */
+  readonly patch?: boolean;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */
@@ -106,6 +110,8 @@ export type SceneSpec = {
   readonly tint?: string;
   /** 一张饭桌，画在人前面；from / to 是左右两头的位置（0～1） */
   readonly table?: { readonly from: number; readonly to: number };
+  /** 招牌上的字（≤4 个字）：hospital 是门上的牌子（默认「产房」），street 是中间那家店（默认「药店」） */
+  readonly sign?: string;
 };
 
 export type Panel = {

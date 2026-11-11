@@ -51,6 +51,8 @@ export function checkStory(story) {
     if (panel.scene.time && !TIMES.includes(panel.scene.time)) say(where, `没有时间 ${panel.scene.time}`);
     if (panel.scene.weather && !WEATHERS.includes(panel.scene.weather)) say(where, `没有天气 ${panel.scene.weather}`);
     if (panel.shot && !SHOTS.includes(panel.shot)) say(where, `没有景别 ${panel.shot}`);
+    if (panel.scene.sign && !["hospital", "street"].includes(panel.scene.place)) say(where, "sign 只给 hospital、street 用");
+    if (panel.scene.sign && chars(panel.scene.sign) > 4) say(where, "sign 不超过 4 个字");
     const table = panel.scene.table;
     if (table && !(table.from >= 0 && table.to <= 1 && table.from < table.to)) say(where, "table 的 from、to 要在 0～1，而且 from < to");
     if (panel.actors.length === 0 && !(panel.props?.length)) say(where, "格子里至少要有一个角色或道具");
@@ -91,6 +93,8 @@ export function checkStory(story) {
       if ((p.thing?.hair || p.thing?.hat) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "hair、hat 只给 crawl / sit 的宝宝用");
       if (p.thing?.hair && !["fuzz", "bald"].includes(p.thing.hair)) say(where, "hair 只能是 fuzz / bald");
       if (p.thing?.hat && p.thing.hat !== "party") say(where, "hat 只能是 party");
+      if ((p.thing?.sick || p.thing?.patch) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch 只给 crawl / sit 的宝宝用");
+      if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }
 

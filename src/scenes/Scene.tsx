@@ -31,7 +31,9 @@ export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
     case "living-room": return <LivingRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "dining-room": return <DiningRoom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "bathroom": return <Bathroom />;
-    case "hospital": return <Hospital />;
+    case "hospital": return <Hospital sign={scene.sign ?? "产房"} />;
+    case "pharmacy": return <Pharmacy />;
+    case "street": return <Street time={time} uid={uid} sign={scene.sign ?? "药店"} />;
     case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
@@ -263,8 +265,8 @@ function Bathroom() {
   );
 }
 
-/** 医院走廊：产房的双开门、扶手、长椅、挂钟 */
-function Hospital() {
+/** 医院走廊：双开门（门上的牌子写 sign）、扶手、长椅、挂钟 */
+function Hospital({ sign }: { sign: string }) {
   return (
     <g>
       <rect x={X0} y={Y0} width={W} height={H} fill="#eaf6f1" />
@@ -278,7 +280,7 @@ function Hospital() {
         {[1020, 1240].map((x) => <rect key={x} x={x} y={G - 500} width={100} height={120} rx={8} fill="#e3f4fb" {...line} strokeWidth={4} />)}
         {[1160, 1200].map((x) => <path key={x} d={`M ${x},${G - 340} l 0,60`} {...line} strokeWidth={8} />)}
         <rect x={1060} y={G - 650} width={240} height={70} rx={12} fill="#ff8fa3" {...line} />
-        <text x={1180} y={G - 615} fontSize={44} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">产房</text>
+        <text x={1180} y={G - 615} fontSize={44} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">{sign}</text>
       </g>
       <g>
         <circle cx={620} cy={300} r={64} fill="#ffffff" {...line} />
@@ -297,14 +299,107 @@ function Hospital() {
   );
 }
 
+/** 药店里：一墙药架、绿十字灯牌，过年贴着「福」。柜台用 scene.table 画在人前面 */
+function Pharmacy() {
+  const r = rand(23);
+  const colors = ["#ff9f9f", "#8fc1ff", "#ffd166", "#9fe0b8", "#d7b8ff", "#ffffff"];
+  return (
+    <g>
+      <rect x={X0} y={Y0} width={W} height={H} fill="#eef8f3" />
+      <rect x={X0} y={G - 70} width={W} height={H} fill="#dfe9e4" />
+      {Array.from({ length: 24 }, (_, i) => <path key={i} d={`M ${X0 + i * 120},${G - 70} L ${X0 + i * 120 - 40},${G + 400}`} stroke="#c9d8d1" strokeWidth={4} />)}
+      <path d={`M ${X0},${G - 70} L ${X0 + W},${G - 70}`} {...line} strokeWidth={4} opacity={0.5} />
+      {[-20, 1100].map((sx) => (
+        <g key={sx}>
+          <rect x={sx} y={190} width={520} height={G - 260 - 190} fill="#f7e7cf" {...line} />
+          {[0, 1, 2, 3].map((row) => {
+            const y = 190 + 30 + row * 105;
+            let x = sx + 24;
+            const boxes: { x: number; w: number; h: number; c: string }[] = [];
+            while (x < sx + 480) {
+              const w = 50 + r() * 40;
+              const h = 50 + r() * 30;
+              if (x + w > sx + 500) break;
+              boxes.push({ x, w, h, c: colors[Math.floor(r() * colors.length)] });
+              x += w + 8;
+            }
+            return (
+              <g key={row}>
+                {boxes.map((b) => <rect key={b.x} x={b.x} y={y + 80 - b.h} width={b.w} height={b.h} rx={5} fill={b.c} {...line} strokeWidth={3.5} />)}
+                <rect x={sx} y={y + 80} width={520} height={14} fill="#c98b52" {...line} strokeWidth={4} />
+              </g>
+            );
+          })}
+        </g>
+      ))}
+      <g>
+        <rect x={660} y={150} width={280} height={110} rx={18} fill="#3fb37f" {...line} />
+        <path d="M 715,205 h 50 M 740,180 v 50" stroke="#ffffff" strokeWidth={16} strokeLinecap="round" />
+        <text x={850} y={207} fontSize={56} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">药店</text>
+      </g>
+      <g transform="rotate(45 800 400)">
+        <rect x={740} y={340} width={120} height={120} rx={8} fill="#e8453c" {...line} />
+      </g>
+      <text x={800} y={402} fontSize={70} textAnchor="middle" dominantBaseline="central" fill="#ffd84d" className="story-font">福</text>
+    </g>
+  );
+}
+
+/** 街上一排小店，过年都拉着卷帘门、贴着「放假」；屋檐下挂着红灯笼 */
+function Street({ time, uid, sign }: { time: TimeOfDay; uid: string; sign: string }) {
+  const shops: [number, string, string][] = [[90, "诊所", "#8fc1ff"], [610, sign, "#9fe0b8"], [1130, "超市", "#ffd166"]];
+  return (
+    <g>
+      <Sky time={time} uid={uid} rain={false} x={X0} y={Y0} w={W} h={H} />
+      <Celestial time={time} rain={false} sunAt={[1350, 120]} moonAt={[1350, 110]} />
+      <rect x={X0} y={170} width={W} height={G - 170} fill="#e9d8c4" {...line} />
+      {Array.from({ length: 6 }, (_, i) => <path key={i} d={`M ${X0},${230 + i * 22} L ${X0 + W},${230 + i * 22}`} stroke="#dcc6ad" strokeWidth={4} />)}
+      {shops.map(([x, name, color]) => (
+        <g key={x}>
+          <rect x={x} y={330} width={380} height={90} rx={10} fill={color} {...line} />
+          <text x={x + 190} y={377} fontSize={56} textAnchor="middle" dominantBaseline="central" fill={INK} className="story-font">{name}</text>
+          <rect x={x + 10} y={440} width={360} height={G - 40 - 440} fill="#b8c2cc" {...line} />
+          {Array.from({ length: 13 }, (_, i) => <path key={i} d={`M ${x + 10},${470 + i * 28} L ${x + 370},${470 + i * 28}`} stroke="#98a4b0" strokeWidth={4} />)}
+          <rect x={x + 150} y={520} width={80} height={100} fill="#ffffff" stroke={INK} strokeWidth={3} transform={`rotate(-4 ${x + 190} 570)`} />
+          <text x={x + 190} y={555} fontSize={30} textAnchor="middle" dominantBaseline="central" fill="#e8453c" className="story-font">放</text>
+          <text x={x + 190} y={590} fontSize={30} textAnchor="middle" dominantBaseline="central" fill="#e8453c" className="story-font">假</text>
+        </g>
+      ))}
+      {[40, 560, 1080, 1560].map((x) => (
+        <g key={x}>
+          <path d={`M ${x},300 l 0,40`} {...line} strokeWidth={4} />
+          {time === "night" && <circle cx={x} cy={380} r={70} fill="#ffb199" opacity={0.35} />}
+          <ellipse cx={x} cy={380} rx={40} ry={34} fill="#e8453c" {...line} strokeWidth={4} />
+          <rect x={x - 18} y={340} width={36} height={10} fill="#ffd84d" {...line} strokeWidth={3} />
+          <path d={`M ${x},414 l 0,26`} stroke="#ffd84d" strokeWidth={6} strokeLinecap="round" />
+        </g>
+      ))}
+      <rect x={X0} y={G - 40} width={W} height={H} fill="#c9c4bc" />
+      {Array.from({ length: 24 }, (_, i) => <path key={i} d={`M ${X0 + i * 140},${G - 40} L ${X0 + i * 140 - 50},${G + 400}`} stroke="#b3ada4" strokeWidth={4} />)}
+      <path d={`M ${X0},${G - 40} L ${X0 + W},${G - 40}`} {...line} strokeWidth={4} />
+      <Night time={time} />
+    </g>
+  );
+}
+
 /** 饭桌：画在人前面，桌面离地 TABLE_TOP */
 export const TABLE_TOP = 205;
 
-export function Table({ from, to }: { from: number; to: number }) {
+export function Table({ from, to, counter }: { from: number; to: number; counter?: boolean }) {
   const x0 = stageX(from);
   const x1 = stageX(to);
   const top = G - TABLE_TOP;
   const wood = "#d9a066";
+  if (counter) {
+    return (
+      <g>
+        <rect x={x0} y={top + 20} width={x1 - x0} height={TABLE_TOP - 20} fill="#ffffff" {...line} />
+        <rect x={x0 + 30} y={top + 60} width={x1 - x0 - 60} height={TABLE_TOP - 110} rx={10} fill="#d6f0e4" {...line} strokeWidth={4} />
+        <path d={`M ${(x0 + x1) / 2 - 22},${top + 112} h 44 M ${(x0 + x1) / 2},${top + 90} v 44`} stroke="#3fb37f" strokeWidth={14} strokeLinecap="round" />
+        <rect x={x0 - 24} y={top} width={x1 - x0 + 48} height={30} rx={10} fill="#9fd8c0" {...line} />
+      </g>
+    );
+  }
   return (
     <g>
       {[x0 + 40, x1 - 70].map((x) => <rect key={x} x={x} y={top + 20} width={30} height={TABLE_TOP - 20} rx={8} fill="#c48a52" {...line} />)}
@@ -544,7 +639,32 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "band": return <Band {...p} />;
     case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
     case "clipper": return <Clipper {...p} />;
+    case "box": return <MedicineBox {...p} />;
   }
+}
+
+/** 药盒：正面贴着白标签写药名，带个小绿十字；颜色跟着药名变 */
+function MedicineBox({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const label = thing.label ?? "";
+  const colors = ["#8fc1ff", "#ffb3a7", "#9fe0b8", "#ffd166", "#d7b8ff"];
+  const color = colors[[...label].reduce((s, c) => s + (c.codePointAt(0) ?? 0), 0) % colors.length];
+  const depth = w * 0.16;
+  const fw = w - depth;
+  const fh = w * 0.8 - depth;
+  const L = x - w / 2;
+  const T = bottom - fh;
+  const font = Math.min(fh * 0.26, (fw * 0.8) / Math.max(1, [...label].length));
+  return (
+    <g strokeLinejoin="round">
+      <path d={`M ${L},${T} l ${depth},${-depth} h ${fw} l ${-depth},${depth} Z`} fill="#ffffff" {...line} strokeWidth={5} />
+      <path d={`M ${L + fw},${T} l ${depth},${-depth} v ${fh} l ${-depth},${depth} Z`} fill={color} {...line} strokeWidth={5} />
+      <rect x={L} y={T} width={fw} height={fh} fill={color} {...line} strokeWidth={5} />
+      <path d={`M ${L + fw},${T} l ${depth},${-depth} v ${fh} l ${-depth},${depth} Z`} fill={INK} opacity={0.12} />
+      <rect x={L + fw * 0.08} y={T + fh * 0.38} width={fw * 0.84} height={fh * 0.4} rx={6} fill="#ffffff" stroke={INK} strokeWidth={3} />
+      <text x={L + fw / 2} y={T + fh * 0.58} fontSize={font} textAnchor="middle" dominantBaseline="central" fill={INK} className="story-font">{label}</text>
+      <path d={`M ${L + fw / 2 - fh * 0.08},${T + fh * 0.19} h ${fh * 0.16} M ${L + fw / 2},${T + fh * 0.11} v ${fh * 0.16}`} stroke="#3fb37f" strokeWidth={Math.max(5, fh * 0.06)} strokeLinecap="round" />
+    </g>
+  );
 }
 
 /** 理发的电推子，刀头朝左，往上斜一点 */
@@ -760,13 +880,25 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
           <path d={`M ${cx + r * 0.42},${cy - r * 0.05} q ${-r * 0.1},${r * 0.35} ${-r * 0.02},${r * 0.55}`} fill="none" stroke="#7cc4ff" strokeWidth={stroke * 2.2} strokeLinecap="round" />
           <ellipse cx={cx + r * 0.66} cy={cy + r * 0.38} rx={r * 0.2} ry={r * 0.25} fill="#e8505b" stroke={INK} strokeWidth={stroke} />
         </>
+      ) : thing.sick ? (
+        <>
+          <path d={`M ${cx + r * 0.22},${cy - r * 0.3} l ${r * 0.32},${r * 0.06}`} {...eye} />
+          <path d={`M ${cx + r * 0.26},${cy - r * 0.26} q ${r * 0.12},${r * 0.14} ${r * 0.24},${r * 0.04}`} {...eye} />
+          <ellipse cx={cx + r * 0.68} cy={cy + r * 0.4} rx={r * 0.1} ry={r * 0.12} fill="#e8505b" stroke={INK} strokeWidth={stroke} />
+        </>
       ) : (
         <>
           <path d={`M ${cx + r * 0.25},${cy - r * 0.2} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
           <path d={`M ${cx + r * 0.55},${cy + r * 0.35} q ${r * 0.14},${r * 0.12} ${r * 0.3},${-r * 0.04}`} {...eye} />
         </>
       )}
-      <ellipse cx={cx + r * 0.2} cy={cy + r * 0.2} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />
+      {thing.sick
+        ? <ellipse cx={cx + r * 0.18} cy={cy + r * 0.18} rx={r * 0.3} ry={r * 0.18} fill="#ff5a5a" opacity={0.55} />
+        : <ellipse cx={cx + r * 0.2} cy={cy + r * 0.2} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />}
+      {thing.patch && (
+        <rect x={cx + r * 0.1} y={cy - r * 0.78} width={r * 0.62} height={r * 0.36} rx={r * 0.1} fill="#bfe6ff" stroke={INK} strokeWidth={stroke}
+          transform={`rotate(38 ${cx + r * 0.41} ${cy - r * 0.6})`} />
+      )}
       {thing.hat && <PartyHat x={cx - r * 0.05} y={cy - r * 0.8} w={r * 1.05} h={r * 1.35} tilt={r * 0.3} color={PARTY_HAT} line={stroke * 1.4} />}
     </g>
   );

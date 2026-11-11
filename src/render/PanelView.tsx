@@ -36,7 +36,7 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
                 talking={talking.has(a.actor.who)} seat={a.actor.seat} tip={a.actor.tip} />
             </g>
           ))}
-          {panel.scene.table && <Table {...panel.scene.table} />}
+          {panel.scene.table && <Table {...panel.scene.table} counter={panel.scene.place === "pharmacy"} />}
           {(panel.props ?? []).map((p, i) => p.front && <PropView key={i} prop={p} uid={`${uid}-p${i}`} />)}
           {panel.scene.weather === "rain" && (panel.scene.place === "park" || panel.scene.place === "museum") && (
             <Rain seed={uid.length + rect.x} />

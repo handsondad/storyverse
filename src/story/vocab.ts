@@ -42,11 +42,11 @@ export const POSES = [
 export type Pose = (typeof POSES)[number];
 
 /** 地点。plain 是纯色底，burst 是漫画里"轰"一下的放射线底 */
-export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "park", "bedroom", "museum", "subway", "plain", "burst"] as const;
+export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "park", "bedroom", "museum", "subway", "pharmacy", "street", "plain", "burst"] as const;
 export type Place = (typeof PLACES)[number];
 
 /** 画出来的道具（表情符号里没有的东西） */
-export const THINGS = ["pillow", "baby", "band", "ball", "clipper"] as const;
+export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box"] as const;
 export type ThingKind = (typeof THINGS)[number];
 
 export const TIMES = ["morning", "day", "evening", "night"] as const;
