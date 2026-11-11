@@ -79,8 +79,10 @@ export function checkStory(story) {
       if (p.thing?.navel && !["stump", "sore", "healed"].includes(p.thing.navel)) say(where, `navel 只能是 stump / sore / healed`);
       if (p.thing?.navel && !p.thing.diaper) say(where, "襁褓里看不见肚脐：写 navel 就要写 diaper");
       if ((p.thing?.kick || p.thing?.ball) && p.thing.kind !== "baby") say(where, "kick、ball 只给 baby 用（单独一个球用 kind: \"ball\"）");
-      if (p.thing?.kick && !["up", "left", "right"].includes(p.thing.kick)) say(where, "kick 只能是 up / left / right");
-      if (p.thing?.ball && !p.thing.kick) say(where, "写 ball 就要写 kick：球顶在蹬起来的脚丫上");
+      if (p.thing?.kick && !["up", "left", "right", "grab", "toes"].includes(p.thing.kick)) say(where, "kick 只能是 up / left / right / grab / toes");
+      if (p.thing?.ball && !["up", "left", "right"].includes(p.thing.kick)) say(where, "写 ball 就要写 kick: up / left / right：球顶在蹬起来的脚丫上");
+      if (p.thing?.giggle && !p.thing.kick) say(where, "giggle 只给侧面躺着的宝宝（写了 kick 的）用");
+      if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }
 

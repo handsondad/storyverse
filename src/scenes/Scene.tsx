@@ -624,9 +624,17 @@ function KickingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
   const cy = top - w * 0.075;
   const limb = w * 0.05;
   const turn = thing.kick === "left" ? -1 : thing.kick === "right" ? 1 : 0;
+  const grab = thing.kick === "grab";
+  const toes = thing.kick === "toes";
   const hip: Pt = [x + w * 0.05, cy];
-  const knee: Pt = [x + w * 0.17, cy - w * 0.17];
-  const foot: Pt = [x + w * 0.11 + turn * w * 0.05, cy - w * 0.31];
+  const kneeUp: Pt = [x + w * 0.17, cy - w * 0.17];
+  const footUp: Pt = [x + w * 0.11 + turn * w * 0.05, cy - w * 0.31];
+  const knee: Pt = grab ? [x + w * 0.15, cy - w * 0.2] : toes ? [x - w * 0.04, cy - w * 0.25] : kneeUp;
+  const foot: Pt = grab ? [x + w * 0.01, cy - w * 0.27] : toes ? [hx + r * 0.95, hy - r * 0.3] : footUp;
+  const shoulder: Pt = [x - w * 0.14, cy - w * 0.04];
+  const hands: Pt[] = grab
+    ? [[foot[0] - w * 0.035, foot[1] + w * 0.01]]
+    : toes ? [[(knee[0] + foot[0]) / 2 + w * 0.02, (knee[1] + foot[1]) / 2 + w * 0.01]] : [[x - w * 0.1, cy - w * 0.16]];
   const ballR = w * 0.075;
   const sausage = (d: string, color: string, key: string) => (
     <g key={key}>
@@ -634,31 +642,41 @@ function KickingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
       <path d={d} fill="none" stroke={color} strokeWidth={limb} strokeLinecap="round" strokeLinejoin="round" />
     </g>
   );
-  const leg = (dx: number, key: string) => {
-    const k: Pt = [knee[0] + dx, knee[1] + dx * 0.4];
-    const f: Pt = [foot[0] + dx, foot[1] + dx * 0.4];
-    return (
-      <g key={key}>
-        {sausage(`M ${hip[0]},${hip[1]} L ${k[0]},${k[1]} L ${f[0]},${f[1]}`, romper, `${key}l`)}
-        <ellipse cx={f[0]} cy={f[1] - limb * 0.35} rx={limb * 0.95} ry={limb * 0.6} fill={skin} transform={`rotate(${turn * 14} ${f[0]} ${f[1]})`} {...line} strokeWidth={5} />
-      </g>
-    );
-  };
+  const leg = (k: Pt, f: Pt, tilt: number, key: string) => (
+    <g key={key}>
+      {sausage(`M ${hip[0]},${hip[1]} L ${k[0]},${k[1]} L ${f[0]},${f[1]}`, romper, `${key}l`)}
+      <ellipse cx={f[0]} cy={f[1] - limb * 0.35} rx={limb * 0.95} ry={limb * 0.6} fill={skin} transform={`rotate(${tilt} ${f[0]} ${f[1]})`} {...line} strokeWidth={5} />
+    </g>
+  );
+  const far = (p: Pt): Pt => [p[0] + w * 0.035, p[1] + w * 0.014];
+  // 啃脚丫时只有近处这条腿凑到嘴边，远处那条照常举着
+  const farLeg = toes ? leg(far(kneeUp), far(footUp), 0, "far") : leg(far(knee), far(foot), turn * 14, "far");
+  const nearLeg = leg(knee, foot, toes ? -50 : turn * 14, "near");
+  const arms = hands.map((h, i) => (
+    <g key={`arm${i}`}>
+      {sausage(`M ${shoulder[0]},${shoulder[1]} L ${h[0]},${h[1]}`, romper, `a${i}`)}
+      <circle cx={h[0]} cy={h[1]} r={limb * 0.7} fill={skin} {...line} strokeWidth={5} />
+    </g>
+  ));
   const eye = { fill: "none", stroke: INK, strokeWidth: Math.max(3, w * 0.008), strokeLinecap: "round" as const };
   return (
     <g>
       <rect x={x - w * 0.5} y={top} width={w} height={matH} rx={matH / 2} fill="#9fd8c4" {...line} strokeWidth={5} />
       {[0.2, 0.4, 0.6, 0.8].map((f) => <rect key={f} x={x - w * 0.5 + w * f - w * 0.04} y={top + 3} width={w * 0.08} height={matH - 6} fill={f === 0.4 || f === 0.8 ? "#ffc4d6" : "#fff2b8"} />)}
-      {leg(w * 0.035, "far")}
+      {farLeg}
       <ellipse cx={x - w * 0.07} cy={cy} rx={w * 0.17} ry={w * 0.075} fill={romper} {...line} strokeWidth={5} />
-      {sausage(`M ${x - w * 0.14},${cy - w * 0.04} L ${x - w * 0.1},${cy - w * 0.15}`, romper, "arm")}
-      <circle cx={x - w * 0.1} cy={cy - w * 0.16} r={limb * 0.7} fill={skin} {...line} strokeWidth={5} />
-      {leg(0, "near")}
+      {!grab && !toes && arms}
+      {!toes && nearLeg}
+      {grab && arms}
       <circle cx={hx} cy={hy} r={r} fill={skin} {...line} strokeWidth={5} />
       <path d={`M ${hx - r * 0.2},${hy - r * 0.98} q ${r * 0.2},${-r * 0.3} ${r * 0.4},${-r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />
       <path d={`M ${hx + r * 0.1},${hy - r * 0.45} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
-      <path d={`M ${hx + r * 0.5},${hy - r * 0.05} q ${r * 0.2},${r * 0.25} ${r * 0.42},${-r * 0.02}`} {...eye} />
+      {thing.giggle && !toes
+        ? <path d={`M ${hx + r * 0.45},${hy - r * 0.12} q ${r * 0.28},${r * 0.05} ${r * 0.5},${-r * 0.06} q ${-r * 0.05},${r * 0.45} ${-r * 0.3},${r * 0.42} q ${-r * 0.2},${-r * 0.06} ${-r * 0.2},${-r * 0.36} Z`} fill="#e8505b" stroke={INK} strokeWidth={Math.max(3, w * 0.007)} strokeLinejoin="round" />
+        : <path d={`M ${hx + r * 0.5},${hy - r * 0.05} q ${r * 0.2},${r * 0.25} ${r * 0.42},${-r * 0.02}`} {...eye} />}
       <ellipse cx={hx + r * 0.2} cy={hy + r * 0.05} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />
+      {toes && nearLeg}
+      {toes && arms}
       {thing.ball && (
         <g>
           <Ball cx={foot[0] + w * 0.018} cy={foot[1] - limb * 0.9 - ballR} r={ballR} spin={turn * 35} />

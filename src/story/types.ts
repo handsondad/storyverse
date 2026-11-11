@@ -46,11 +46,14 @@ export type Thing = {
   readonly navel?: "stump" | "sore" | "healed";
   /**
    * 写了就画成侧面：宝宝穿着连体衣仰面躺在爬行垫上，两条小腿举起来蹬（头朝左）。
-   * up 脚丫朝上；left / right 脚丫往一边转，连着几格换着写就像在来回蹬
+   * up 脚丫朝上；left / right 脚丫往一边转，连着几格换着写就像在来回蹬；
+   * grab 两只小手抱着举起来的小脚丫；toes 把脚趾头塞进嘴里
    */
-  readonly kick?: "up" | "left" | "right";
+  readonly kick?: "up" | "left" | "right" | "grab" | "toes";
   /** 蹬腿的宝宝脚丫上顶着小球（跟着 kick 转） */
   readonly ball?: boolean;
+  /** 侧面躺着的宝宝张嘴咯咯笑（toes 时嘴被脚丫挡住，不用写） */
+  readonly giggle?: boolean;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */
