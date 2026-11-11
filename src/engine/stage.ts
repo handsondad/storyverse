@@ -98,7 +98,9 @@ export function thingHeight(t: Thing, size: number): number {
       const puff = Math.min(1, Math.max(0, t.puff ?? 1));
       return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
     }
-    case "baby": return t.kick ? size * (t.ball ? 0.62 : 0.46) : size * (t.diaper ? 0.5 : 0.62);
+    case "baby":
+      if (t.move) return size * (t.move === "sit" ? 0.54 : 0.44);
+      return t.kick ? size * (t.ball ? 0.62 : 0.46) : size * (t.diaper ? 0.5 : 0.62);
     case "band": return size * 0.42;
     case "ball": return size;
   }

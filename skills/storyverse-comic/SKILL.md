@@ -106,7 +106,8 @@ description: >-
 - `puff` 0～1：鼓起来多少，连着几格慢慢变大就能看出变化
 - `sealed`：装在密封袋里；`label` 是袋上的小标签，或者腕带上的字（≤8 个字）
 - 宝宝写了 `diaper` 就画成只穿纸尿裤仰面躺着（头朝左）：`high` 捂到肚脐上、`low` 在肚脐下、`airy` 透气款往下折；`navel` 是 `stump`（脐带还没掉）/ `sore`（一圈淡红）/ `healed`。放在卧室大床上用 `x: 0.814, lift: 200, size: 300`；肚子特写用纯色背景、`size: 1000, lift: 100`（见 `src/stories/belly-button/story.ts`）
-- 宝宝写了 `kick` 就画成侧面：穿黄连体衣仰面躺在爬行垫上，小腿举起来蹬（头朝左）；`up` / `left` / `right` 换着写像在来回蹬，`ball: true` 脚丫上顶个小球；`grab` 小手抱着脚丫，`toes` 啃脚趾头；`giggle: true` 张嘴咯咯笑。宝宝不会说话，咿咿呜呜写进旁白，别给他气泡。放在客厅地上用 `x: 0.46, size: 460, front: true`（别放沙发前，腿和沙发会糊在一起），特写用纯色背景 `size: 900, lift: 40`（见 `src/stories/kick-ball/story.ts`）
+- 宝宝写了 `kick` 就画成侧面：穿黄连体衣仰面躺在爬行垫上，小腿举起来蹬（头朝左）；`up` / `left` / `right` 换着写像在来回蹬，`ball: true` 脚丫上顶个小球；`grab` 小手抱着脚丫，`toes` 啃脚趾头；`giggle: true` 张嘴咯咯笑。宝宝不会说话，咿咿呜呜写进旁白，别给他气泡。
+- 宝宝写 `move` 就是会爬会坐的样子（还是黄连体衣、侧面）：`crawl` 往左爬，`sit` 坐着脸朝右；`cry: true` 哇哇大哭（坐着时一手捂头），`flip: true` 左右翻过来。放在卧室床上用 `lift: 230, size: 360`；抱在大人怀里：大人 `pose: "hug"` 面朝右站在 at，宝宝 `move: "sit", flip: true, x: at + 110/1400, lift: 250, size: 380, front: true`（见 `src/stories/bed-edge/story.ts` 的 `inArms`）放在客厅地上用 `x: 0.46, size: 460, front: true`（别放沙发前，腿和沙发会糊在一起），特写用纯色背景 `size: 900, lift: 40`（见 `src/stories/kick-ball/story.ts`）
 - 单独一个红黄蓝小球：`{ thing: { kind: "ball" }, x, lift, size: 60 }`，飞在空中就把 `lift` 写高
 - 宝宝抱在半躺的妈妈怀里：`lift: 290`、离妈妈 20 个舞台单位（见 `src/stories/born/story.ts` 的 `baby()`）
 - 拿在手里、放在脚前面的道具写 `front: true`，画在人前面（不算被挡）

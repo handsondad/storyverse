@@ -54,6 +54,15 @@ export type Thing = {
   readonly ball?: boolean;
   /** 侧面躺着的宝宝张嘴咯咯笑（toes 时嘴被脚丫挡住，不用写） */
   readonly giggle?: boolean;
+  /**
+   * 穿连体衣的宝宝侧面：crawl 四肢着地往左爬；sit 坐着，脸朝右，两腿往前伸。
+   * sit 把 lift 抬到大人胸口、配大人的 hug 姿势，就是被抱在怀里
+   */
+  readonly move?: "crawl" | "sit";
+  /** crawl / sit 的宝宝哇哇大哭：眼睛挤成一条缝、流眼泪，坐着时一只手捂着头 */
+  readonly cry?: boolean;
+  /** 宝宝左右翻过来 */
+  readonly flip?: boolean;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

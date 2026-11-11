@@ -83,6 +83,10 @@ export function checkStory(story) {
       if (p.thing?.ball && !["up", "left", "right"].includes(p.thing.kick)) say(where, "写 ball 就要写 kick: up / left / right：球顶在蹬起来的脚丫上");
       if (p.thing?.giggle && !p.thing.kick) say(where, "giggle 只给侧面躺着的宝宝（写了 kick 的）用");
       if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
+      if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");
+      if (p.thing?.move && !["crawl", "sit"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit");
+      if (p.thing?.move && (p.thing.kick || p.thing.diaper || p.thing.ball)) say(where, "move 和 kick / diaper / ball 只写一个：一个宝宝一个姿势");
+      if (p.thing?.cry && !p.thing.move) say(where, "cry 只给 crawl / sit 的宝宝用");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }
 

@@ -533,9 +533,13 @@ export function PropView({ prop, uid }: { prop: Prop; uid: string }) {
 }
 
 function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
+  if (p.thing.flip) return <g transform={`translate(${2 * p.x},0) scale(-1,1)`}><ThingView {...p} thing={{ ...p.thing, flip: false }} /></g>;
   switch (p.thing.kind) {
     case "pillow": return <Pillow {...p} />;
-    case "baby": return p.thing.kick ? <KickingBaby {...p} /> : p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
+    case "baby":
+      if (p.thing.move === "crawl") return <CrawlingBaby {...p} />;
+      if (p.thing.move === "sit") return <SittingBaby {...p} />;
+      return p.thing.kick ? <KickingBaby {...p} /> : p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
     case "band": return <Band {...p} />;
     case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
   }
@@ -686,6 +690,93 @@ function KickingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
           ))}
         </g>
       )}
+    </g>
+  );
+}
+
+const BABY_SKIN = "#ffd9b8";
+const ROMPER = "#ffe08a";
+
+function babyLimb(d: string, limb: number, color: string) {
+  return (
+    <g>
+      <path d={d} fill="none" stroke={INK} strokeWidth={limb + 10} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={color} strokeWidth={limb} strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  );
+}
+
+/** 侧脸朝右的宝宝头：笑眯眯，或者哇哇大哭 */
+function BabyHead({ cx, cy, r, w, cry }: { cx: number; cy: number; r: number; w: number; cry?: boolean }) {
+  const stroke = Math.max(3, w * 0.008);
+  const eye = { fill: "none", stroke: INK, strokeWidth: stroke, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill={BABY_SKIN} {...line} strokeWidth={5} />
+      <path d={`M ${cx - r * 0.25},${cy - r * 0.98} q ${r * 0.2},${-r * 0.3} ${r * 0.4},${-r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />
+      <path d={`M ${cx - r * 0.75},${cy + r * 0.05} q ${-r * 0.22},${-r * 0.02} ${-r * 0.2},${r * 0.25}`} fill="none" stroke={INK} strokeWidth={stroke} strokeLinecap="round" opacity={0.6} />
+      {cry ? (
+        <>
+          <path d={`M ${cx + r * 0.25},${cy - r * 0.32} l ${r * 0.22},${r * 0.1} l ${-r * 0.22},${r * 0.1}`} {...eye} />
+          <path d={`M ${cx + r * 0.42},${cy - r * 0.05} q ${-r * 0.1},${r * 0.35} ${-r * 0.02},${r * 0.55}`} fill="none" stroke="#7cc4ff" strokeWidth={stroke * 2.2} strokeLinecap="round" />
+          <ellipse cx={cx + r * 0.66} cy={cy + r * 0.38} rx={r * 0.2} ry={r * 0.25} fill="#e8505b" stroke={INK} strokeWidth={stroke} />
+        </>
+      ) : (
+        <>
+          <path d={`M ${cx + r * 0.25},${cy - r * 0.2} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
+          <path d={`M ${cx + r * 0.55},${cy + r * 0.35} q ${r * 0.14},${r * 0.12} ${r * 0.3},${-r * 0.04}`} {...eye} />
+        </>
+      )}
+      <ellipse cx={cx + r * 0.2} cy={cy + r * 0.2} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />
+    </g>
+  );
+}
+
+/** 坐着的宝宝（侧面，脸朝右），两腿往前伸；哭的时候一只手捂着头 */
+function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const limb = w * 0.05;
+  const r = w * 0.12;
+  const hip: Pt = [x, bottom - limb * 0.6];
+  const hx = x + w * 0.01;
+  const hy = bottom - w * 0.42;
+  const shoulder: Pt = [x + w * 0.01, bottom - w * 0.25];
+  const hand: Pt = thing.cry ? [hx - r * 0.35, hy - r * 0.92] : [x + w * 0.13, bottom - w * 0.13];
+  return (
+    <g>
+      {babyLimb(`M ${hip[0]},${hip[1]} L ${x + w * 0.12},${bottom - limb * 0.9} L ${x + w * 0.22},${bottom - limb * 0.6}`, limb, ROMPER)}
+      <ellipse cx={x + w * 0.235} cy={bottom - limb * 0.9} rx={limb * 0.6} ry={limb * 0.9} fill={BABY_SKIN} {...line} strokeWidth={5} />
+      <ellipse cx={x - w * 0.01} cy={bottom - w * 0.15} rx={w * 0.1} ry={w * 0.14} fill={ROMPER} {...line} strokeWidth={5} />
+      {!thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
+      {!thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
+      {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
+      <BabyHead cx={hx} cy={hy} r={r} w={w} cry={thing.cry} />
+      {thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
+    </g>
+  );
+}
+
+/** 四肢着地往左爬的宝宝（侧面） */
+function CrawlingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const limb = w * 0.05;
+  const r = w * 0.12;
+  const cy = bottom - w * 0.2;
+  const leg = (dx: number) => babyLimb(`M ${x + w * 0.12 + dx},${cy} L ${x + w * 0.1 + dx},${bottom - limb * 0.6} L ${x + w * 0.26 + dx},${bottom - limb * 0.8}`, limb, ROMPER);
+  const arm = (dx: number) => (
+    <g>
+      {babyLimb(`M ${x - w * 0.12 + dx},${cy - w * 0.02} L ${x - w * 0.15 + dx},${bottom - limb * 0.7}`, limb, ROMPER)}
+      <ellipse cx={x - w * 0.16 + dx} cy={bottom - limb * 0.6} rx={limb * 0.8} ry={limb * 0.55} fill={BABY_SKIN} {...line} strokeWidth={5} />
+    </g>
+  );
+  return (
+    <g>
+      {leg(w * 0.04)}
+      {arm(w * 0.05)}
+      <ellipse cx={x} cy={cy} rx={w * 0.18} ry={w * 0.085} fill={ROMPER} {...line} strokeWidth={5} />
+      {leg(0)}
+      {arm(0)}
+      <g transform={`translate(${2 * (x - w * 0.25)},0) scale(-1,1)`}>
+        <BabyHead cx={x - w * 0.25} cy={bottom - w * 0.3} r={r} w={w} cry={thing.cry} />
+      </g>
     </g>
   );
 }
