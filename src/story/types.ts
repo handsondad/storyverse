@@ -25,11 +25,13 @@ export type Actor = {
   readonly tip?: number;
   /** 换一身职业装，比如阿姨穿 nurse 就是护士 */
   readonly outfit?: OutfitId;
+  /** 戴顶帽子：party 尖尖的生日帽 */
+  readonly hat?: "party";
 };
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球 */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子 */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -63,6 +65,10 @@ export type Thing = {
   readonly cry?: boolean;
   /** 宝宝左右翻过来 */
   readonly flip?: boolean;
+  /** crawl / sit 的宝宝的头发：fuzz 毛茸茸一层；bald 刚理的小光头，亮亮的。不写是一小撮 */
+  readonly hair?: "fuzz" | "bald";
+  /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽 */
+  readonly hat?: "party";
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

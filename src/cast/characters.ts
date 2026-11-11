@@ -150,6 +150,9 @@ export const OUTFITS = {
 export type OutfitId = keyof typeof OUTFITS;
 export const OUTFIT_IDS = Object.keys(OUTFITS) as OutfitId[];
 
-export function dressed(spec: CharacterSpec, outfit?: OutfitId): CharacterSpec {
-  return outfit ? { ...spec, look: { ...spec.look, ...OUTFITS[outfit] } } : spec;
+export const PARTY_HAT = "#ff8fb1";
+
+export function dressed(spec: CharacterSpec, outfit?: OutfitId, hat?: "party"): CharacterSpec {
+  if (!outfit && !hat) return spec;
+  return { ...spec, look: { ...spec.look, ...(outfit ? OUTFITS[outfit] : {}), ...(hat ? { partyHat: PARTY_HAT } : {}) } };
 }

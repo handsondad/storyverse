@@ -95,6 +95,24 @@ export function Head({ spec, face, talking, blink }: HeadProps) {
       {look.glasses && <Glasses x={ex} t={t} y={ey} w={ew * 3.3} h={eh * 2.5} color={look.glasses} line={line * 0.9} />}
       <FrontHair spec={spec} />
       {look.cap && <NurseCap rx={rx} ry={ry} t={t} color={look.cap} line={line} />}
+      {look.partyHat && <PartyHat x={t * 0.6} y={-ry * 0.86} w={rx * 0.95} h={ry * 1.15} tilt={rx * 0.18} color={look.partyHat} line={line} />}
+    </g>
+  );
+}
+
+/** 尖尖的生日帽：x、y 是帽檐中点，tilt 是帽尖往前歪多少 */
+export function PartyHat({ x, y, w, h, tilt, color, line }: { x: number; y: number; w: number; h: number; tilt: number; color: string; line: number }) {
+  const tip: [number, number] = [x + tilt, y - h];
+  const at = (f: number, s: number): [number, number] => [x + s * w * 0.5 * (1 - f) + tilt * f, y - h * f];
+  return (
+    <g strokeLinejoin="round">
+      <path d={`M ${x - w / 2},${y} L ${tip[0]},${tip[1]} L ${x + w / 2},${y} Q ${x},${y + w * 0.12} ${x - w / 2},${y} Z`} fill={color} stroke={INK} strokeWidth={line * 0.8} />
+      {[0.3, 0.6].map((f) => {
+        const [lx, ly] = at(f, -1);
+        const [rx, ry] = at(f, 1);
+        return <path key={f} d={`M ${lx},${ly} Q ${(lx + rx) / 2},${ly + w * 0.06 * (1 - f)} ${rx},${ry}`} fill="none" stroke="#ffe066" strokeWidth={line * 1.3} strokeLinecap="round" />;
+      })}
+      <circle cx={tip[0]} cy={tip[1]} r={w * 0.13} fill="#ffe066" stroke={INK} strokeWidth={line * 0.7} />
     </g>
   );
 }

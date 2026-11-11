@@ -2,8 +2,9 @@
  * 背景：都画在舞台坐标里（1600×1000，地面 880），并往四周多画一圈，镜头推到边上也不露白。
  * 同一页里有好几格，渐变 id 要带上 uid，免得互相串。
  */
-import { INK } from "../cast/characters.ts";
+import { INK, PARTY_HAT } from "../cast/characters.ts";
 import { EMOJI_FONT } from "../cast/Figure.tsx";
+import { PartyHat } from "../cast/Head.tsx";
 import type { Pt } from "../cast/rig.ts";
 import { STAGE, stageX, thingHeight } from "../engine/stage.ts";
 import type { Prop, SceneSpec, Thing } from "../story/types.ts";
@@ -542,7 +543,25 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
       return p.thing.kick ? <KickingBaby {...p} /> : p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
     case "band": return <Band {...p} />;
     case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
+    case "clipper": return <Clipper {...p} />;
   }
+}
+
+/** 理发的电推子，刀头朝左，往上斜一点 */
+function Clipper({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.26;
+  const cy = bottom - w * 0.2;
+  const L = x - w * 0.46;
+  const blade = w * 0.16;
+  return (
+    <g transform={`rotate(-14 ${x} ${cy})`}>
+      <rect x={L + blade - 6} y={cy - h / 2} width={w * 0.92 - blade + 6} height={h} rx={h / 2} fill="#5b8def" {...line} strokeWidth={5} />
+      <rect x={L + blade + w * 0.2} y={cy - h / 2 + 5} width={w * 0.3} height={h - 10} rx={(h - 10) / 2} fill="#86aaf5" />
+      <circle cx={L + blade + w * 0.12} cy={cy} r={h * 0.16} fill="#ffd84d" stroke={INK} strokeWidth={3} />
+      <rect x={L} y={cy - h * 0.62} width={blade} height={h * 1.24} rx={6} fill="#dfe5ec" {...line} strokeWidth={5} />
+      <path d={[0.2, 0.4, 0.6, 0.8].map((f) => `M ${L},${cy - h * 0.62 + h * 1.24 * f} l ${blade * 0.45},0`).join(" ")} stroke={INK} strokeWidth={3} strokeLinecap="round" />
+    </g>
+  );
 }
 
 /** 裹在襁褓里睡着的小宝宝，头朝左 */
@@ -706,14 +725,34 @@ function babyLimb(d: string, limb: number, color: string) {
   );
 }
 
-/** 侧脸朝右的宝宝头：笑眯眯，或者哇哇大哭 */
-function BabyHead({ cx, cy, r, w, cry }: { cx: number; cy: number; r: number; w: number; cry?: boolean }) {
+/** 侧脸朝右的宝宝头：笑眯眯，或者哇哇大哭；头发可以毛茸茸、可以是小光头，还能戴生日帽 */
+function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; w: number; thing: Thing }) {
+  const { cry, hair } = thing;
   const stroke = Math.max(3, w * 0.008);
   const eye = { fill: "none", stroke: INK, strokeWidth: stroke, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  // 毛茸茸的头发从后脑勺（左下）盖过头顶，到额头（右上）为止
+  const back: Pt = [cx - r * 0.985, cy + r * 0.17];
+  const brow: Pt = [cx + r * 0.57, cy - r * 0.82];
+  const tufts = [150, 120, 90].map((deg) => {
+    const a = (deg * Math.PI) / 180;
+    return `M ${cx + Math.cos(a) * r * 0.98},${cy - Math.sin(a) * r * 0.98} l ${Math.cos(a - 0.5) * r * 0.16},${-Math.sin(a - 0.5) * r * 0.16}`;
+  }).join(" ");
   return (
     <g>
       <circle cx={cx} cy={cy} r={r} fill={BABY_SKIN} {...line} strokeWidth={5} />
-      <path d={`M ${cx - r * 0.25},${cy - r * 0.98} q ${r * 0.2},${-r * 0.3} ${r * 0.4},${-r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />
+      {hair === "fuzz" && (
+        <g>
+          <path d={`M ${back[0]},${back[1]} A ${r} ${r} 0 0 1 ${brow[0]},${brow[1]} Q ${cx - r * 0.1},${cy - r * 0.42} ${back[0]},${back[1]} Z`} fill="#6b4a33" {...line} strokeWidth={5} />
+          <path d={tufts} fill="none" stroke="#6b4a33" strokeWidth={stroke * 1.6} strokeLinecap="round" />
+        </g>
+      )}
+      {hair === "bald" && (
+        <g fill="#ffffff">
+          <ellipse cx={cx - r * 0.3} cy={cy - r * 0.62} rx={r * 0.26} ry={r * 0.11} transform={`rotate(-28 ${cx - r * 0.3} ${cy - r * 0.62})`} opacity={0.9} />
+          <circle cx={cx + r * 0.02} cy={cy - r * 0.8} r={r * 0.06} opacity={0.9} />
+        </g>
+      )}
+      {!hair && <path d={`M ${cx - r * 0.25},${cy - r * 0.98} q ${r * 0.2},${-r * 0.3} ${r * 0.4},${-r * 0.05}`} fill="none" stroke="#3b2a20" strokeWidth={Math.max(4, w * 0.01)} strokeLinecap="round" />}
       <path d={`M ${cx - r * 0.75},${cy + r * 0.05} q ${-r * 0.22},${-r * 0.02} ${-r * 0.2},${r * 0.25}`} fill="none" stroke={INK} strokeWidth={stroke} strokeLinecap="round" opacity={0.6} />
       {cry ? (
         <>
@@ -728,6 +767,7 @@ function BabyHead({ cx, cy, r, w, cry }: { cx: number; cy: number; r: number; w:
         </>
       )}
       <ellipse cx={cx + r * 0.2} cy={cy + r * 0.2} rx={r * 0.17} ry={r * 0.11} fill="#ff7b7b" opacity={0.45} />
+      {thing.hat && <PartyHat x={cx - r * 0.05} y={cy - r * 0.8} w={r * 1.05} h={r * 1.35} tilt={r * 0.3} color={PARTY_HAT} line={stroke * 1.4} />}
     </g>
   );
 }
@@ -749,7 +789,7 @@ function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
       {!thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
       {!thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
       {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, ROMPER)}
-      <BabyHead cx={hx} cy={hy} r={r} w={w} cry={thing.cry} />
+      <BabyHead cx={hx} cy={hy} r={r} w={w} thing={thing} />
       {thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
     </g>
   );
@@ -775,7 +815,7 @@ function CrawlingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: n
       {leg(0)}
       {arm(0)}
       <g transform={`translate(${2 * (x - w * 0.25)},0) scale(-1,1)`}>
-        <BabyHead cx={x - w * 0.25} cy={bottom - w * 0.3} r={r} w={w} cry={thing.cry} />
+        <BabyHead cx={x - w * 0.25} cy={bottom - w * 0.3} r={r} w={w} thing={thing} />
       </g>
     </g>
   );

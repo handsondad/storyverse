@@ -44,6 +44,8 @@ export type Look = {
   readonly wrinkles?: boolean;
   /** 护士帽的颜色（一般由 outfit 给） */
   readonly cap?: string;
+  /** 尖尖的生日帽的颜色（由 actor.hat 给） */
+  readonly partyHat?: string;
   /** 脸颊红晕的浓淡 0～1 */
   readonly blush: number;
 };

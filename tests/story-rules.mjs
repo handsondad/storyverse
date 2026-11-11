@@ -66,6 +66,7 @@ export function checkStory(story) {
       if (typeof a.at === "number" && (a.at < 0 || a.at > 1)) say(where, `站位 ${a.at} 应在 0～1`);
       if (a.seat && !SEATS.includes(a.seat)) say(where, `没有椅子 ${a.seat}`);
       if (a.outfit && !OUTFIT_IDS.includes(a.outfit)) say(where, `没有这身衣服 ${a.outfit}（有：${OUTFIT_IDS.join("、")}）`);
+      if (a.hat && a.hat !== "party") say(where, `${a.who} 的 hat 只能是 party`);
       if (a.tip !== undefined && !a.seat) say(where, `${a.who} 写了 tip 就要写 seat：是椅子在翘`);
       if (a.tip !== undefined && (a.tip < 0 || a.tip > 90)) say(where, `tip ${a.tip} 应在 0～90 度`);
     }
@@ -87,6 +88,9 @@ export function checkStory(story) {
       if (p.thing?.move && !["crawl", "sit"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit");
       if (p.thing?.move && (p.thing.kick || p.thing.diaper || p.thing.ball)) say(where, "move 和 kick / diaper / ball 只写一个：一个宝宝一个姿势");
       if (p.thing?.cry && !p.thing.move) say(where, "cry 只给 crawl / sit 的宝宝用");
+      if ((p.thing?.hair || p.thing?.hat) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "hair、hat 只给 crawl / sit 的宝宝用");
+      if (p.thing?.hair && !["fuzz", "bald"].includes(p.thing.hair)) say(where, "hair 只能是 fuzz / bald");
+      if (p.thing?.hat && p.thing.hat !== "party") say(where, "hat 只能是 party");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }
 
