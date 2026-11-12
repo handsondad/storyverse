@@ -195,8 +195,8 @@ export type Story = {
   readonly when: {
     /** YYYY-MM-DD */
     readonly date: string;
-    /** 那天是什么日子，比如「六一儿童节」，≤8 个字 */
-    readonly label?: string;
+    /** 时间绳上日期下面的小标题：那天是什么日子，比如「六一儿童节」「小沙发」，≤8 个字 */
+    readonly label: string;
   };
   readonly credits: Credits;
   /** 封面画面：一个舞台，只有画，没有气泡 */

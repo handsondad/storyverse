@@ -40,7 +40,7 @@ const story: Story = {
   title: "新故事",
   blurb: "一句话介绍。",
   // 故事发生的那天（编出来的故事写第一次讲它的那天），首页时间绳按这个排
-  when: { date: "${new Date().toISOString().slice(0, 10)}" },
+  when: { date: "${new Date().toISOString().slice(0, 10)}", label: "" },
   credits: {
     by: ["nian", "dad"],
   },

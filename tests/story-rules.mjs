@@ -41,7 +41,8 @@ export function checkStory(story) {
   if (chars(story.blurb) > LIMITS.blurb) say("简介", `超过 ${LIMITS.blurb} 个字`);
   const day = story.when?.date ?? "";
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || Number.isNaN(Date.parse(day))) say("时间", "when.date 要写故事发生的那天，格式 YYYY-MM-DD");
-  if (story.when?.label && chars(story.when.label) > 8) say("时间", "when.label 不超过 8 个字");
+  if (!story.when?.label) say("时间", "when.label 要写：时间绳上日期下面的小标题");
+  else if (chars(story.when.label) > 8) say("时间", "when.label 不超过 8 个字");
   if (!story.credits?.by?.length) say("署名", "credits.by 至少要有一个角色（nian / dad / mom）");
   for (const id of story.credits?.by ?? []) {
     if (!CREATOR_IDS.includes(id)) say("署名", `credits.by 里不能写「${id}」，只能是小念、爸爸、妈妈`);

@@ -14,7 +14,7 @@ const story: Story = {
   id: "latex-pillow",
   title: "睡了九年的枕头",
   blurb: "密封了九年的乳胶枕，拆开却鼓不起来。爸爸和小念拍呀拍……",
-  when: { date: "2026-05-20" },
+  when: { date: "2026-05-20", label: "拆新枕头" },
   credits: { by: ["nian", "dad", "mom"] },
   cover: {
     scene: room,

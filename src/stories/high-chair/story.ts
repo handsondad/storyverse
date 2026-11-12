@@ -22,7 +22,7 @@ const story: Story = {
   id: "high-chair",
   title: "餐椅不是跷跷板",
   blurb: "小念吃饭时蹬桌子翘椅子，妈妈一走，咣当——",
-  when: { date: "2026-11-08" },
+  when: { date: "2026-11-08", label: "翘椅子摔跤" },
   credits: { by: ["nian", "dad", "mom"] },
   cover: {
     scene: { ...room, table: { from: 0.48, to: 0.8 } },
