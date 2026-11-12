@@ -684,6 +684,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "box": return <MedicineBox {...p} />;
     case "tub": return <Tub {...p} />;
     case "steam": return <Steam {...p} />;
+    case "photo": return <OldPhoto {...p} />;
   }
 }
 
@@ -953,6 +954,7 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
 /** 坐着的宝宝（侧面，脸朝右），两腿往前伸；哭的时候一只手捂着头 */
 function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
   if (thing.tub) return <TubBaby x={x} bottom={bottom} w={w} thing={thing} />;
+  if (thing.ride) return <RideBaby x={x} bottom={bottom} w={w} thing={thing} />;
   const limb = w * 0.05;
   const r = w * 0.12;
   const hip: Pt = [x, bottom - limb * 0.6];
@@ -994,6 +996,100 @@ function BabyHand({ at, r, kind }: { at: Pt; r: number; kind?: Thing["hand"] }) 
     <g>
       <circle cx={at[0]} cy={at[1]} r={r} fill={BABY_SKIN} {...line} strokeWidth={5} />
       {kind === "red" && <circle cx={at[0]} cy={at[1]} r={r * 0.72} fill="#ff6b6b" opacity={0.55} />}
+    </g>
+  );
+}
+
+const RIDE_CAR = "#ff6b5b";
+
+/** 骑在大汽车（扭扭车）上的宝宝：车头朝右，小手扶方向盘，近处那只脚踩在地上蹬 */
+function RideBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const limb = w * 0.05;
+  const r = w * 0.12;
+  const wheel = w * 0.075;
+  const seatY = bottom - w * 0.22;
+  const bx = x - w * 0.1;
+  const romper = thing.color ?? ROMPER;
+  const column: Pt = [x + w * 0.17, bottom - w * 0.38];
+  const hand: Pt = [column[0] - w * 0.01, column[1] + w * 0.01];
+  const hip: Pt = [bx, seatY - limb * 0.6];
+  const knee: Pt = [bx + w * 0.12, seatY - limb * 0.2];
+  const foot: Pt = [bx + w * 0.15, bottom - limb * 0.7];
+  return (
+    <g>
+      <path d={`M ${x + w * 0.21},${bottom - w * 0.2} L ${column[0]},${column[1]}`} fill="none" stroke={INK} strokeWidth={Math.max(8, w * 0.03)} strokeLinecap="round" />
+      <ellipse cx={column[0]} cy={column[1]} rx={w * 0.065} ry={w * 0.022} fill="#4a4a4a" {...line} strokeWidth={5} transform={`rotate(-20 ${column[0]} ${column[1]})`} />
+      <path d={`M ${x - w * 0.36},${bottom - w * 0.09} L ${x - w * 0.37},${bottom - w * 0.22} L ${x + w * 0.03},${bottom - w * 0.22} Q ${x + w * 0.3},${bottom - w * 0.25} ${x + w * 0.39},${bottom - w * 0.18} L ${x + w * 0.41},${bottom - w * 0.09} Z`}
+        fill={RIDE_CAR} {...line} strokeWidth={5} />
+      <path d={`M ${x - w * 0.3},${bottom - w * 0.155} H ${x + w * 0.3}`} stroke="#ffffff" strokeWidth={Math.max(5, w * 0.02)} strokeLinecap="round" opacity={0.75} />
+      <circle cx={x + w * 0.37} cy={bottom - w * 0.165} r={w * 0.025} fill="#ffe08a" {...line} strokeWidth={4} />
+      {[x - w * 0.24, x + w * 0.26].map((cx) => (
+        <g key={cx}>
+          <circle cx={cx} cy={bottom - wheel} r={wheel} fill="#3b3b3b" {...line} strokeWidth={5} />
+          <circle cx={cx} cy={bottom - wheel} r={wheel * 0.4} fill="#d9d9d9" />
+        </g>
+      ))}
+      <ellipse cx={bx - w * 0.01} cy={seatY - w * 0.15} rx={w * 0.1} ry={w * 0.14} fill={romper} {...line} strokeWidth={5} />
+      {babyLimb(`M ${hip[0]},${hip[1]} L ${knee[0]},${knee[1]} L ${foot[0]},${foot[1]}`, limb, romper)}
+      <ellipse cx={foot[0] + limb * 0.4} cy={bottom - limb * 0.6} rx={limb * 0.9} ry={limb * 0.6} fill={BABY_SKIN} {...line} strokeWidth={5} />
+      {babyLimb(`M ${bx + w * 0.01},${seatY - w * 0.25} L ${hand[0]},${hand[1]}`, limb, romper)}
+      <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />
+      <BabyHead cx={bx + w * 0.01} cy={seatY - w * 0.42} r={r} w={w} thing={thing} />
+    </g>
+  );
+}
+
+const SEPIA = { paper: "#ecd6a8", ground: "#c9a56e", ink: "#6b4a2b", mid: "#b08654", dark: "#7d5a36", light: "#f6e7c4" };
+
+/** 妈妈小时候的老照片：白边、发黄，一个扎小辫的小女孩威风地骑在摩托车上（车头朝右） */
+function OldPhoto({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.78;
+  const top = bottom - h;
+  const pad = w * 0.05;
+  const ix = x - w / 2 + pad;
+  const iy = top + pad;
+  const iw = w - pad * 2;
+  const ih = h - pad * 2.6;
+  const u = (f: number) => f * iw;
+  const ground = iy + ih * 0.86;
+  const wr = u(0.1);
+  const wy = ground - wr;
+  const mx = ix + iw * 0.52;
+  const seatY = wy - u(0.12);
+  const s = { stroke: SEPIA.ink, strokeWidth: Math.max(3, w * 0.008), strokeLinejoin: "round" as const, strokeLinecap: "round" as const };
+  const grip: Pt = [mx + u(0.1), wy - u(0.22)];
+  const head: Pt = [mx - u(0.1), seatY - u(0.2)];
+  const hr = u(0.08);
+  return (
+    <g transform={`rotate(-3 ${x} ${bottom - h / 2})`}>
+      <rect x={x - w / 2} y={top} width={w} height={h} rx={w * 0.01} fill="#fffaf0" {...line} strokeWidth={5} />
+      <rect x={ix} y={iy} width={iw} height={ih} fill={SEPIA.paper} stroke={SEPIA.ink} strokeWidth={s.strokeWidth} />
+      <rect x={ix} y={ground} width={iw} height={iy + ih - ground} fill={SEPIA.ground} />
+      <circle cx={ix + iw * 0.84} cy={iy + ih * 0.2} r={u(0.06)} fill={SEPIA.light} />
+      {[mx - u(0.22), mx + u(0.22)].map((cx) => (
+        <g key={cx}>
+          <circle cx={cx} cy={wy} r={wr} fill={SEPIA.dark} {...s} />
+          <circle cx={cx} cy={wy} r={wr * 0.45} fill={SEPIA.light} {...s} />
+        </g>
+      ))}
+      <path d={`M ${mx + u(0.13)},${wy - u(0.2)} L ${mx + u(0.22)},${wy}`} fill="none" {...s} strokeWidth={s.strokeWidth * 2} />
+      <path d={`M ${mx - u(0.2)},${wy - u(0.08)} L ${mx - u(0.06)},${wy - u(0.17)} L ${mx + u(0.12)},${wy - u(0.17)} L ${mx + u(0.16)},${wy - u(0.04)} L ${mx - u(0.04)},${wy + u(0.02)} Z`} fill={SEPIA.mid} {...s} />
+      <rect x={mx - u(0.25)} y={seatY - u(0.025)} width={u(0.24)} height={u(0.045)} rx={u(0.02)} fill={SEPIA.dark} {...s} />
+      <circle cx={mx + u(0.18)} cy={wy - u(0.14)} r={u(0.03)} fill={SEPIA.light} {...s} />
+      <path d={`M ${mx + u(0.13)},${wy - u(0.2)} L ${grip[0]},${grip[1]}`} fill="none" {...s} strokeWidth={s.strokeWidth * 1.6} />
+      <path d={`M ${mx - u(0.14)},${seatY - u(0.11)} L ${mx - u(0.06)},${seatY - u(0.11)} L ${mx - u(0.03)},${seatY + u(0.005)} L ${mx - u(0.17)},${seatY + u(0.005)} Z`} fill={SEPIA.light} {...s} />
+      <path d={`M ${mx - u(0.08)},${seatY - u(0.005)} L ${mx + u(0.0)},${seatY + u(0.01)} L ${mx + u(0.005)},${wy - u(0.03)}`} fill="none" stroke={SEPIA.ink} strokeWidth={u(0.034)} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={`M ${mx - u(0.09)},${seatY - u(0.09)} L ${grip[0]},${grip[1]}`} fill="none" stroke={SEPIA.ink} strokeWidth={u(0.028)} strokeLinecap="round" />
+      <circle cx={grip[0]} cy={grip[1]} r={u(0.02)} fill={SEPIA.light} {...s} />
+      {[-0.5, 0.35].map((dy) => (
+        <path key={dy} d={`M ${head[0] - hr * 0.85},${head[1] + hr * dy * 0.6} q ${-hr * 0.5},${hr * dy * 0.4} ${-hr * 0.7},${hr * (dy + 0.4)}`} fill="none" stroke={SEPIA.ink} strokeWidth={hr * 0.32} strokeLinecap="round" />
+      ))}
+      <circle cx={head[0]} cy={head[1]} r={hr} fill={SEPIA.light} {...s} />
+      <path d={`M ${head[0] - hr},${head[1] + hr * 0.1} A ${hr} ${hr} 0 0 1 ${head[0] + hr * 0.7},${head[1] - hr * 0.7} Q ${head[0]},${head[1] - hr * 0.2} ${head[0] - hr},${head[1] + hr * 0.1} Z`} fill={SEPIA.ink} />
+      <path d={`M ${head[0] + hr * 0.2},${head[1] - hr * 0.3} l ${hr * 0.35},${hr * 0.12}`} fill="none" {...s} />
+      <circle cx={head[0] + hr * 0.42} cy={head[1] - hr * 0.02} r={hr * 0.1} fill={SEPIA.ink} />
+      <path d={`M ${head[0] + hr * 0.35},${head[1] + hr * 0.42} q ${hr * 0.25},${hr * 0.15} ${hr * 0.5},${-hr * 0.05}`} fill="none" {...s} />
+      <rect x={ix} y={iy} width={iw} height={ih} fill="none" stroke={SEPIA.dark} strokeWidth={u(0.03)} opacity={0.35} />
     </g>
   );
 }

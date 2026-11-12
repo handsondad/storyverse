@@ -88,6 +88,8 @@ export function checkStory(story) {
       if ((p.thing?.tub || p.thing?.splash) && !(p.thing.kind === "baby" && p.thing.move === "sit")) say(where, "tub、splash 只给 sit 的宝宝用");
       if (p.thing?.hand && !(p.thing.kind === "baby" && p.thing.move === "sit")) say(where, "hand 只给 sit 的宝宝用");
       if (p.thing?.hand && !["red", "bandage"].includes(p.thing.hand)) say(where, "hand 只能是 red / bandage");
+      if (p.thing?.ride && !(p.thing.kind === "baby" && p.thing.move === "sit")) say(where, "ride 只给 sit 的宝宝用");
+      if (p.thing?.ride && p.thing.tub) say(where, "ride 和 tub 不能一起写");
       if (p.thing?.splash && !p.thing.tub) say(where, "splash 是在澡盆里拍水：写 splash 就要写 tub");
       if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
       if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");

@@ -113,6 +113,8 @@ description: >-
 - 空的大澡盆：`{ thing: { kind: "tub" }, x, size: 300, front: true }`
 - `sit` 的宝宝写 `hand: "red"` 那只伸出来的小手红红的（烫着了，不画伤口），`"bandage"` 包着白纱布；和 `cry` 一起写就是伸着这只手哭（见 `src/stories/hot-water/story.ts`）
 - 冒热气：`{ thing: { kind: "steam" }, x, lift, size: 90～120 }`，放在热水、杯子上面（☕ 本身不带热气）
+- `sit` 的宝宝写 `ride: true` 就是骑在红色大汽车（扭扭车）上，车头朝右、一只脚蹬地；`size` 400～560
+- 妈妈小时候的老照片：`{ thing: { kind: "photo" }, x, size }`，特写用 700 左右；拿在手里配 `pose: "hold"`、面朝右，照片 `x: at + 0.08, lift: 270, size: 160, front: true`（见 `src/stories/little-rider/story.ts`）
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）
 - 大人小孩戴生日帽：角色写 `hat: "party"`
