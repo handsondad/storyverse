@@ -33,7 +33,7 @@ const story: Story = {
       panels: [
         {
           scene: home,
-          shot: "wide",
+          shot: "medium",
           actors: [
             { who: "nian", at: 0.3, pose: "cheer", face: "happy", facing: "right" },
             { who: "mom", at: 0.72, pose: "hold", hold: "🧩", face: "happy", facing: "left" },
@@ -81,7 +81,7 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#e6f0ff"),
+          scene: home,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "surprised" }],
           beats: [
@@ -125,7 +125,7 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#e6f0ff"),
+          scene: home,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "surprised" }],
           beats: [
@@ -150,7 +150,7 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#fff0c2"),
+          scene: home,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "hold", hold: "🧩", face: "proud" }],
           beats: [
@@ -159,7 +159,7 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#e6f0ff"),
+          scene: home,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "sad" }],
           beats: [

@@ -80,6 +80,7 @@ const story: Story = {
         },
         {
           scene: { place: "plain", tint: "#dff1fb" },
+          shot: "wide",
           actors: [],
           props: [{ thing: { kind: "band", label: "男 16:04" }, x: 0.5, lift: 110, size: 900 }],
           beats: [
@@ -112,6 +113,7 @@ const story: Story = {
         },
         {
           scene: hall,
+          shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "shrug", face: "shy" }],
           beats: [
             { say: "dad", text: "太激动，连时间都不认识了！" },
@@ -150,7 +152,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: { place: "living-room", time: "day" },
           actors: [
             { who: "dad", at: 0.32, pose: "shrug", face: "shy", facing: "right" },
             { who: "nian", at: 0.66, pose: "point", face: "laugh", facing: "left" },

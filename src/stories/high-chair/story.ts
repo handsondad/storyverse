@@ -154,7 +154,7 @@ const story: Story = {
         },
         {
           scene: floor,
-          actors: [{ who: "laoye", at: 0.5, pose: "think", face: "sad" }],
+          actors: [{ who: "laoye", at: 0.36, pose: "think", face: "sad" }],
           beats: [
             { say: "laoye", text: "应该是磕到头了。" },
           ],
@@ -176,9 +176,9 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#d8f0d2" },
+          scene: floor,
           shot: "wide",
-          actors: [{ who: "nian", at: 0.5, seat: "high-chair", pose: "sit", face: "proud" }],
+          actors: [{ who: "nian", at: 0.38, seat: "high-chair", pose: "sit", face: "proud" }],
           beats: [
             { caption: "四条椅子腿都着地，才最安全。" },
           ],

@@ -56,6 +56,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("high")],
           beats: [
@@ -79,6 +80,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("low", "sore")],
           beats: [
@@ -111,6 +113,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("airy", "sore")],
           beats: [
@@ -148,7 +151,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: room,
           actors: [
             { who: "dad", at: 0.36, pose: "hold", face: "shy", facing: "right", hold: "📖" },
             { who: "mom", at: 0.66, pose: "stand", face: "laugh", facing: "left" },

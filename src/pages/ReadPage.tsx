@@ -1,9 +1,10 @@
-import { useEffect, useRef, type TouchEvent } from "react";
+import { useEffect, useMemo, useRef, type TouchEvent } from "react";
 import { CoverView, PageView } from "../render/PageView.tsx";
+import { STORIES } from "../stories/index.ts";
 import { creditLine } from "../story/script.ts";
 import type { Story } from "../story/types.ts";
 import { shelfMemory } from "./shelfMemory.ts";
-import { yearOf } from "./timeline.ts";
+import { byDate, yearOf } from "./timeline.ts";
 import { useStoryPlayer } from "./useStoryPlayer.ts";
 
 type Props = {
@@ -23,6 +24,11 @@ export function ReadPage({ story, page }: Props) {
   const touch = useRef<{ x: number; y: number } | null>(null);
   const player = useStoryPlayer(story, at, next);
   const { toggle } = player;
+  const nextStory = useMemo(() => {
+    const ordered = [...STORIES].sort(byDate);
+    const i = ordered.findIndex((s) => s.id === story.id);
+    return i >= 0 ? ordered[i + 1] : undefined;
+  }, [story.id]);
 
   useEffect(() => {
     shelfMemory.open = yearOf(story);
@@ -75,16 +81,22 @@ export function ReadPage({ story, page }: Props) {
             <h2>讲完啦</h2>
             <p>{creditLine(story)}</p>
             {story.credits.note && <p>{story.credits.note}</p>}
+            {nextStory && (
+              <div className="the-end-actions">
+                <a className="btn ghost" href="#/">回书架</a>
+                <a className="btn" href={`#/read/${nextStory.id}/0`}>下一本：《{nextStory.title}》</a>
+              </div>
+            )}
           </div>
         )}
         <div className="pager no-snap">
           {prev ? <a className="btn ghost" href={prev}>上一页</a> : <button className="btn ghost" disabled>上一页</button>}
           <span className="count">{at === 0 ? "封面" : `${at} / ${total}`}</span>
           {next ? <a className="btn" href={next}>{at === 0 ? "开始看" : "下一页"}</a> : <a className="btn" href="#/">回书架</a>}
+          <button className={player.playing ? "btn ghost" : "btn play"} onClick={toggle}>
+            {player.playing ? "⏸ 暂停" : "▶ 听故事"}
+          </button>
         </div>
-        <button className={player.playing ? "btn ghost no-snap" : "btn play no-snap"} onClick={toggle}>
-          {player.playing ? "⏸ 先停一下" : "▶ 听故事"}
-        </button>
         <p className="hint no-snap">左右滑动或按 ← → 翻页，空格键听故事</p>
       </div>
     </div>

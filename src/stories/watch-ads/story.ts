@@ -108,7 +108,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#f3ebe0" },
+          scene: home,
           shot: "close",
           actors: [{ who: "laoye", at: 0.5, pose: "stand", face: "laugh" }],
           beats: [
@@ -116,7 +116,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f6ec" },
+          scene: home,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "laugh" }],
           beats: [
@@ -141,7 +141,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe3dc" },
+          scene: home,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "rub", face: "sad" }],
           beats: [
@@ -149,7 +149,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f6ec" },
+          scene: home,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "confused" }],
           beats: [

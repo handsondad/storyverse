@@ -40,6 +40,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("left")],
           beats: [
@@ -70,6 +71,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("up", true)],
           beats: [
@@ -93,6 +95,7 @@ const story: Story = {
       panels: [
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("left", true)],
           beats: [

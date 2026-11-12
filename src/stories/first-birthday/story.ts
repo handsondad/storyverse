@@ -39,7 +39,12 @@ const story: Story = {
       { who: "mom", at: 0.42, pose: "hug", face: "laugh", facing: "right" },
       { who: "laoye", at: 0.76, pose: "stand", face: "laugh", facing: "left" },
     ],
-    props: [{ emoji: "🎂", x: 0.62, lift: 205, size: 140 }, inArms(0.42), ...balloons],
+    props: [
+      { emoji: "🎂", x: 0.62, lift: 205, size: 140 },
+      inArms(0.42),
+      { emoji: "🎈", x: 0.28, lift: 305, size: 110 },
+      { emoji: "🎉", x: 0.68, lift: 325, size: 105 },
+    ],
   },
   pages: [
     {
@@ -73,6 +78,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#d6efff" },
+          shot: "wide",
           actors: [],
           props: [{ thing: nian({ giggle: true }), x: 0.46, size: 520 }],
           beats: [
@@ -152,11 +158,12 @@ const story: Story = {
       layout: "2-1",
       panels: [
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: { ...room, table: { from: 0.28, to: 0.72 } },
+          shot: "wide",
           actors: [],
           props: [
-            { thing: nian({ blow: true }), x: 0.36, size: 480 },
-            { emoji: "🎂", x: 0.62, lift: 0, size: 180 },
+            { thing: nian({ blow: true }), x: 0.39, lift: 205, size: 400, front: true },
+            { emoji: "🎂", x: 0.62, lift: 205, size: 150, front: true },
           ],
           beats: [
             { caption: "小念吹蜡烛，呼——一下就吹灭了！" },

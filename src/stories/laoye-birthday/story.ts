@@ -50,9 +50,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: { place: "living-room", time: "evening" },
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting({ hair: "fuzz" }), x: 0.47, size: 600 }],
+          props: [{ thing: sitting({ hair: "fuzz" }), x: 0.42, size: 440, front: true }],
           beats: [
             { caption: "那小念给姥爷准备了什么呢？" },
           ],
@@ -75,6 +76,7 @@ const story: Story = {
       panels: [
         {
           scene: { place: "plain", tint: "#e3f1ff" },
+          shot: "wide",
           actors: [],
           props: [
             { thing: sitting({ hair: "fuzz" }), x: 0.42, size: 560 },
@@ -87,6 +89,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#fff3b0" },
+          shot: "wide",
           actors: [],
           props: [{ thing: sitting(bald), x: 0.47, size: 600, glow: "#fff6c2" }],
           beats: [
@@ -143,9 +146,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffd6e4" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting(hatted), x: 0.47, size: 560 }],
+          props: [{ thing: sitting(hatted), x: 0.47, size: 450 }],
           beats: [
             { caption: "小光头戴上生日帽，神气极了！" },
           ],

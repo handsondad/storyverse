@@ -96,10 +96,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#fff3b0" },
+          scene: court,
           shot: "wide",
           actors: [],
-          props: [crawler(0.47, {}, 560)],
+          props: [crawler(0.47, { giggle: true }, 440)],
           beats: [
             { caption: "小念是里面最爱爬的那一个！" },
           ],

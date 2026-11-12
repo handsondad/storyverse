@@ -133,6 +133,41 @@ export function thingHeight(t: Thing, size: number): number {
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
+function babyHeadAt(x: number, bottom: number, w: number, t: Thing): { cx: number; cy: number; r: number } {
+  const s = t.flip ? -1 : 1;
+  if (!t.move && !t.kick && !t.diaper) return { cx: x - s * w * 0.28, cy: bottom - w * 0.33, r: w * 0.24 };
+  if (t.diaper) return { cx: x - s * w * 0.3, cy: bottom - w * 0.25, r: w * 0.2 };
+  if (t.kick) return { cx: x - s * w * 0.3, cy: bottom - w * 0.16, r: w * 0.12 };
+  if (t.move === "crawl") return { cx: x - s * w * 0.25, cy: bottom - w * 0.3, r: w * 0.12 };
+  if (t.move === "stand") return { cx: x + s * w * 0.01, cy: bottom - w * 0.52, r: w * 0.12 };
+  if (t.tub) return { cx: x - s * w * 0.02, cy: bottom - w * 0.56, r: w * 0.12 };
+  if (t.ride) return { cx: x - s * w * 0.09, cy: bottom - w * 0.64, r: w * 0.12 };
+  return { cx: x + s * w * 0.01, cy: bottom - w * 0.42, r: w * 0.12 };
+}
+
+/** 2024～2025 故事里小念是 baby 道具（或坐在木板/三轮车/餐椅上），给出舞台坐标下的头，免得气泡和拟声字压脸 */
+export function propFace(p: Prop): { cx: number; cy: number; r: number } | null {
+  const t = p.thing;
+  if (!t) return null;
+  const w = p.size ?? 90;
+  const x = stageX(p.x);
+  const bottom = STAGE.ground - (p.lift ?? 0);
+  if (t.kind === "baby") return babyHeadAt(x, bottom, w, t);
+  if (t.kind === "highchair" && t.rider) {
+    const seatTop = bottom - w * 0.65 - (t.cushion !== "gone" ? w * 0.07 : 0);
+    return babyHeadAt(x - w * 0.17, seatTop, w * 0.85, t.rider);
+  }
+  if (t.kind === "trike" && t.rider) return babyHeadAt(x + w * 0.14, bottom - w * 0.282, w * 0.42, t.rider);
+  if (t.kind === "board" && t.rider) {
+    const u = Math.max(-1, Math.min(1, t.spot ?? 0));
+    const wr = w * BOARD_RIDER;
+    if (t.shape === "slide") return babyHeadAt(x + (u - 0.1) * w * 0.42, bottom - w * (0.28 - u * 0.2), wr, t.rider);
+    const under = t.shape === "arch" ? w * 0.32 * (1 - u * u) : w * 0.16 * u * u;
+    return babyHeadAt(x + u * w * 0.5, bottom - under - w * 0.08, wr, t.rider);
+  }
+  return null;
+}
+
 const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机", sofa: "小沙发", highchair: "餐椅", cushion: "垫子", sock: "袜子", shoes: "鞋", puddle: "水", tissue: "纸巾", phone: "手机", jug: "洗衣液", puzzle: "拼图" };
 
 /** 检查器报问题时怎么称呼一个道具 */

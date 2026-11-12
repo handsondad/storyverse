@@ -42,15 +42,16 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff3e0" },
+          scene: hall,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting(), x: 0.47, size: 600 }],
+          props: [{ thing: sitting(), x: 0.48, size: 460 }],
           beats: [
             { caption: "小念才三个多月，睁大眼睛东看看、西看看。" },
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f4ee" },
+          scene: hall,
           actors: [{ who: "mom", at: 0.5, pose: "think", face: "scared" }],
           beats: [
             { say: "mom", text: "打针可疼了，小念肯定要哭……", kind: "thought" },
@@ -85,6 +86,7 @@ const story: Story = {
         },
         {
           scene: { place: "plain", tint: "#e3f1ff" },
+          shot: "wide",
           actors: [],
           props: [
             { thing: sitting(), x: 0.44, size: 950 },
@@ -112,9 +114,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#fff3b0" },
+          scene: hall,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting(), x: 0.47, size: 600, glow: "#fff6c2" }],
+          props: [{ thing: sitting(), x: 0.48, size: 460 }],
           beats: [
             { caption: "小念眨眨眼睛，一声都没哭！" },
           ],
@@ -138,7 +141,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: hall,
           shot: "close",
           actors: [{ who: "dad", at: 0.45, pose: "stand", face: "proud", facing: "right" }],
           props: [{ emoji: "👍", x: 0.545, lift: 450, size: 110, front: true }],
@@ -147,7 +150,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe8ef" },
+          scene: hall,
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "shy" }],
           beats: [
             { say: "mom", text: "原来妈妈是白担心啦！" },
@@ -155,6 +158,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#ffd6a0" },
+          shot: "wide",
           actors: [],
           props: [{ thing: sitting(), x: 0.47, size: 560 }, { emoji: "🏅", x: 0.62, lift: 250, size: 130 }],
           beats: [

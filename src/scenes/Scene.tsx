@@ -165,10 +165,15 @@ function LivingRoom({ time, uid, rain }: { time: TimeOfDay; uid: string; rain: b
       <path d={`M ${X0},${G - 250} L ${X0 + W},${G - 250}`} {...line} strokeWidth={4} opacity={0.5} />
       <Window x={170} y={220} w={360} h={330} time={time} uid={uid} rain={rain} curtain="#ffb3a7" />
       <g>
-        <rect x={700} y={250} width={180} height={140} rx={8} fill="#ffffff" {...line} />
-        <rect x={718} y={268} width={144} height={104} fill="#d8f0ff" />
-        <circle cx={830} cy={295} r={16} fill="#ffd84d" />
-        <path d={`M 718,372 L 765,310 L 800,350 L 825,325 L 862,372 Z`} fill="#8fd18a" />
+        <rect x={700} y={246} width={180} height={148} rx={10} fill="#ffffff" {...line} />
+        <rect x={718} y={264} width={144} height={112} rx={4} fill="#fff6e6" />
+        <path d={`M 790,366 L 790,318`} stroke="#5eb36b" strokeWidth={7} strokeLinecap="round" />
+        <ellipse cx={773} cy={346} rx={14} ry={7} transform="rotate(-24 773 346)" fill="#76c87e" />
+        <ellipse cx={807} cy={342} rx={14} ry={7} transform="rotate(24 807 342)" fill="#76c87e" />
+        {[0, 60, 120, 180, 240, 300].map((deg) => (
+          <ellipse key={deg} cx={790} cy={292} rx={10} ry={18} transform={`rotate(${deg} 790 310)`} fill="#ff9f43" />
+        ))}
+        <circle cx={790} cy={310} r={12} fill="#ffd84d" stroke={INK} strokeWidth={3} />
       </g>
       <Floor color="#e9c096" plank="#d9a97a" />
       <ellipse cx={800} cy={G + 20} rx={560} ry={70} fill="#f7c4a6" stroke={INK} strokeWidth={5} opacity={0.9} />

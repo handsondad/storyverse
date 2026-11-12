@@ -23,11 +23,11 @@ export function ShelfPage() {
   }, []);
   const size = sizeFor(room);
 
+  const years = useMemo(() => [...byYear(STORIES).entries()], []);
   const latest = useMemo(() => {
-    const years = [...byYear(STORIES).values()];
-    const last = years[years.length - 1] ?? [];
+    const last = years[years.length - 1]?.[1] ?? [];
     return last[last.length - 1] as Story | undefined;
-  }, []);
+  }, [years]);
   const [open, setOpen] = useState<number | null>(shelfMemory.open !== undefined ? shelfMemory.open : latest ? yearOf(latest) : null);
   const [picked, setPicked] = useState(shelfMemory.picked ?? latest?.id);
   const [peek, setPeek] = useState<string | null>(null);
@@ -39,30 +39,27 @@ export function ShelfPage() {
     shelfMemory.picked = picked;
   }, [open, picked]);
 
-  // 开合一年以后，把那一年的开头挪到眼前；从书里回来时，把刚看的那本挪到正中
-  const pending = useRef<number | null>(open);
-  const back = useRef(shelfMemory.picked !== undefined ? picked : undefined);
+  // 展开一年时对准当前选中的那本（下方预览卡和绳上高亮一致）；收起一年时对准那张年份卡
+  const pending = useRef<{ year: number; smooth: boolean } | null>(open !== null ? { year: open, smooth: false } : null);
   useLayoutEffect(() => {
     const el = scroller.current;
-    const year = pending.current;
-    if (!el || year === null || !room) return;
+    const req = pending.current;
+    if (!el || !req || !room) return;
     pending.current = null;
-    const tag = back.current && items.find((i) => i.kind === "story" && i.story.id === back.current);
-    back.current = undefined;
+    const behavior = req.smooth ? "smooth" : "auto";
+    const tag = picked && items.find((i) => i.kind === "story" && i.story.id === picked);
     if (tag) {
-      el.scrollTo({ left: Math.max(0, tag.x - el.clientWidth / 2) });
+      el.scrollTo({ left: Math.max(0, tag.x - el.clientWidth / 2), behavior });
       return;
     }
-    const it = items.find((i) => i.kind !== "story" && i.year === year);
-    if (!it) return;
-    const w = it.kind === "flag" ? size.flagW : size.yearW;
-    el.scrollTo({ left: Math.max(0, it.x - size.pad - w / 2), behavior: "smooth" });
-  }, [items, room, size]);
+    const it = items.find((i) => i.kind !== "story" && i.year === req.year);
+    if (it) el.scrollTo({ left: Math.max(0, it.x - el.clientWidth / 2), behavior });
+  }, [items, picked, room]);
 
   const toggle = (year: number, stories: readonly Story[] = []) => {
     setOpen((o) => (o === year ? null : year));
-    if (stories.length) setPicked(stories[stories.length - 1].id);
-    pending.current = year;
+    if (stories.length && open !== year) setPicked(stories[stories.length - 1].id);
+    pending.current = { year, smooth: true };
   };
 
   const [edges, setEdges] = useState({ left: false, right: false });
@@ -131,7 +128,9 @@ export function ShelfPage() {
     if (!next) return;
     e.preventDefault();
     setPicked(next.id);
-    document.getElementById(`tag-${next.id}`)?.focus();
+    const el = document.getElementById(`tag-${next.id}`);
+    el?.focus();
+    el?.scrollIntoView({ inline: "nearest", block: "nearest" });
   };
 
   const rope = `M ${size.pad / 2},${size.top} Q ${width / 2},${size.top + size.sag * 2} ${width - size.pad / 2},${size.top}`;
@@ -170,7 +169,7 @@ export function ShelfPage() {
                       style={{ left: it.x - size.yearW / 2, top: size.top + it.y - 10, width: size.yearW }} onClick={() => toggle(it.year, it.stories)}>
                       <span className="peg" aria-hidden="true" />
                       <span className="card" style={{ background: it.color, ["--tilt" as string]: `${it.tilt}deg` }}>
-                        <CoverView story={last} className="thumb" />
+                        <CoverView story={last} className="thumb" thumb />
                         <span className="day">{it.year}</span>
                         <span className="name">{it.stories.length} 个故事</span>
                       </span>
@@ -195,7 +194,17 @@ export function ShelfPage() {
             </div>
           </div>
         </div>
-        <p className="line-hint">点年份卡展开那一年 · 点小旗收起</p>
+        <div className="line-footer">
+          <div className="year-jumps" role="group" aria-label="按年份跳转">
+            {years.map(([yr, list]) => (
+              <button key={yr} type="button" className={open === yr ? "year-pill on" : "year-pill"}
+                aria-pressed={open === yr} onClick={() => toggle(yr, list)}>
+                {yr}（{list.length}）
+              </button>
+            ))}
+          </div>
+          <p className="line-hint">点年份展开或收起 · 左右滑动挑故事</p>
+        </div>
       </section>
 
       {shown && (

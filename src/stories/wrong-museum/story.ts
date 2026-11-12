@@ -19,7 +19,7 @@ const story: Story = {
       { who: "mom", at: "left", pose: "run", face: "scared" },
       { who: "dad", at: "right", pose: "run", face: "confused" },
     ],
-    props: [{ emoji: "📱", x: 0.22, lift: 220, size: 80 }],
+    props: [{ emoji: "📱", x: 0.25, lift: 220, size: 80 }],
   },
   pages: [
     {
@@ -186,7 +186,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffd166" },
+          scene: { place: "museum", time: "day", tint: "#f3e6d4" },
           shot: "wide",
           actors: [
             { who: "nian", at: "center", pose: "jump", face: "laugh" },

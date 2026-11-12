@@ -89,12 +89,12 @@ const story: Story = {
         },
         {
           scene: { place: "bathroom", time: "day" },
-          shot: "wide",
-          actors: [{ who: "nian", at: 0.36, pose: "hold", face: "proud", facing: "right" }],
-          props: [{ thing: { kind: "tissue" }, x: 0.37, lift: 140, size: 110, front: true }],
+          shot: "medium",
+          actors: [{ who: "nian", at: 0.48, pose: "hold", face: "proud", facing: "right" }],
+          props: [{ thing: { kind: "tissue" }, x: 0.49, lift: 140, size: 110, front: true }],
           beats: [
             { caption: "抽出了两张纸巾！" },
-            { sfx: "唰！唰！", at: [0.68, 0.24] },
+            { sfx: "唰！唰！" },
           ],
         },
       ],
@@ -116,7 +116,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff0c2" },
+          scene: home,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "stand", face: "proud" }],
           beats: [
@@ -125,7 +125,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f6ec" },
+          scene: home,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "laugh" }],
           beats: [

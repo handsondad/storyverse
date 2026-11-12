@@ -7,6 +7,7 @@ import type { Prop, SceneSpec, Story, Thing } from "../../story/types.ts";
  * 这时小念一岁五个月，还不怎么会说话，只给他笑声。
  */
 const home: SceneSpec = { place: "living-room", time: "day" };
+const evening: SceneSpec = { place: "living-room", time: "evening" };
 const bath: SceneSpec = { place: "bathroom", time: "day" };
 const jug = (x: number, cap?: Thing["cap"], size = 200): Prop => ({ thing: { kind: "jug", ...(cap ? { cap } : {}) }, x, size, front: true });
 
@@ -46,7 +47,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe9c2" },
+          scene: home,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "stand", face: "proud" }],
           beats: [
@@ -118,7 +119,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#f3ebe0" },
+          scene: bath,
           shot: "close",
           actors: [{ who: "laoye", at: 0.5, pose: "stand", face: "angry" }],
           beats: [
@@ -127,7 +128,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff0c2" },
+          scene: bath,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "stand", face: "laugh" }],
           beats: [
@@ -141,7 +142,7 @@ const story: Story = {
       layout: "1-2-1",
       panels: [
         {
-          scene: { place: "living-room", time: "evening" },
+          scene: evening,
           shot: "wide",
           actors: [
             { who: "dad", at: 0.3, pose: "stand", face: "neutral", facing: "right" },
@@ -153,7 +154,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e6f0ff" },
+          scene: evening,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "proud" }],
           beats: [
@@ -161,7 +162,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f6ec" },
+          scene: evening,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "surprised" }],
           beats: [
@@ -169,7 +170,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "living-room", time: "evening" },
+          scene: evening,
           shot: "wide",
           actors: [
             { who: "dad", at: 0.22, pose: "point", face: "laugh", facing: "right" },

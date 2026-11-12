@@ -48,7 +48,7 @@ const story: Story = {
           scene: atTable,
           shot: "wide",
           actors: [],
-          props: [chair(0.42, { rider: baby({ giggle: true }) }), { emoji: "🍚", x: 0.68, lift: 205, size: 80 }, { emoji: "🥣", x: 0.84, lift: 205, size: 80 }],
+          props: [chair(0.42, { rider: baby({ giggle: true }) }), { emoji: "🍚", x: 0.62, lift: 205, size: 80 }, { emoji: "🥣", x: 0.72, lift: 205, size: 80 }],
           beats: [
             { caption: "从此，小念也上餐桌吃饭啦。" },
           ],

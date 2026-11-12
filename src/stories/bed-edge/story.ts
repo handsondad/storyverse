@@ -81,6 +81,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#ffd6d6" },
+          shot: "wide",
           actors: [],
           props: [{ thing: { kind: "baby", move: "sit", cry: true }, x: 0.47, size: 620 }],
           beats: [
@@ -135,6 +136,7 @@ const story: Story = {
         },
         {
           scene: room,
+          shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "shy" }],
           beats: [
             { say: "dad", text: "就……就看了一眼……" },

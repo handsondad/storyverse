@@ -130,6 +130,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#ffe2c4" },
+          shot: "wide",
           actors: [],
           props: [trike(0.5, { rider: nian("sit", { giggle: true }) })],
           beats: [
@@ -138,6 +139,7 @@ const story: Story = {
         },
         {
           scene: field,
+          shot: "wide",
           actors: [driver(0.46, "happy")],
           props: [trike(0.46, { rider: nian("sit") })],
           beats: [

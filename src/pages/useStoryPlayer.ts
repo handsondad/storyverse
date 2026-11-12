@@ -49,7 +49,7 @@ export function useStoryPlayer(story: Story, at: number, next: string | null) {
 
   const started = playing || step > 0;
   const current = lines[Math.min(step, lines.length - 1)];
-  const reveal: Reveal | undefined = started && step < lines.length && current ? { panel: current.panel, beat: current.beat } : undefined;
+  const reveal: Reveal | undefined = started && step < lines.length && current ? { panel: current.panel, beat: current.beat, speaking: playing } : undefined;
 
   const toggle = () => {
     if (!playing && step >= lines.length) setPos({ key: pageKey, step: 0 });

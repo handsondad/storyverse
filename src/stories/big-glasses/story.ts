@@ -40,7 +40,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff3d6" },
+          scene: floor,
           shot: "wide",
           actors: [],
           props: [{ thing: nian("stand"), x: 0.45, size: 420 }],
@@ -79,17 +79,18 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe6e0" },
+          scene: floor,
           shot: "wide",
           actors: [],
-          props: [{ thing: nian("stand", { reach: true }), x: 0.5, size: 480 }],
+          props: [{ thing: nian("stand", { reach: true }), x: 0.46, size: 450 }],
           beats: [
             { caption: "小念急得直摇头，小手一个劲儿往上够。" },
             { sfx: "嗯嗯！", at: [0.78, 0.35] },
           ],
         },
         {
-          scene: { place: "burst", tint: "#dff1ff" },
+          scene: { place: "plain", tint: "#dff1ff" },
+          shot: "wide",
           actors: [],
           props: [{ thing: { kind: "glasses" }, x: 0.5, lift: 160, size: 520 }],
           beats: [
@@ -121,7 +122,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f5e8" },
+          scene: floor,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "scared" }],
           beats: [
@@ -154,7 +155,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#dff1ff" },
+          scene: floor,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "wave", face: "laugh" }],
           beats: [
@@ -163,6 +164,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#fff0c2" },
+          shot: "wide",
           actors: [],
           props: [{ thing: nian("sit", { specs: true, hat: "grad", giggle: true }), x: 0.5, size: 520 }],
           beats: [

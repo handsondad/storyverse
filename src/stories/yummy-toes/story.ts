@@ -40,6 +40,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("left")],
           beats: [
@@ -48,6 +49,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("grab")],
           beats: [
@@ -87,6 +89,7 @@ const story: Story = {
         },
         {
           scene: close,
+          shot: "wide",
           actors: [],
           props: [closeUp("toes")],
           beats: [
@@ -109,9 +112,10 @@ const story: Story = {
           ],
         },
         {
-          scene: close,
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [closeUp("grab", true, 680)],
+          props: [{ thing: { kind: "baby", kick: "grab", giggle: true }, x: 0.48, size: 480, front: true }],
           beats: [
             { caption: "小念「呜呜」地叫，啥也听不懂，" },
           ],
@@ -131,6 +135,7 @@ const story: Story = {
       panels: [
         {
           scene: { place: "burst", tint: "#ffe3ec" },
+          shot: "wide",
           actors: [],
           props: [closeUp("up", true)],
           beats: [

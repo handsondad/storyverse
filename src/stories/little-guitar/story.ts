@@ -20,7 +20,7 @@ const story: Story = {
       { who: "gege", at: 0.36, pose: "hold", face: "happy", facing: "right", hold: "🎸" },
       { who: "nian", at: 0.64, pose: "hold", face: "laugh", facing: "left", hold: "🎸" },
     ],
-    props: [note(0.2, 560), note(0.5, 640, 70), note(0.8, 580)],
+    props: [note(0.43, 290), note(0.5, 330, 70), note(0.57, 300)],
   },
   pages: [
     {
@@ -57,7 +57,7 @@ const story: Story = {
         {
           scene: home,
           actors: [{ who: "gege", at: 0.5, pose: "hold", face: "happy", hold: "🎸" }],
-          props: [note(0.3, 600), note(0.72, 660, 70)],
+          props: [note(0.41, 260, 60), note(0.6, 300, 56)],
           beats: [
             { caption: "到家后，哥哥表演了吉他弹唱。" },
             { say: "gege", text: "啦啦啦～啦啦～" },

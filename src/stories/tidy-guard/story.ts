@@ -40,7 +40,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff0c2" },
+          scene: home,
           shot: "close",
           actors: [{ who: "nian", at: 0.5, pose: "point", face: "serious", facing: "right" }],
           beats: [
@@ -143,7 +143,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f0ff" },
+          scene: home,
           shot: "close",
           actors: [{ who: "dad", at: 0.5, pose: "stand", face: "laugh" }],
           beats: [
@@ -151,7 +151,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#d8f0ff" },
+          scene: home,
           shot: "wide",
           actors: [
             { who: "dad", at: 0.2, pose: "cheer", face: "laugh", facing: "right" },

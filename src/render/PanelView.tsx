@@ -12,13 +12,20 @@ type Props = {
   uid: string;
   /** 动态漫画用：只显示到第几个 beat；不写就全显示 */
   upTo?: number;
+  /** 正在念第几个 beat：只有说话的那个人张嘴，对应气泡微微发亮 */
+  activeBeat?: number;
   border?: boolean;
 };
 
-export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }: Props) {
+export function PanelView({ panel, layout, uid, upTo = Infinity, activeBeat, border = true }: Props) {
   const { rect, camera } = layout;
   const beats = panel.beats ?? [];
-  const talking = new Set(beats.flatMap((b) => ("say" in b && b.kind !== "thought" ? [b.say] : [])));
+  const active = activeBeat !== undefined ? beats[activeBeat] : undefined;
+  const talking = new Set(
+    activeBeat !== undefined
+      ? (active && "say" in active && active.kind !== "thought" ? [active.say] : [])
+      : beats.flatMap((b) => ("say" in b && b.kind !== "thought" ? [b.say] : [])),
+  );
   const clip = `clip-${uid}`;
   return (
     <g>
@@ -44,8 +51,8 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
         </svg>
       </g>
       {border && <rect x={rect.x} y={rect.y} width={rect.w} height={rect.h} rx={12} fill="none" stroke={INK} strokeWidth={6} />}
-      {layout.captions.filter((c) => c.beat <= upTo).map((c) => <g key={`c${c.beat}`} className="pop"><CaptionView c={c} /></g>)}
-      {layout.bubbles.filter((b) => b.beat <= upTo).map((b) => <g key={`b${b.beat}`} className="pop"><BubbleView b={b} /></g>)}
+      {layout.captions.filter((c) => c.beat <= upTo).map((c) => <g key={`c${c.beat}`} className={c.beat === activeBeat ? "pop speaking" : "pop"}><CaptionView c={c} /></g>)}
+      {layout.bubbles.filter((b) => b.beat <= upTo).map((b) => <g key={`b${b.beat}`} className={b.beat === activeBeat ? "pop speaking" : "pop"}><BubbleView b={b} /></g>)}
       {layout.sfx.filter((s) => s.beat <= upTo).map((s) => <g key={`s${s.beat}`} className="pop"><SfxView s={s} /></g>)}
     </g>
   );

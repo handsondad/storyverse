@@ -42,17 +42,19 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [board({ rider: baby("sit", { giggle: true }) }, 0.5, 820)],
+          props: [board({ rider: baby("sit", { giggle: true }) }, 0.5, 600)],
           beats: [
             { caption: "小念爱不释手，天天都要玩。" },
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffe2c4" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [board({ shape: "arch" }, 0.5, 800)],
+          props: [board({ shape: "arch" }, 0.5, 600)],
           beats: [
             { caption: "木板很大，小念发明了好多玩法——" },
           ],
@@ -83,18 +85,20 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [board({ tilt: -8, rider: baby("stand", { giggle: true }) }, 0.5, 720)],
+          props: [board({ tilt: -8, rider: baby("stand", { giggle: true }) }, 0.5, 580)],
           beats: [
             { caption: "站在上面摇摇晃晃走平衡木，" },
             { sfx: "摇啊摇～", at: [0.72, 0.3] },
           ],
         },
         {
-          scene: { place: "plain", tint: "#eef6ea" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [board({ shape: "arch", rider: baby("sit", { giggle: true }), lean: -55 }, 0.5, 720)],
+          props: [board({ shape: "arch", rider: baby("sit", { giggle: true }), lean: -55 }, 0.5, 580)],
           beats: [
             { caption: "还躺在拱顶上做仰卧起坐！" },
             { sfx: "一、二！", at: [0.74, 0.3] },
@@ -129,9 +133,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe6e0" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [board({ tilt: 5, rider: baby("stand"), spot: -0.3 }, 0.5, 720)],
+          props: [board({ tilt: 5, rider: baby("stand"), spot: -0.3 }, 0.5, 600)],
           beats: [
             { caption: "之后，小念果然好好练习。" },
           ],
@@ -143,6 +148,7 @@ const story: Story = {
       panels: [
         {
           scene: { place: "burst", tint: "#fff3b0" },
+          shot: "wide",
           actors: [],
           props: [board({ shape: "arch", rider: baby("stand", { giggle: true }) }, 0.5, 680)],
           beats: [

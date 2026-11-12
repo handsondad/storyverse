@@ -58,3 +58,29 @@ test("中文折行：数字和后面的字不拆开", () => {
     assert.ok(!/\d$/.test(line), `行尾是数字：${line}`);
   }
 });
+
+test("同一格两个同名角色：气泡尾巴指向列表第一个，且两个人的脸都不被挡", () => {
+  const rect = layoutPage("1-1")[0];
+  const l = composePanel({
+    scene: { place: "living-room" }, shot: "wide",
+    actors: [{ who: "gege", at: 0.3 }, { who: "gege", at: 0.7, top: "#4fc3f7" }],
+    beats: [{ say: "gege", text: "弟弟生日快乐！" }],
+  }, rect);
+  assert.deepEqual(l.issues, []);
+  const b = l.bubbles[0];
+  assert.ok(b.tail, "应有尾巴");
+  const firstHeadX = rect.x + (l.actors[0].head.cx - l.camera.x) * l.scale;
+  const secondHeadX = rect.x + (l.actors[1].head.cx - l.camera.x) * l.scale;
+  assert.ok(Math.abs(b.tail.tip[0] - firstHeadX) < Math.abs(b.tail.tip[0] - secondHeadX), "尾巴应指向第一个哥哥");
+});
+
+test("气泡和拟声字会自动避开 baby 道具的脸", () => {
+  const rect = layoutPage("1-1")[0];
+  const l = composePanel({
+    scene: { place: "living-room" }, shot: "wide",
+    actors: [{ who: "mom", at: "left" }],
+    props: [{ thing: { kind: "baby", move: "sit" }, x: 0.65, size: 420, front: true }],
+    beats: [{ say: "mom", text: "小念坐得真稳！" }, { sfx: "咯咯！" }],
+  }, rect);
+  assert.deepEqual(l.issues, []);
+});

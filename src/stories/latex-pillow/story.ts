@@ -42,7 +42,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e6e0f7" },
+          scene: room,
           actors: [{ who: "dad", at: 0.5, pose: "think", face: "thinking" }],
           beats: [
             { caption: "当年，爸爸一直不让拆：" },
@@ -105,7 +105,9 @@ const story: Story = {
       panels: [
         {
           scene: room,
-          actors: [{ who: "mom", at: 0.45, pose: "hold", face: "surprised", hold: "📱" }],
+          shot: "wide",
+          actors: [{ who: "mom", at: 0.42, pose: "hold", face: "surprised", hold: "📱" }],
+          props: [pillow(0.64, 0.08)],
           beats: [
             { caption: "妈妈上网一查：压得紧紧的乳胶枕，最好早点拆开。" },
             { say: "mom", text: "放了九年，难怪弹不回来！" },
@@ -198,7 +200,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: evening,
           actors: [
             { who: "mom", at: 0.3, pose: "stand", face: "happy", facing: "right" },
             { who: "nian", at: 0.7, pose: "cheer", face: "happy", facing: "left" },

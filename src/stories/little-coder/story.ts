@@ -38,11 +38,12 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: { place: "living-room", time: "day", table: { from: 0.49, to: 0.75 } },
+          shot: "wide",
           actors: [],
           props: [
-            { thing: nian("sit"), x: 0.37, size: 360 },
-            { thing: { kind: "screen" }, x: 0.63, lift: 110, size: 230 },
+            { thing: nian("sit"), x: 0.39, size: 430 },
+            { thing: { kind: "screen" }, x: 0.62, lift: 205, size: 250 },
           ],
           beats: [
             { caption: "他对爸爸的电脑特别感兴趣，" },
@@ -50,6 +51,7 @@ const story: Story = {
         },
         {
           scene: { place: "plain", tint: "#26324d" },
+          shot: "wide",
           actors: [],
           props: [{ thing: { kind: "screen" }, x: 0.5, lift: 80, size: 640 }],
           beats: [
@@ -71,11 +73,12 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#26324d" },
+          scene: { place: "living-room", time: "day", table: { from: 0.48, to: 0.74 } },
+          shot: "wide",
           actors: [],
           props: [
-            { thing: nian("sit"), x: 0.38, size: 420 },
-            { thing: { kind: "screen" }, x: 0.64, lift: 120, size: 260 },
+            { thing: nian("stand"), x: 0.38, size: 440 },
+            { thing: { kind: "screen" }, x: 0.61, lift: 205, size: 260 },
           ],
           beats: [
             { caption: "小眼睛盯着屏幕，一眨不眨。" },
@@ -108,6 +111,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#d6efff" },
+          shot: "wide",
           actors: [],
           props: [{ thing: nian("sit", { giggle: true }), x: 0.5, size: 520 }],
           beats: [
@@ -150,11 +154,12 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#d6efff" },
+          scene: { place: "living-room", time: "day", table: { from: 0.5, to: 0.8 } },
+          shot: "wide",
           actors: [],
           props: [
             { thing: nian("sit", { giggle: true }), x: 0.36, size: 460 },
-            { thing: { kind: "screen" }, x: 0.68, lift: 40, size: 280 },
+            { thing: { kind: "screen" }, x: 0.64, lift: 205, size: 300 },
           ],
           beats: [
             { caption: "我们小念，是小小程序员！" },

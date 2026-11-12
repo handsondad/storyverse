@@ -8,7 +8,7 @@ import type { Shot } from "../story/vocab.ts";
 import { placeBubbles, placeCaptions, type BubbleBox, type CaptionBox, type Face } from "./bubbles.ts";
 import { frame } from "./camera.ts";
 import { layoutPage, overlaps, PAGE, panelCount, type Rect } from "./layout.ts";
-import { placeActors, propBox, propName, STAGE, type Box, type PlacedActor } from "./stage.ts";
+import { placeActors, propBox, propFace, propName, STAGE, type Box, type PlacedActor } from "./stage.ts";
 import { textWidth } from "./text.ts";
 
 const SFX_SPOTS: readonly (readonly [number, number])[] = [
@@ -95,15 +95,30 @@ export function composePanel(panel: Panel, rect: Rect): PanelLayout {
   });
   const base = { rect, camera, scale };
 
-  const faces = new Map<CharacterId, Face>();
+  // 同名通用角色（比如两个 gege）气泡指向列表里第一个，但每个人的脸以及 baby 道具的脸都要防遮挡
+  const speakerFaces = new Map<CharacterId, Face>();
+  const allFaces: Face[] = [];
   const bodies: Rect[] = [];
   for (const a of actors) {
     const [cx, cy] = toPage(base, a.head.cx, a.head.cy);
     const r = Math.max(a.head.rx, a.head.ry) * 1.08 * scale;
     const [, top] = toPage(base, 0, a.head.top);
-    faces.set(a.actor.who, { cx, cy, r, top });
+    const face = { cx, cy, r, top };
+    if (!speakerFaces.has(a.actor.who)) speakerFaces.set(a.actor.who, face);
+    allFaces.push(face);
     const [x0, y0] = toPage(base, a.box.minX, Math.min(a.head.cy + a.head.ry, a.box.maxY));
     const [x1, y1] = toPage(base, a.box.maxX, a.box.maxY);
+    bodies.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
+  }
+  for (const p of panel.props ?? []) {
+    const bf = propFace(p);
+    if (!bf) continue;
+    const [cx, cy] = toPage(base, bf.cx, bf.cy);
+    const r = bf.r * 1.05 * scale;
+    allFaces.push({ cx, cy, r, top: cy - r });
+    const pb = propBox(p);
+    const [x0, y0] = toPage(base, pb.minX, pb.minY);
+    const [x1, y1] = toPage(base, pb.maxX, pb.maxY);
     bodies.push({ x: x0, y: y0, w: x1 - x0, h: y1 - y0 });
   }
   const visible = (f: Face) => f.cx > rect.x && f.cx < rect.x + rect.w && f.cy > rect.y && f.cy < rect.y + rect.h;
@@ -119,20 +134,20 @@ export function composePanel(panel: Panel, rect: Rect): PanelLayout {
   }
   const placement = placeBubbles(
     sayBeats.map((b) => {
-      const face = faces.get(b.say);
+      const face = speakerFaces.get(b.say);
       return { text: b.text, kind: b.kind ?? "speech", speaker: face && visible(face) ? { face } : null };
     }),
-    rect, [...faces.values()].filter(visible), bodies, captions,
+    rect, allFaces.filter(visible), bodies, captions,
   );
   issues.push(...placement.issues);
   const bubbles = placement.bubbles.map((bb, i) => ({ ...bb, kind: sayBeats[i].kind ?? "speech", speaker: sayBeats[i].say, beat: sayBeats[i].beat }));
   bubbles.forEach((bb, i) => {
-    const face = faces.get(bb.speaker);
+    const face = speakerFaces.get(bb.speaker);
     if (face && visible(face) && !bb.tail) issues.push(`气泡「${sayBeats[i].text}」没有尾巴，看不出是谁说的`);
   });
 
   // 音效字没写位置就挑一个不压气泡、不压脸的角；写了位置但压住了就报出来
-  const occupied: Rect[] = [...bubbles, ...captions, ...[...faces.values()].map((f) => ({ x: f.cx - f.r, y: f.cy - f.r, w: f.r * 2, h: f.r * 2 }))];
+  const occupied: Rect[] = [...bubbles, ...captions, ...allFaces.filter(visible).map((f) => ({ x: f.cx - f.r, y: f.cy - f.r, w: f.r * 2, h: f.r * 2 }))];
   const sfx = panel.beats.flatMap((b, i) => {
     if (!("sfx" in b)) return [];
     const size = Math.min(Math.min(rect.w, rect.h) * 0.16, (rect.w * 0.6) / textWidth(b.sfx, 1));

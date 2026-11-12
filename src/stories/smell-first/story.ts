@@ -18,7 +18,7 @@ const dishes: Prop[] = [
   { emoji: "🧄", x: 0.7, lift: 205, size: 55 },
   { emoji: "🍚", x: 0.92, lift: 205, size: 65 },
 ];
-const close = (tint: string): SceneSpec => ({ place: "plain", tint });
+const floor: SceneSpec = { place: "dining-room", time: "day" };
 
 const story: Story = {
   id: "smell-first",
@@ -46,9 +46,9 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#fff0c2"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "nian", at: 0.5, pose: "sniff", hold: "🍚", face: "thinking" }],
+          actors: [{ who: "nian", at: 0.36, pose: "sniff", hold: "🍚", face: "thinking" }],
           beats: [
             { caption: "吃东西的时候，非要闻一闻。" },
             { sfx: "嗅嗅" },
@@ -78,18 +78,18 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#f3ebe0"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "laoye", at: 0.5, pose: "stand", face: "laugh" }],
+          actors: [{ who: "laoye", at: 0.64, pose: "stand", face: "laugh" }],
           beats: [
             { caption: "拿着姜就往姥爷嘴里放。" },
             { say: "laoye", text: "你吃不吃？" },
           ],
         },
         {
-          scene: close("#ffe3dc"),
+          scene: floor,
           shot: "medium",
-          actors: [{ who: "nian", at: 0.5, pose: "sniff", hold: "🫚", face: "yuck" }],
+          actors: [{ who: "nian", at: 0.36, pose: "sniff", hold: "🫚", face: "yuck" }],
           beats: [
             { caption: "小念闻了闻，皱着眉——" },
             { say: "nian", text: "辣！", kind: "shout" },
@@ -111,17 +111,17 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#eef6e0"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "nian", at: 0.5, pose: "sniff", hold: "🧄", face: "thinking" }],
+          actors: [{ who: "nian", at: 0.36, pose: "sniff", hold: "🧄", face: "thinking" }],
           beats: [
             { caption: "一会儿，他又看到蒜了，拿起来闻了闻……" },
           ],
         },
         {
-          scene: close("#fff0c2"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "nian", at: 0.5, pose: "hold", hold: "🧄", face: "happy" }],
+          actors: [{ who: "nian", at: 0.36, pose: "hold", hold: "🧄", face: "happy" }],
           beats: [
             { caption: "结果就吃起来了！" },
             { sfx: "吧唧吧唧" },
@@ -143,18 +143,18 @@ const story: Story = {
           ],
         },
         {
-          scene: close("#e6f0ff"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "dad", at: 0.5, pose: "sniff", hold: "🧄", face: "surprised" }],
+          actors: [{ who: "dad", at: 0.66, pose: "sniff", hold: "🧄", face: "surprised" }],
           beats: [
             { caption: "爸爸尝了尝——" },
             { say: "dad", text: "炒熟了，真不辣！" },
           ],
         },
         {
-          scene: close("#fff0c2"),
+          scene: floor,
           shot: "close",
-          actors: [{ who: "nian", at: 0.5, pose: "stand", face: "proud" }],
+          actors: [{ who: "nian", at: 0.36, pose: "stand", face: "proud" }],
           beats: [
             { caption: "看来小念的鼻子还挺厉害！" },
           ],

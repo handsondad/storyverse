@@ -21,7 +21,7 @@ const story: Story = {
   cover: {
     scene: home,
     actors: [bouncing(0.6)],
-    props: [tramp(0.6), pad(0.24, 240), note(0.18, 300), note(0.32, 360, 70)],
+    props: [tramp(0.6), pad(0.35, 210), note(0.31, 300), note(0.41, 360, 70)],
   },
   pages: [
     {
@@ -47,7 +47,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffeccc" },
+          scene: home,
           shot: "wide",
           actors: [bouncing(0.5)],
           props: [tramp(0.5), note(0.3, 560), note(0.7, 620, 70)],
@@ -75,6 +75,7 @@ const story: Story = {
         },
         {
           scene: { place: "plain", tint: "#e3f1ff" },
+          shot: "wide",
           actors: [],
           props: [pad(0.5, 620, 160, 3)],
           beats: [
@@ -95,10 +96,10 @@ const story: Story = {
       layout: "1-1",
       panels: [
         {
-          scene: { place: "plain", tint: "#fff3d6" },
+          scene: { ...home, table: { from: 0.46, to: 0.82 } },
           shot: "wide",
-          actors: [{ who: "dad", at: 0.14, pose: "point", face: "surprised", facing: "right" }],
-          props: [pad(0.62, 600, 220, 0)],
+          actors: [{ who: "dad", at: 0.24, pose: "point", face: "surprised", facing: "right" }],
+          props: [pad(0.64, 360, 205, 0)],
           beats: [
             { caption: "后来爸爸发现：每首歌后面都有个小图片！" },
             { say: "dad", text: "原来他是看图认歌的！" },
@@ -133,10 +134,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffe9a8" },
+          scene: { ...home, table: { from: 0.48, to: 0.82 } },
           shot: "wide",
-          actors: [{ who: "nian", at: 0.36, pose: "cheer", face: "proud", facing: "right" }],
-          props: [pad(0.66, 380, 120, 3)],
+          actors: [{ who: "nian", at: 0.32, pose: "cheer", face: "proud", facing: "right" }],
+          props: [pad(0.65, 320, 205, 3)],
           beats: [
             { caption: "小天才学习机，遇上了真正的小天才！" },
             { sfx: "哈哈哈！" },

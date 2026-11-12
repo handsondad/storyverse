@@ -36,9 +36,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [{ thing: nian({ giggle: true }), x: 0.44, size: 600 }],
+          props: [{ thing: nian({ giggle: true }), x: 0.45, size: 450 }],
           beats: [
             { caption: "小念也要看看，妈妈小时候长什么样。" },
           ],
@@ -92,17 +93,19 @@ const story: Story = {
       layout: "1-1-1",
       panels: [
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [{ thing: nian({ giggle: true }), x: 0.44, size: 560 }],
+          props: [{ thing: nian({ giggle: true }), x: 0.45, size: 450 }],
           beats: [
             { caption: "小念看了，也要骑车！" },
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe6e0" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [riding(0.44, 560)],
+          props: [riding(0.45, 460)],
           beats: [
             { caption: "他骑上自己的大汽车，小脚一蹬一蹬往前走。" },
             { sfx: "蹬蹬蹬！", at: [0.72, 0.4] },
@@ -133,7 +136,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f5e8" },
+          scene: room,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "cheer", face: "laugh" }],
           beats: [

@@ -40,7 +40,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffd6cc" },
+          scene: room,
           shot: "close",
           actors: [nian(0.5, { pose: "stand", face: "angry" })],
           beats: [
@@ -74,7 +74,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#fff0c2" },
+          scene: room,
           shot: "close",
           actors: [nian(0.5, { pose: "hold", face: "serious" })],
           props: [{ thing: { kind: "sock" }, x: 0.53, lift: 165, size: 75, front: true }],
@@ -138,7 +138,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e8f6ec" },
+          scene: room,
           shot: "close",
           actors: [{ who: "mom", at: 0.5, pose: "stand", face: "happy" }],
           beats: [

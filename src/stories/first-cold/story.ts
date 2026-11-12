@@ -47,9 +47,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe0e0" },
+          scene: night,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting({ sick: true }), x: 0.47, size: 600 }],
+          props: [{ thing: sitting({ sick: true }), x: 0.47, size: 440 }],
           beats: [
             { caption: "小脸烧得红红的，咳得睡不好。" },
             { sfx: "咳咳咳！" },
@@ -110,9 +111,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: night,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting({ sick: true, patch: true }), x: 0.47, size: 600 }],
+          props: [{ thing: sitting({ sick: true, patch: true }), x: 0.47, size: 440 }],
           beats: [
             { caption: "烧慢慢退了，可咳嗽还是没好。" },
             { sfx: "咳咳！" },
@@ -169,9 +171,10 @@ const story: Story = {
       layout: "1-1",
       panels: [
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: day,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting(), x: 0.47, size: 560, glow: "#fff6c2" }],
+          props: [{ thing: sitting({ giggle: true }), x: 0.47, size: 440 }],
           beats: [
             { caption: "慢慢地，咳嗽少了，小念又笑了。" },
           ],

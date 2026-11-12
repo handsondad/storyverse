@@ -55,9 +55,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#e3f1ff" },
+          scene: bath,
+          shot: "wide",
           actors: [],
-          props: [inTub(0.47, {}, 620)],
+          props: [inTub(0.47, {}, 440)],
           beats: [
             { caption: "可小念坐进去，大小正合适！" },
           ],
@@ -76,6 +77,7 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#fff3b0" },
+          shot: "wide",
           actors: [],
           props: [{ thing: nian({ giggle: true }), x: 0.47, size: 560 }],
           beats: [
@@ -92,9 +94,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#d8f0ff" },
+          scene: bath,
+          shot: "wide",
           actors: [],
-          props: [inTub(0.47, { splash: true, giggle: true }, 600)],
+          props: [inTub(0.47, { splash: true, giggle: true }, 440)],
           beats: [
             { caption: "一坐进澡盆，就拍起水来。" },
             { sfx: "啪啪！", at: [0.72, 0.35] },
@@ -141,9 +144,10 @@ const story: Story = {
       layout: "2-1",
       panels: [
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: bath,
+          shot: "wide",
           actors: [],
-          props: [inTub(0.47, { giggle: true }, 600)],
+          props: [inTub(0.47, { giggle: true }, 440)],
           beats: [
             { caption: "小念玩得可开心了。" },
           ],

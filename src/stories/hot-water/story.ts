@@ -47,9 +47,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#ffe6e0" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting({ cry: true, hand: "red" }), x: 0.44, size: 600 }],
+          props: [{ thing: sitting({ cry: true, hand: "red" }), x: 0.45, size: 450 }],
           beats: [
             { caption: "不知道什么时候，小念的小手被烫伤了。" },
           ],
@@ -68,6 +69,7 @@ const story: Story = {
       panels: [
         {
           scene: { place: "plain", tint: "#e3f1ff" },
+          shot: "wide",
           actors: [],
           props: [
             { thing: sitting({ hand: "red" }), x: 0.36, size: 520 },
@@ -113,9 +115,10 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "plain", tint: "#eef6ea" },
+          scene: room,
+          shot: "wide",
           actors: [],
-          props: [{ thing: sitting({ hand: "bandage" }), x: 0.44, size: 600 }],
+          props: [{ thing: sitting({ hand: "bandage" }), x: 0.45, size: 450 }],
           beats: [
             { caption: "再轻轻地包扎好。" },
           ],
@@ -134,6 +137,7 @@ const story: Story = {
       panels: [
         {
           scene: { place: "plain", tint: "#fff1c9" },
+          shot: "wide",
           actors: [],
           props: [
             { thing: sitting({ giggle: true }), x: 0.38, size: 520 },

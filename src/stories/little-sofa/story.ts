@@ -116,7 +116,7 @@ const story: Story = {
           ],
         },
         {
-          scene: { place: "burst", tint: "#ffe9a8" },
+          scene: home,
           shot: "wide",
           actors: [onSofa(0.5)],
           beats: [
