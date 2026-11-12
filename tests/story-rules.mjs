@@ -97,7 +97,13 @@ export function checkStory(story) {
       if (p.thing?.splash && !p.thing.tub) say(where, "splash 是在澡盆里拍水：写 splash 就要写 tub");
       if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
       if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");
-      if (p.thing?.move && !["crawl", "sit"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit");
+      if (p.thing?.move && !["crawl", "sit", "stand"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit / stand");
+      if ((p.thing?.shape || p.thing?.tilt !== undefined || p.thing?.rider || p.thing?.spot !== undefined || p.thing?.lean !== undefined) && p.thing.kind !== "board") say(where, "shape、tilt、rider、spot、lean 只给 board 用");
+      if (p.thing?.shape && !["rock", "arch", "slide"].includes(p.thing.shape)) say(where, "board 的 shape 只能是 rock / arch / slide");
+      if (p.thing?.tilt !== undefined && (p.thing.shape ?? "rock") !== "rock") say(where, "tilt 只给 shape: rock 的木板用");
+      if (p.thing?.tilt !== undefined && Math.abs(p.thing.tilt) > 20) say(where, "tilt 在 -20～20 度");
+      if (p.thing?.spot !== undefined && Math.abs(p.thing.spot) > 1) say(where, "spot 在 -1～1");
+      if (p.thing?.rider && !(p.thing.rider.kind === "baby" && p.thing.rider.move)) say(where, "木板上的 rider 只能是 crawl / sit / stand 的宝宝");
       if (p.thing?.move && (p.thing.kick || p.thing.diaper || p.thing.ball)) say(where, "move 和 kick / diaper / ball 只写一个：一个宝宝一个姿势");
       if (p.thing?.cry && !p.thing.move) say(where, "cry 只给 crawl / sit 的宝宝用");
       if ((p.thing?.hair || p.thing?.hat) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "hair、hat 只给 crawl / sit 的宝宝用");

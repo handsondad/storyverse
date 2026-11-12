@@ -116,6 +116,8 @@ description: >-
 - `sit` 的宝宝写 `hand: "red"` 那只伸出来的小手红红的（烫着了，不画伤口），`"bandage"` 包着白纱布；和 `cry` 一起写就是伸着这只手哭（见 `src/stories/hot-water/story.ts`）
 - 冒热气：`{ thing: { kind: "steam" }, x, lift, size: 90～120 }`，放在热水、杯子上面（☕ 本身不带热气）
 - `sit` 的宝宝写 `ride: true` 就是骑在红色大汽车（扭扭车）上，车头朝右、一只脚蹬地；`size` 400～560
+- 宝宝写 `move: "stand"` 是站着、两手张开保持平衡的样子（脸朝右）
+- 拱形大木板（平衡板）：`{ thing: { kind: "board", shape, rider, spot, tilt, lean }, x, size: 480～720 }`。`shape: "rock"` 弧面朝下（跷跷板、站上去摇，`tilt` -20～20 度，正数右头往下）；`"arch"` 弧面朝上像拱桥；`"slide"` 一头立起来当滑梯（左高右低，大人站在左边 `pose: "hold"` 扶着）。板上的宝宝写在 `rider` 里（crawl / sit / stand），`spot` -1～1 是在板上哪儿，`lean` 让宝宝再往后仰（仰卧起坐 -55）。窄格子里木板别太大，不然两头会被裁掉（见 `src/stories/balance-board/story.ts`）
 - 妈妈小时候的老照片：`{ thing: { kind: "photo" }, x, size }`，特写用 700 左右；拿在手里配 `pose: "hold"`、面朝右，照片 `x: at + 0.08, lift: 270, size: 160, front: true`（见 `src/stories/little-rider/story.ts`）
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）

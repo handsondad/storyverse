@@ -33,7 +33,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上） */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -59,10 +59,10 @@ export type Thing = {
   /** 宝宝张嘴咯咯笑：侧面躺着的（toes 时嘴被脚丫挡住，不用写）和 crawl / sit 的都行 */
   readonly giggle?: boolean;
   /**
-   * 穿连体衣的宝宝侧面：crawl 四肢着地往左爬；sit 坐着，脸朝右，两腿往前伸。
+   * 穿连体衣的宝宝侧面：crawl 四肢着地往左爬；sit 坐着，脸朝右，两腿往前伸；stand 站着，脸朝右，两手张开保持平衡。
    * sit 把 lift 抬到大人胸口、配大人的 hug 姿势，就是被抱在怀里
    */
-  readonly move?: "crawl" | "sit";
+  readonly move?: "crawl" | "sit" | "stand";
   /** crawl / sit 的宝宝哇哇大哭：眼睛挤成一条缝、流眼泪，坐着时一只手捂着头 */
   readonly cry?: boolean;
   /** 宝宝左右翻过来 */
@@ -87,6 +87,19 @@ export type Thing = {
   readonly hand?: "red" | "bandage";
   /** sit 的宝宝骑在自己的大汽车（扭扭车）上，车头朝右，小手扶方向盘、一只脚踩在地上蹬 */
   readonly ride?: boolean;
+  /**
+   * board 大木板（拱形平衡板）怎么放：rock 弧面朝下放，能前后摇（跷跷板、站上去摇）；
+   * arch 弧面朝上，像座小拱桥；slide 一头立起来当滑滑梯（左边高，右头着地，大人站左边扶着）
+   */
+  readonly shape?: "rock" | "arch" | "slide";
+  /** rock 的木板歪多少度：正数右头往下，负数左头往下（-20～20） */
+  readonly tilt?: number;
+  /** 木板上的宝宝（crawl / sit / stand 的 baby），跟着木板的弧度歪 */
+  readonly rider?: Thing;
+  /** 宝宝在木板上哪儿：-1 左头，0 正中间，1 右头 */
+  readonly spot?: number;
+  /** 宝宝在木板上再往后仰多少度（负数往后躺：-70 躺平，-10 坐起来，做仰卧起坐） */
+  readonly lean?: number;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */

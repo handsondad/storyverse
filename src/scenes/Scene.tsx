@@ -6,7 +6,7 @@ import { INK, PARTY_HAT } from "../cast/characters.ts";
 import { EMOJI_FONT } from "../cast/Figure.tsx";
 import { PartyHat } from "../cast/Head.tsx";
 import type { Pt } from "../cast/rig.ts";
-import { STAGE, stageX, thingHeight } from "../engine/stage.ts";
+import { BOARD_RIDER, STAGE, stageX, thingHeight } from "../engine/stage.ts";
 import type { Prop, SceneSpec, Thing } from "../story/types.ts";
 import type { TimeOfDay } from "../story/vocab.ts";
 
@@ -677,6 +677,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "baby":
       if (p.thing.move === "crawl") return <CrawlingBaby {...p} />;
       if (p.thing.move === "sit") return <SittingBaby {...p} />;
+      if (p.thing.move === "stand") return <StandingBaby {...p} />;
       return p.thing.kick ? <KickingBaby {...p} /> : p.thing.diaper ? <LyingBaby {...p} /> : <Baby {...p} />;
     case "band": return <Band {...p} />;
     case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
@@ -685,6 +686,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "tub": return <Tub {...p} />;
     case "steam": return <Steam {...p} />;
     case "photo": return <OldPhoto {...p} />;
+    case "board": return <Board {...p} />;
   }
 }
 
@@ -1004,6 +1006,75 @@ function BabyHand({ at, r, kind }: { at: Pt; r: number; kind?: Thing["hand"] }) 
     <g>
       <circle cx={at[0]} cy={at[1]} r={r} fill={BABY_SKIN} {...line} strokeWidth={5} />
       {kind === "red" && <circle cx={at[0]} cy={at[1]} r={r * 0.72} fill="#ff6b6b" opacity={0.55} />}
+    </g>
+  );
+}
+
+/** 站着的宝宝（侧面，脸朝右），两只小手一前一后张开保持平衡 */
+function StandingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const limb = w * 0.05;
+  const leg0 = w * 0.065;
+  const r = w * 0.12;
+  const romper = thing.color ?? ROMPER;
+  const hip: Pt = [x, bottom - w * 0.15];
+  const shoulder: Pt = [x + w * 0.01, bottom - w * 0.36];
+  const leg = (dx: number) => (
+    <g>
+      {babyLimb(`M ${hip[0] + dx * 0.4},${hip[1]} L ${x + dx},${bottom - leg0 * 0.9}`, leg0, romper)}
+      <ellipse cx={x + dx + leg0 * 0.4} cy={bottom - leg0 * 0.5} rx={leg0 * 0.9} ry={leg0 * 0.5} fill={BABY_SKIN} {...line} strokeWidth={5} />
+    </g>
+  );
+  const arm = (to: Pt) => (
+    <g>
+      {babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${to[0]},${to[1]}`, limb, romper)}
+      <circle cx={to[0]} cy={to[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />
+    </g>
+  );
+  return (
+    <g>
+      {leg(-w * 0.045)}
+      {arm([x - w * 0.2, bottom - w * 0.45])}
+      <ellipse cx={x - w * 0.01} cy={bottom - w * 0.27} rx={w * 0.11} ry={w * 0.14} fill={romper} {...line} strokeWidth={5} />
+      {leg(w * 0.045)}
+      {arm([x + w * 0.21, bottom - w * 0.42])}
+      <BabyHead cx={x + w * 0.01} cy={bottom - w * 0.52} r={r} w={w} thing={thing} />
+    </g>
+  );
+}
+
+const WOOD = "#e0a86a";
+
+/** 拱形大木板（平衡板）：rock 弧面朝下能摇，arch 弧面朝上像拱桥，slide 一头立起来当滑梯；rider 是板上的宝宝 */
+function Board({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const shape = thing.shape ?? "rock";
+  const half = w / 2;
+  const t = w * 0.08;
+  const sag = w * 0.16;
+  const rise = w * 0.32;
+  // 板底面的弧线：u 从 -1（左头）到 1（右头）；rock / slide 中间着地，arch 两头着地
+  const under = (u: number) => (shape === "arch" ? -rise * (1 - u * u) : -sag * u * u);
+  const slope = (u: number) => (shape === "arch" ? (2 * rise * u) / half : (-2 * sag * u) / half);
+  const us = Array.from({ length: 25 }, (_, i) => -1 + i / 12);
+  const top = us.map((u) => `${u * half},${under(u) - t}`);
+  const base = [...us].reverse().map((u) => `${u * half},${under(u)}`);
+  const spine = us.map((u) => `${u * half},${under(u) - t * 0.5}`).join(" ");
+  const place = shape === "slide"
+    ? `translate(${x + w * 0.4},${bottom}) rotate(30) translate(${-half},${sag})`
+    : shape === "rock" ? `translate(${x},${bottom}) rotate(${thing.tilt ?? 0})` : `translate(${x},${bottom})`;
+  const u = Math.max(-1, Math.min(1, thing.spot ?? 0));
+  const angle = (Math.atan(slope(u)) * 180) / Math.PI + (thing.lean ?? 0);
+  return (
+    <g transform={place}>
+      <polygon points={[...top, ...base].join(" ")} fill={WOOD} {...line} strokeWidth={5} />
+      <polyline points={spine} fill="none" stroke="#f3c993" strokeWidth={Math.max(3, t * 0.18)} strokeLinecap="round" />
+      {[-0.55, 0, 0.55].map((k) => (
+        <circle key={k} cx={k * half} cy={under(k) - t * 0.5} r={t * 0.16} fill="#b97f45" />
+      ))}
+      {thing.rider && (
+        <g transform={`translate(${u * half},${under(u) - t}) rotate(${angle})`}>
+          <ThingView x={0} bottom={0} w={w * BOARD_RIDER} thing={thing.rider} />
+        </g>
+      )}
     </g>
   );
 }
