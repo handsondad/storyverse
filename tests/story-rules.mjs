@@ -111,7 +111,9 @@ export function checkStory(story) {
       if (p.thing?.cry && !p.thing.move) say(where, "cry 只给 crawl / sit 的宝宝用");
       if ((p.thing?.hair || p.thing?.hat) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "hair、hat 只给 crawl / sit 的宝宝用");
       if (p.thing?.hair && !["fuzz", "bald"].includes(p.thing.hair)) say(where, "hair 只能是 fuzz / bald");
-      if (p.thing?.hat && !["party", "big"].includes(p.thing.hat)) say(where, "hat 只能是 party / big");
+      if (p.thing?.hat && !["party", "big", "grad"].includes(p.thing.hat)) say(where, "hat 只能是 party / big / grad");
+      if (p.thing?.specs && !(p.thing.kind === "baby" && p.thing.move)) say(where, "specs 只给 crawl / sit / stand 的宝宝用");
+      if (p.thing?.reach && !(p.thing.kind === "baby" && p.thing.move === "stand")) say(where, "reach 只给 stand 的宝宝用");
       if ((p.thing?.sick || p.thing?.patch || p.thing?.color || p.thing?.blow) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color、blow 只给 crawl / sit 的宝宝用");
       if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");

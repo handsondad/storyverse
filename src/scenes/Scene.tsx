@@ -732,6 +732,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "board": return <Board {...p} />;
     case "trike": return <Trike {...p} />;
     case "screen": return <Screen {...p} />;
+    case "glasses": return <Specs {...p} />;
   }
 }
 
@@ -1002,6 +1003,24 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
       )}
       {thing.hat === "party" && <PartyHat x={cx - r * 0.05} y={cy - r * 0.8} w={r * 1.05} h={r * 1.35} tilt={r * 0.3} color={PARTY_HAT} line={stroke * 1.4} />}
       {thing.hat === "big" && <PartyHat x={cx - r * 0.05} y={cy - r * 0.75} w={r * 1.4} h={r * 2.2} tilt={r * 0.45} color="#7fc8ff" line={stroke * 1.5} />}
+      {thing.specs && (
+        <g stroke={INK} strokeWidth={stroke * 1.9} strokeLinecap="round">
+          <path d={`M ${cx + r * 0.02},${cy - r * 0.18} L ${cx - r * 0.66},${cy - r * 0.1}`} fill="none" />
+          <path d={`M ${cx + r * 0.8},${cy - r * 0.2} L ${cx + r * 0.98},${cy - r * 0.22}`} fill="none" />
+          <ellipse cx={cx + r * 1.08} cy={cy - r * 0.18} rx={r * 0.12} ry={r * 0.38} fill="#dff1ff" fillOpacity={0.45} />
+          <circle cx={cx + r * 0.41} cy={cy - r * 0.18} r={r * 0.4} fill="#dff1ff" fillOpacity={0.45} />
+          <path d={`M ${cx + r * 0.2},${cy - r * 0.36} q ${r * 0.1},${-r * 0.1} ${r * 0.22},${-r * 0.1}`} fill="none" stroke="#ffffff" strokeWidth={stroke * 1.2} />
+        </g>
+      )}
+      {thing.hat === "grad" && (
+        <g stroke={INK} strokeWidth={stroke * 1.4} strokeLinejoin="round">
+          <path d={`M ${cx - r * 0.8},${cy - r * 0.55} Q ${cx},${cy - r * 0.72} ${cx + r * 0.8},${cy - r * 0.55} L ${cx + r * 0.72},${cy - r * 0.95} L ${cx - r * 0.72},${cy - r * 0.95} Z`} fill="#34495e" />
+          <path d={`M ${cx - r * 1.2},${cy - r * 1.0} L ${cx},${cy - r * 1.28} L ${cx + r * 1.2},${cy - r * 1.0} L ${cx},${cy - r * 0.74} Z`} fill="#34495e" />
+          <path d={`M ${cx},${cy - r * 1.01} L ${cx + r * 0.95},${cy - r * 0.86} L ${cx + r * 0.95},${cy - r * 0.45}`} fill="none" stroke="#ffd166" strokeWidth={stroke * 1.3} strokeLinecap="round" />
+          <rect x={cx + r * 0.87} y={cy - r * 0.5} width={r * 0.16} height={r * 0.24} rx={r * 0.05} fill="#ffd166" strokeWidth={stroke} />
+          <circle cx={cx} cy={cy - r * 1.01} r={r * 0.08} fill="#ffd166" strokeWidth={stroke} />
+        </g>
+      )}
     </g>
   );
 }
@@ -1078,10 +1097,10 @@ function StandingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: n
   return (
     <g>
       {leg(-w * 0.045)}
-      {arm([x - w * 0.2, bottom - w * 0.45])}
+      {arm(thing.reach ? [x + w * 0.14, bottom - w * 0.66] : [x - w * 0.2, bottom - w * 0.45])}
       <ellipse cx={x - w * 0.01} cy={bottom - w * 0.27} rx={w * 0.11} ry={w * 0.14} fill={romper} {...line} strokeWidth={5} />
       {leg(w * 0.045)}
-      {arm([x + w * 0.21, bottom - w * 0.42])}
+      {arm(thing.reach ? [x + w * 0.24, bottom - w * 0.6] : [x + w * 0.21, bottom - w * 0.42])}
       <BabyHead cx={x + w * 0.01} cy={bottom - w * 0.52} r={r} w={w} thing={thing} />
     </g>
   );
@@ -1183,6 +1202,28 @@ const CODE: readonly (readonly [number, readonly (readonly [number, string])[]])
   [2, [[0.24, "#c3e88d"], [0.12, "#ffcb6b"]]],
   [0, [[0.06, "#89ddff"]]],
 ];
+
+/** 摘下来放着的一副眼镜（正面），镜腿折在后面露出两截 */
+function Specs({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const lw = w * 0.4;
+  const lh = w * 0.3;
+  const top = bottom - w * 0.34;
+  const stroke = Math.max(4, w * 0.04);
+  return (
+    <g stroke={INK} strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+      {[-1, 1].map((s) => (
+        <path key={`arm${s}`} d={`M ${x + s * (lw + w * 0.04)},${top + lh * 0.25} L ${x + s * w * 0.3},${bottom} L ${x + s * w * 0.12},${bottom}`} fill="none" opacity={0.7} />
+      ))}
+      {[-1, 1].map((s) => (
+        <g key={s}>
+          <rect x={x + s * (w * 0.06 + lw / 2) - lw / 2} y={top} width={lw} height={lh} rx={lh * 0.4} fill="#dff1ff" fillOpacity={0.75} />
+          <path d={`M ${x + s * (w * 0.06 + lw / 2) - lw * 0.28},${top + lh * 0.3} l ${lw * 0.18},${-lh * 0.12}`} fill="none" stroke="#ffffff" strokeWidth={stroke * 0.8} />
+        </g>
+      ))}
+      <path d={`M ${x - w * 0.06},${top + lh * 0.3} Q ${x},${top + lh * 0.05} ${x + w * 0.06},${top + lh * 0.3}`} fill="none" />
+    </g>
+  );
+}
 
 /** 电脑显示器（正面），屏幕上一行行彩色代码，最后一行有个光标 */
 function Screen({ x, bottom, w }: { x: number; bottom: number; w: number }) {

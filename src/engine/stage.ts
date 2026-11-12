@@ -99,7 +99,7 @@ export function thingHeight(t: Thing, size: number): number {
       return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
     }
     case "baby":
-      if (t.move) return size * ((t.tub ? 0.76 : t.ride ? 0.77 : t.move === "stand" ? 0.64 : t.move === "sit" ? 0.54 : 0.44) + (t.hat === "big" ? 0.26 : t.hat ? 0.16 : 0));
+      if (t.move) return size * ((t.tub ? 0.76 : t.ride ? 0.77 : t.move === "stand" ? (t.reach ? 0.72 : 0.64) : t.move === "sit" ? 0.54 : 0.44) + (t.hat === "big" ? 0.26 : t.hat === "grad" ? 0.12 : t.hat ? 0.16 : 0));
       return t.kick ? size * (t.ball ? 0.62 : 0.46) : size * (t.diaper ? 0.5 : 0.62);
     case "band": return size * 0.42;
     case "ball": return size;
@@ -114,13 +114,14 @@ export function thingHeight(t: Thing, size: number): number {
     }
     case "trike": return size * (t.load || t.rider ? 0.6 : 0.5);
     case "screen": return size * 0.76;
+    case "glasses": return size * 0.36;
   }
 }
 
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {

@@ -35,7 +35,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码 */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面） */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -71,8 +71,12 @@ export type Thing = {
   readonly flip?: boolean;
   /** crawl / sit 的宝宝的头发：fuzz 毛茸茸一层；bald 刚理的小光头，亮亮的。不写是一小撮 */
   readonly hair?: "fuzz" | "bald";
-  /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽；big 大大的生日帽（小念自己过生日戴的） */
-  readonly hat?: "party" | "big";
+  /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽；big 大大的生日帽（小念自己过生日戴的）；grad 方方的博士帽 */
+  readonly hat?: "party" | "big" | "grad";
+  /** 宝宝戴着大人的大眼镜（侧面一只大圆镜片，镜腿挂到耳朵） */
+  readonly specs?: boolean;
+  /** stand 的宝宝踮着脚、两只小手举高往前够 */
+  readonly reach?: boolean;
   /** crawl / sit 的宝宝嘟着小嘴吹气（吹蜡烛），嘴前面有几道风 */
   readonly blow?: boolean;
   /** crawl / sit 的宝宝生病了：小脸烧得红红的，眼睛没精神 */
