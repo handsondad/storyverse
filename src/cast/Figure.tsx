@@ -2,6 +2,7 @@ import type { Expression, Pose } from "../story/vocab.ts";
 import { INK } from "./characters.ts";
 import { chairTransform, seating, type Seating, type SeatKind } from "./chair.ts";
 import { BackHair, FACES, Head, ow, type Mark } from "./Head.tsx";
+import { KidSofa } from "./KidSofa.tsx";
 import { POSE_ANGLES, type Hand } from "./poses.ts";
 import { solve, type Limb, type Pt, type Skeleton } from "./rig.ts";
 import type { CharacterSpec } from "./types.ts";
@@ -349,6 +350,7 @@ function Blanket({ s, spec }: { s: Seating; spec: CharacterSpec }) {
 function Chair({ s, spec }: { s: Seating; spec: CharacterSpec }) {
   if (s.kind === "bed") return <Bed s={s} spec={spec} />;
   const o = ow(spec) * 2;
+  if (s.kind === "sofa") return <KidSofa back={s.back} front={s.front} seat={s.seat} rest={s.rest} bottom={0} line={o} />;
   const high = s.kind === "high-chair";
   const wood = high ? "#f4b26a" : "#c98b52";
   const w = 15;

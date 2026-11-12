@@ -38,6 +38,7 @@ export const POSES = [
   "shrug",  // 摊手
   "hug",    // 张开手臂往前抱
   "hold",   // 两手捧着东西（配合 hold 字段）
+  "boss",   // 坐着往后一仰，两手抱在脑后，翘着二郎腿，像个小领导（配 seat: "sofa"）
 ] as const;
 export type Pose = (typeof POSES)[number];
 
@@ -46,7 +47,7 @@ export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "pa
 export type Place = (typeof PLACES)[number];
 
 /** 画出来的道具（表情符号里没有的东西） */
-export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike", "screen", "glasses", "trampoline", "pad"] as const;
+export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike", "screen", "glasses", "trampoline", "pad", "sofa"] as const;
 export type ThingKind = (typeof THINGS)[number];
 
 export const TIMES = ["morning", "day", "evening", "night"] as const;

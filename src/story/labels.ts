@@ -7,7 +7,7 @@ export const EXPRESSION_LABELS: Record<Expression, string> = {
 
 export const POSE_LABELS: Record<Pose, string> = {
   stand: "站", wave: "挥手", point: "指", cheer: "欢呼", jump: "跳", think: "托下巴", walk: "走",
-  run: "跑", sit: "坐", push: "蹬腿", recline: "半躺", crouch: "蹲", shrug: "摊手", hug: "抱", hold: "捧着",
+  run: "跑", sit: "坐", push: "蹬腿", recline: "半躺", crouch: "蹲", shrug: "摊手", hug: "抱", hold: "捧着", boss: "小领导",
 };
 
 export const PLACE_LABELS: Record<Place, string> = {

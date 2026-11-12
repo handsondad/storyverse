@@ -1,10 +1,11 @@
-/**
+﻿/**
  * 背景：都画在舞台坐标里（1600×1000，地面 880），并往四周多画一圈，镜头推到边上也不露白。
  * 同一页里有好几格，渐变 id 要带上 uid，免得互相串。
  */
 import { INK, PARTY_HAT } from "../cast/characters.ts";
 import { EMOJI_FONT } from "../cast/Figure.tsx";
 import { PartyHat } from "../cast/Head.tsx";
+import { KidSofa } from "../cast/KidSofa.tsx";
 import type { Pt } from "../cast/rig.ts";
 import { BOARD_RIDER, STAGE, stageX, thingHeight } from "../engine/stage.ts";
 import type { Prop, SceneSpec, Thing } from "../story/types.ts";
@@ -735,6 +736,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "glasses": return <Specs {...p} />;
     case "trampoline": return <Trampoline {...p} />;
     case "pad": return <LearningPad {...p} />;
+    case "sofa": return <KidSofa back={p.x - p.w * 0.4} front={p.x + p.w * 0.45} seat={p.bottom - p.w * 0.42} rest={p.bottom - p.w * 1.1} bottom={p.bottom} line={5} />;
   }
 }
 

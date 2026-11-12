@@ -47,4 +47,5 @@ export const POSE_ANGLES: Record<Pose, PoseAngles> = {
   shrug: { armL: [38, 78], armR: [38, 78], ...legs, tilt: -8, handL: "open", handR: "open" },
   hug: { armL: [-72, 4], armR: [76, -4], ...legs, lean: 6, handL: "open", handR: "open" },
   hold: { armL: [-14, -62], armR: [14, -96], ...legs },
+  boss: { armL: [120, 70], armR: [120, 70], legL: [-76, 76], legR: [95, -65], lean: -18, tilt: -6, seat: true, thighScale: 0.82 },
 };

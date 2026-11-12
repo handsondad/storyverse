@@ -121,6 +121,7 @@ description: >-
 - 农用三轮车：`{ thing: { kind: "trike", load: "grass", rider }, x, size: 540, front: true }`，车头朝右，`load: "grass"` 车斗里堆满草。大人开车：同一个 x 往右挪 `0.02 * size / 1400`，`pose: "sit", perch: true`（坐在车座上、不画小凳子）；`rider` 是坐在大人前面扶车把的宝宝（`move: "sit"`）
 - 电脑显示器：`{ thing: { kind: "screen" }, x, lift: 205, size: 320 }`，放在桌面上（`table` 的 `lift` 就是桌面高 205），屏幕上是一行行彩色代码条。宝宝坐在大人腿上看电脑：大人 `seat: "chair", pose: "sit", facing: "right"`，宝宝 `{ move: "sit", x: at + 70/1400, lift: 150, size: 300, front: true }`；桌子从大人膝盖前开始（`from` 约 `at + 0.09`），不然够不着。气泡会压住显示器，这样的格子只放一句台词
 - 眼镜：桌上放着的一副 `{ thing: { kind: "glasses" }, x, lift: 205, size: 120 }`；特写放大到 500 左右。宝宝戴大眼镜写 `specs: true`；`stand` 的宝宝写 `reach: true` 举手往上够（size 280 时手刚好够不到桌面）；`hat: "grad"` 是博士帽。宝宝和大人蹲着的格子别写 `table`：桌子画在人前面，会挡住
+- 小沙发：人坐上去写演员的 `seat: "sofa"`（配 `pose: "sit"` 端坐，或 `pose: "boss"` 往后一仰、两手抱在脑后、翘二郎腿，像个小领导）；空着摆在地上用 `{ thing: { kind: "sofa" }, x, size: 220 }`，和小念坐的那张一样大
 - 蹦床：`{ thing: { kind: "trampoline" }, x, size: 420 }`，站上去的演员同一个 `at`，写 `lift: size * 0.2`（演员的 `lift` 是脚底离地多高），配 `pose: "jump"` 就是在蹦
 - 学习机：`{ thing: { kind: "pad", pick }, x, lift, size }`，屏幕上是儿歌列表（标题「小天才」），每行看不清的字后面一个小图片；`pick`（0～5）那一行亮起来，一只小手指着那个小图。放在桌上 `lift: 205, size: 300`；特写 size 600 左右。只有道具、或者道具在演员一边的格子，写 `shot: "wide"` 才不会被裁掉
 - 妈妈小时候的老照片：`{ thing: { kind: "photo" }, x, size }`，特写用 700 左右；拿在手里配 `pose: "hold"`、面朝右，照片 `x: at + 0.08, lift: 270, size: 160, front: true`（见 `src/stories/little-rider/story.ts`）

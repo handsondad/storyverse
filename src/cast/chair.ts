@@ -7,8 +7,8 @@ import { POSE_ANGLES } from "./poses.ts";
 import { rotate, solve, type Pt, type Skeleton } from "./rig.ts";
 import type { BodySpec } from "./types.ts";
 
-/** bed：医院的推床，配 pose: "recline" 半躺着，腿上盖被子 */
-export const SEATS = ["chair", "high-chair", "bed"] as const;
+/** bed：医院的推床，配 pose: "recline" 半躺着，腿上盖被子；sofa：小孩的单人小沙发，配 pose: "sit" 或 "boss" */
+export const SEATS = ["chair", "high-chair", "bed", "sofa"] as const;
 export type SeatKind = (typeof SEATS)[number];
 
 /** 儿童餐椅的座面离地多高（舞台单位），坐上去和大人一样高 */
@@ -55,6 +55,11 @@ export function seating(body: BodySpec, sk: Skeleton, kind: SeatKind, tip = 0): 
     back = Math.min(hinge, sk.pelvis[0] + top[0]) - body.limb;
     rest = seat + top[1];
     front = Math.max(sk.legL.end[0], sk.legR.end[0]) + body.limb * 2.2;
+  }
+  if (kind === "sofa") {
+    back = sk.pelvis[0] - body.hip - body.limb * 2.8;
+    front = sk.pelvis[0] + body.hip + body.limb * 1.9;
+    rest = seat - body.torso * 1.35;
   }
   const pivot = back - body.limb * 0.9;
   const turn = (p: Pt): Pt => {
