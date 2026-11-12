@@ -731,6 +731,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "photo": return <OldPhoto {...p} />;
     case "board": return <Board {...p} />;
     case "trike": return <Trike {...p} />;
+    case "screen": return <Screen {...p} />;
   }
 }
 
@@ -1167,6 +1168,54 @@ function Trike({ x, bottom, w, thing }: { x: number; bottom: number; w: number; 
       {thing.rider && <ThingView x={x + w * 0.14} bottom={seatY - w * 0.012} w={w * 0.42} thing={thing.rider} />}
       <path d={`M ${neck[0]},${neck[1]} L ${grip[0]},${grip[1]}`} stroke={INK} strokeWidth={Math.max(8, w * 0.018)} strokeLinecap="round" />
       <rect x={grip[0] - w * 0.03} y={grip[1] - w * 0.014} width={w * 0.05} height={w * 0.028} rx={w * 0.012} fill="#3b3b3b" {...line} strokeWidth={3} />
+    </g>
+  );
+}
+
+/** 一行代码：缩进几格，几段不同颜色的词 */
+const CODE: readonly (readonly [number, readonly (readonly [number, string])[]])[] = [
+  [0, [[0.16, "#c792ea"], [0.22, "#82aaff"], [0.08, "#ffcb6b"]]],
+  [1, [[0.12, "#c792ea"], [0.18, "#f07178"], [0.26, "#c3e88d"]]],
+  [2, [[0.2, "#82aaff"], [0.1, "#89ddff"], [0.16, "#ffcb6b"]]],
+  [2, [[0.14, "#f07178"], [0.3, "#c3e88d"]]],
+  [1, [[0.06, "#89ddff"]]],
+  [1, [[0.18, "#c792ea"], [0.14, "#82aaff"], [0.1, "#f78c6c"]]],
+  [2, [[0.24, "#c3e88d"], [0.12, "#ffcb6b"]]],
+  [0, [[0.06, "#89ddff"]]],
+];
+
+/** 电脑显示器（正面），屏幕上一行行彩色代码，最后一行有个光标 */
+function Screen({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.62;
+  const top = bottom - w * 0.76;
+  const bezel = w * 0.035;
+  const sx = x - w / 2 + bezel;
+  const sy = top + bezel;
+  const sw = w - bezel * 2;
+  const sh = h - bezel * 2;
+  const rowH = sh / (CODE.length + 1.5);
+  const bar = Math.max(4, rowH * 0.42);
+  return (
+    <g>
+      <path d={`M ${x - w * 0.05},${top + h} L ${x - w * 0.07},${bottom - w * 0.03} L ${x + w * 0.07},${bottom - w * 0.03} L ${x + w * 0.05},${top + h} Z`} fill="#b8c0cc" {...line} strokeWidth={5} />
+      <rect x={x - w * 0.2} y={bottom - w * 0.035} width={w * 0.4} height={w * 0.035} rx={w * 0.017} fill="#b8c0cc" {...line} strokeWidth={5} />
+      <rect x={x - w / 2} y={top} width={w} height={h} rx={w * 0.03} fill="#3b4252" {...line} strokeWidth={6} />
+      <rect x={sx} y={sy} width={sw} height={sh} rx={w * 0.012} fill="#1e2a44" />
+      {CODE.map(([indent, words], row) => {
+        let cx = sx + sw * 0.06 + indent * sw * 0.07;
+        const cy = sy + rowH * (row + 1);
+        return (
+          <g key={row}>
+            {words.map(([len, color], k) => {
+              const bx = cx;
+              cx += sw * len + sw * 0.025;
+              return <rect key={k} x={bx} y={cy - bar / 2} width={sw * len} height={bar} rx={bar / 2} fill={color} />;
+            })}
+          </g>
+        );
+      })}
+      <rect x={sx + sw * 0.06} y={sy + rowH * (CODE.length + 1) - bar * 0.7} width={bar * 0.6} height={bar * 1.4} fill="#ffffff" opacity={0.85} />
+      <circle cx={x} cy={top + h - bezel / 2} r={bezel * 0.22} fill="#8fd18f" />
     </g>
   );
 }

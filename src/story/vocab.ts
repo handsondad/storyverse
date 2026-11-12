@@ -46,7 +46,7 @@ export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "pa
 export type Place = (typeof PLACES)[number];
 
 /** 画出来的道具（表情符号里没有的东西） */
-export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike"] as const;
+export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike", "screen"] as const;
 export type ThingKind = (typeof THINGS)[number];
 
 export const TIMES = ["morning", "day", "evening", "night"] as const;
