@@ -98,7 +98,10 @@ export function checkStory(story) {
       if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
       if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");
       if (p.thing?.move && !["crawl", "sit", "stand"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit / stand");
-      if ((p.thing?.shape || p.thing?.tilt !== undefined || p.thing?.rider || p.thing?.spot !== undefined || p.thing?.lean !== undefined) && p.thing.kind !== "board") say(where, "shape、tilt、rider、spot、lean 只给 board 用");
+      if ((p.thing?.shape || p.thing?.tilt !== undefined || p.thing?.spot !== undefined || p.thing?.lean !== undefined) && p.thing.kind !== "board") say(where, "shape、tilt、spot、lean 只给 board 用");
+      if (p.thing?.rider && !["board", "trike"].includes(p.thing.kind)) say(where, "rider 只给 board、trike 用");
+      if (p.thing?.kind === "trike" && p.thing.rider && p.thing.rider.move !== "sit") say(where, "三轮车上的 rider 是坐着的宝宝（move: \"sit\"）");
+      if (p.thing?.load && (p.thing.kind !== "trike" || p.thing.load !== "grass")) say(where, "load 只给 trike 用，只能是 grass");
       if (p.thing?.shape && !["rock", "arch", "slide"].includes(p.thing.shape)) say(where, "board 的 shape 只能是 rock / arch / slide");
       if (p.thing?.tilt !== undefined && (p.thing.shape ?? "rock") !== "rock") say(where, "tilt 只给 shape: rock 的木板用");
       if (p.thing?.tilt !== undefined && Math.abs(p.thing.tilt) > 20) say(where, "tilt 在 -20～20 度");

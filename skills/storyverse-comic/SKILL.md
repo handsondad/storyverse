@@ -80,7 +80,7 @@ description: >-
 | `nian` | 小念（橙衣服） | 暖黄 |
 | `dad` | 爸爸（蓝衬衫、眼镜） | 浅蓝 |
 | `mom` | 妈妈（绿裙子、黄发卡） | 浅绿 |
-| `laoye` | 姥爷（白头发、白胡子、棕色开衫）；只出场，不署名 | 米色 |
+| `laoye` | 姥爷（白头发、白胡子、棕色开衫）；只出场，不署名。爷爷也先用他，写 `top: "#5b7fa6"` 换蓝外套（见 `src/stories/little-driver/story.ts`） | 米色 |
 | `ayi` | 阿姨：外面遇到的女的都用她（紫上衣） | 浅粉 |
 | `shushu` | 叔叔：外面遇到的男的都用他（灰衬衫） | 浅灰 |
 | `gege` | 哥哥：外面遇到的大一点的男孩（绿 T 恤），身子和小念一样大 | 浅绿 |
@@ -118,6 +118,7 @@ description: >-
 - `sit` 的宝宝写 `ride: true` 就是骑在红色大汽车（扭扭车）上，车头朝右、一只脚蹬地；`size` 400～560
 - 宝宝写 `move: "stand"` 是站着、两手张开保持平衡的样子（脸朝右）
 - 拱形大木板（平衡板）：`{ thing: { kind: "board", shape, rider, spot, tilt, lean }, x, size: 480～720 }`。`shape: "rock"` 弧面朝下（跷跷板、站上去摇，`tilt` -20～20 度，正数右头往下）；`"arch"` 弧面朝上像拱桥；`"slide"` 一头立起来当滑梯（左高右低，大人站在左边 `pose: "hold"` 扶着）。板上的宝宝写在 `rider` 里（crawl / sit / stand），`spot` -1～1 是在板上哪儿，`lean` 让宝宝再往后仰（仰卧起坐 -55）。窄格子里木板别太大，不然两头会被裁掉（见 `src/stories/balance-board/story.ts`）
+- 农用三轮车：`{ thing: { kind: "trike", load: "grass", rider }, x, size: 540, front: true }`，车头朝右，`load: "grass"` 车斗里堆满草。大人开车：同一个 x 往右挪 `0.02 * size / 1400`，`pose: "sit", perch: true`（坐在车座上、不画小凳子）；`rider` 是坐在大人前面扶车把的宝宝（`move: "sit"`）
 - 妈妈小时候的老照片：`{ thing: { kind: "photo" }, x, size }`，特写用 700 左右；拿在手里配 `pose: "hold"`、面朝右，照片 `x: at + 0.08, lift: 270, size: 160, front: true`（见 `src/stories/little-rider/story.ts`）
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）
@@ -146,6 +147,7 @@ description: >-
 | `bathroom` | 卫生间（瓷砖、洗手池、镜子） |
 | `hospital` | 医院走廊（双开门、扶手、长椅、四点钟的挂钟），门上牌子写 `sign`，默认「产房」，比如 `sign: "儿科"` |
 | `gateball` | 体育公园的门球场（人造草皮、小球门、门柱、围网和「门球场」牌子） |
+| `farm` | 老家的田（远处小山和农家小院，一垄垄庄稼地，土路，草垛） |
 | `pharmacy` | 药店（药架、绿十字灯牌、「福」），配 `table` 就是画在人前面的柜台 |
 | `street` | 街上一排小店，过年拉着卷帘门、贴「放假」、挂红灯笼；中间那家的招牌写 `sign`（默认「药店」）。招牌字小，用 `wide` 才看得见 |
 | `park` | 公园（树、草、天空） |

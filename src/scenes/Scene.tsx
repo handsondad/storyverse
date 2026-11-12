@@ -35,6 +35,7 @@ export function Background({ scene, uid }: { scene: SceneSpec; uid: string }) {
     case "pharmacy": return <Pharmacy />;
     case "street": return <Street time={time} uid={uid} sign={scene.sign ?? "药店"} />;
     case "gateball": return <Gateball time={time} uid={uid} />;
+    case "farm": return <Farm time={time} uid={uid} />;
     case "bedroom": return <Bedroom time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "park": return <Park time={time} uid={uid} rain={scene.weather === "rain"} />;
     case "museum": return <Museum time={time} uid={uid} tint={scene.tint ?? "#f4f0e6"} />;
@@ -424,6 +425,48 @@ function Gateball({ time, uid }: { time: TimeOfDay; uid: string }) {
   );
 }
 
+/** 老家的田：远处小山和农家小院，中间一垄垄庄稼地，脚下是土路，右边一个草垛 */
+function Farm({ time, uid }: { time: TimeOfDay; uid: string }) {
+  const night = time === "night";
+  const rows = [690, 722, 758, 798, 842];
+  return (
+    <g>
+      <Sky time={time} uid={uid} rain={false} x={X0} y={Y0} w={W} h={H} />
+      <Celestial time={time} rain={false} sunAt={[1280, time === "evening" ? 460 : 160]} moonAt={[1280, 160]} />
+      {!night && time !== "evening" && <Clouds y={190} spread={[140, 600]} />}
+      <path d={`M ${X0},600 Q 250,500 600,580 T 1300,540 T 2100,590 L 2100,1400 L ${X0},1400 Z`} fill={night ? "#3e6150" : "#b9dca0"} />
+      <g>
+        <rect x={250} y={545} width={190} height={110} fill="#fff8ec" {...line} strokeWidth={5} />
+        <path d={`M 225,550 L 345,480 L 465,550 Z`} fill="#c8553d" {...line} strokeWidth={5} />
+        <rect x={322} y={590} width={46} height={65} rx={6} fill="#8a5a3c" {...line} strokeWidth={4} />
+        <rect x={270} y={575} width={36} height={32} fill="#bfe6ff" {...line} strokeWidth={4} />
+      </g>
+      <rect x={X0} y={rows[0] - 30} width={W} height={G - rows[0] + 30} fill={night ? "#6b5238" : "#c99b62"} />
+      {rows.map((y, i) => {
+        const s = 0.6 + i * 0.15;
+        return (
+          <g key={y}>
+            <path d={`M ${X0},${y} L ${X0 + W},${y}`} stroke="#a87a48" strokeWidth={6 * s} />
+            {Array.from({ length: 34 }, (_, k) => {
+              const x = X0 + 40 + k * 72 + (i % 2) * 36;
+              return <path key={k} d={`M ${x - 9 * s},${y - 2} q ${4 * s},${-14 * s} ${9 * s},${-22 * s} q ${5 * s},${8 * s} ${9 * s},${22 * s}`} fill="none" stroke={night ? "#4f8a5a" : "#6cbf5a"} strokeWidth={5 * s} strokeLinecap="round" />;
+            })}
+          </g>
+        );
+      })}
+      <rect x={X0} y={G - 40} width={W} height={H} fill={night ? "#8a8270" : "#ead2a0"} />
+      <path d={`M ${X0},${G - 40} L ${X0 + W},${G - 40}`} stroke="#b88f5a" strokeWidth={5} />
+      <path d={`M ${X0},${G + 40} L ${X0 + W},${G + 40} M ${X0},${G + 75} L ${X0 + W},${G + 75}`} stroke="#d4b47c" strokeWidth={6} strokeDasharray="60 40" />
+      <g>
+        <path d={`M 1330,${G - 40} Q 1335,${G - 210} 1430,${G - 220} Q 1525,${G - 210} 1530,${G - 40} Z`} fill="#e9c35a" {...line} strokeWidth={5} />
+        {[1370, 1410, 1450, 1490].map((x) => <path key={x} d={`M ${x},${G - 60} q 5,-60 ${x < 1430 ? 15 : -15},-120`} fill="none" stroke="#c99a2e" strokeWidth={4} />)}
+      </g>
+      <Tree x={1560} y={G - 50} s={0.9} night={night} />
+      <Night time={time} />
+    </g>
+  );
+}
+
 /** 饭桌：画在人前面，桌面离地 TABLE_TOP */
 export const TABLE_TOP = 205;
 
@@ -687,6 +730,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "steam": return <Steam {...p} />;
     case "photo": return <OldPhoto {...p} />;
     case "board": return <Board {...p} />;
+    case "trike": return <Trike {...p} />;
   }
 }
 
@@ -1075,6 +1119,54 @@ function Board({ x, bottom, w, thing }: { x: number; bottom: number; w: number; 
           <ThingView x={0} bottom={0} w={w * BOARD_RIDER} thing={thing.rider} />
         </g>
       )}
+    </g>
+  );
+}
+
+/**
+ * 农用三轮车（侧面，车头朝右）：前面一个轮子、车把和红车头，后面一个蓝车斗。
+ * 大人开车时站位在车座正上方、pose: "sit"，三轮车写 front: true 挡住小凳子和腿；rider 是坐在大人前面扶车把的宝宝
+ */
+function Trike({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const wr = w * 0.09;
+  const wy = bottom - wr;
+  const bedTop = bottom - w * 0.36;
+  const seatY = bottom - w * 0.27;
+  const wheel = (cx: number) => (
+    <g key={cx}>
+      <circle cx={cx} cy={wy} r={wr} fill="#3b3b3b" {...line} strokeWidth={5} />
+      <circle cx={cx} cy={wy} r={wr * 0.42} fill="#d9d9d9" {...line} strokeWidth={4} />
+    </g>
+  );
+  const neck: Pt = [x + w * 0.32, bottom - w * 0.42];
+  const grip: Pt = [x + w * 0.25, bottom - w * 0.47];
+  return (
+    <g>
+      {thing.load === "grass" && (
+        <g>
+          <path d={`M ${x - w * 0.5},${bedTop + 4} Q ${x - w * 0.47},${bedTop - w * 0.2} ${x - w * 0.27},${bedTop - w * 0.22} Q ${x - w * 0.05},${bedTop - w * 0.2} ${x - w * 0.03},${bedTop + 4} Z`} fill="#a8c95a" {...line} strokeWidth={5} />
+          {[-0.44, -0.36, -0.27, -0.18, -0.1].map((f) => (
+            <path key={f} d={`M ${x + f * w},${bedTop - w * 0.02} q ${w * 0.02},${-w * 0.08} ${f < -0.27 ? -w * 0.03 : w * 0.03},${-w * 0.15}`} fill="none" stroke="#7a9a3a" strokeWidth={Math.max(3, w * 0.006)} strokeLinecap="round" />
+          ))}
+        </g>
+      )}
+      <rect x={x - w * 0.5} y={bedTop} width={w * 0.48} height={w * 0.19} rx={w * 0.01} fill="#4f86c6" {...line} strokeWidth={5} />
+      <path d={`M ${x - w * 0.47},${bedTop + w * 0.07} H ${x - w * 0.05} M ${x - w * 0.47},${bedTop + w * 0.13} H ${x - w * 0.05}`} stroke="#ffffff" strokeWidth={Math.max(3, w * 0.008)} opacity={0.5} />
+      <path d={`M ${x - w * 0.37},${wy} A ${wr * 1.3} ${wr * 1.3} 0 0 1 ${x - w * 0.15},${wy}`} fill="#4f86c6" {...line} strokeWidth={5} />
+      {wheel(x - w * 0.26)}
+      <rect x={x} y={bottom - w * 0.17} width={w * 0.17} height={w * 0.08} rx={w * 0.015} fill="#5a5a5a" {...line} strokeWidth={4} />
+      <path d={`M ${x - w * 0.02},${bottom - w * 0.19} L ${x + w * 0.3},${bottom - w * 0.19}`} stroke={INK} strokeWidth={Math.max(8, w * 0.02)} strokeLinecap="round" />
+      <path d={`M ${neck[0]},${neck[1]} L ${x + w * 0.4},${wy}`} stroke="#9a9a9a" strokeWidth={Math.max(8, w * 0.022)} strokeLinecap="round" />
+      <path d={`M ${neck[0]},${neck[1]} L ${x + w * 0.4},${wy}`} fill="none" stroke={INK} strokeWidth={3} opacity={0.6} />
+      {wheel(x + w * 0.4)}
+      <path d={`M ${x + w * 0.34},${wy - wr * 1.1} A ${wr * 1.2} ${wr * 1.2} 0 0 1 ${x + w * 0.47},${wy - wr * 0.2}`} fill="none" stroke="#e04f3f" strokeWidth={Math.max(8, w * 0.02)} strokeLinecap="round" />
+      <path d={`M ${x + w * 0.2},${bottom - w * 0.19} L ${neck[0] - w * 0.02},${neck[1] + w * 0.01} L ${neck[0] + w * 0.05},${neck[1] + w * 0.03} L ${x + w * 0.33},${bottom - w * 0.19} Z`} fill="#e04f3f" {...line} strokeWidth={5} />
+      <circle cx={neck[0] + w * 0.045} cy={neck[1] + w * 0.06} r={w * 0.025} fill="#ffe08a" {...line} strokeWidth={4} />
+      <rect x={x - w * 0.01} y={seatY - w * 0.015} width={w * 0.2} height={w * 0.045} rx={w * 0.02} fill="#3b3b3b" {...line} strokeWidth={4} />
+      <path d={`M ${x + w * 0.01},${seatY + w * 0.03} L ${x + w * 0.04},${bottom - w * 0.19} M ${x + w * 0.16},${seatY + w * 0.03} L ${x + w * 0.13},${bottom - w * 0.19}`} stroke={INK} strokeWidth={Math.max(6, w * 0.014)} strokeLinecap="round" />
+      {thing.rider && <ThingView x={x + w * 0.14} bottom={seatY - w * 0.012} w={w * 0.42} thing={thing.rider} />}
+      <path d={`M ${neck[0]},${neck[1]} L ${grip[0]},${grip[1]}`} stroke={INK} strokeWidth={Math.max(8, w * 0.018)} strokeLinecap="round" />
+      <rect x={grip[0] - w * 0.03} y={grip[1] - w * 0.014} width={w * 0.05} height={w * 0.028} rx={w * 0.012} fill="#3b3b3b" {...line} strokeWidth={3} />
     </g>
   );
 }

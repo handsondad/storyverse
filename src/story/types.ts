@@ -27,13 +27,15 @@ export type Actor = {
   readonly outfit?: OutfitId;
   /** 戴顶帽子：party 尖尖的生日帽 */
   readonly hat?: "party";
+  /** pose: "sit" 时坐在道具上（三轮车座），不画小凳子 */
+  readonly perch?: boolean;
   /** 换件上衣的颜色（#rrggbb）：两个哥哥这样的同一个角色一起出场时，分得出谁是谁 */
   readonly top?: string;
 };
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗） */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -94,8 +96,10 @@ export type Thing = {
   readonly shape?: "rock" | "arch" | "slide";
   /** rock 的木板歪多少度：正数右头往下，负数左头往下（-20～20） */
   readonly tilt?: number;
-  /** 木板上的宝宝（crawl / sit / stand 的 baby），跟着木板的弧度歪 */
+  /** 木板上的宝宝（crawl / sit / stand 的 baby），跟着木板的弧度歪；三轮车驾驶座上的宝宝（sit） */
   readonly rider?: Thing;
+  /** 三轮车后斗里装的东西：grass 一大堆喂牛的草 */
+  readonly load?: "grass";
   /** 宝宝在木板上哪儿：-1 左头，0 正中间，1 右头 */
   readonly spot?: number;
   /** 宝宝在木板上再往后仰多少度（负数往后躺：-70 躺平，-10 坐起来，做仰卧起坐） */

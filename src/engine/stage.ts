@@ -112,13 +112,14 @@ export function thingHeight(t: Thing, size: number): number {
       const base = t.shape === "slide" ? 0.62 : t.shape === "arch" ? 0.36 : 0.22;
       return size * base + (t.rider ? thingHeight(t.rider, size * BOARD_RIDER) : 0);
     }
+    case "trike": return size * (t.load || t.rider ? 0.6 : 0.5);
   }
 }
 
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {

@@ -19,10 +19,12 @@ type FigureProps = {
   /** 坐在椅子上；tip 是连人带椅子往后翘的角度 */
   seat?: SeatKind;
   tip?: number;
+  /** 坐在道具上（三轮车座），不画小凳子 */
+  perch?: boolean;
 };
 
 /** 一个角色，脚底中点在 (0, 0)。外面用 translate 放到舞台上 */
-export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink, seat, tip }: FigureProps) {
+export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink, seat, tip, perch }: FigureProps) {
   const sk = solve(spec.body, POSE_ANGLES[pose]);
   const angles = POSE_ANGLES[pose];
   const flip = facing === "left" ? -1 : 1;
@@ -38,7 +40,7 @@ export function Figure({ spec, pose = "stand", face = "neutral", facing = "right
       {chair && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Chair s={chair} spec={spec} /></g>}
       <g transform={chair ? mirrored(chair, flip) : undefined}>
         <FigureBody spec={spec} sk={sk} pose={pose} face={face} flip={flip} talking={talking} hold={hold} blink={blink}
-          headT={headT} stool={!!angles.seat && !chair} line={line} longSleeve={longSleeve} />
+          headT={headT} stool={!!angles.seat && !chair && !perch} line={line} longSleeve={longSleeve} />
       </g>
       {chair?.kind === "bed" && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Blanket s={chair} spec={spec} /></g>}
     </g>
