@@ -4,6 +4,7 @@ import { CoverView } from "../render/PageView.tsx";
 import { creditLine } from "../story/script.ts";
 import type { Story } from "../story/types.ts";
 import { STORIES } from "../stories/index.ts";
+import { shelfMemory } from "./shelfMemory.ts";
 import { ago, byYear, COMPACT, fullDate, layoutLine, monthDay, sizeFor, yearOf } from "./timeline.ts";
 
 /** 鼠标按住挪过这么多像素才算拖绳子，不算点 */
@@ -27,20 +28,31 @@ export function ShelfPage() {
     const last = years[years.length - 1] ?? [];
     return last[last.length - 1] as Story | undefined;
   }, []);
-  const [open, setOpen] = useState<number | null>(latest ? yearOf(latest) : null);
-  const [picked, setPicked] = useState(latest?.id);
+  const [open, setOpen] = useState<number | null>(shelfMemory.open !== undefined ? shelfMemory.open : latest ? yearOf(latest) : null);
+  const [picked, setPicked] = useState(shelfMemory.picked ?? latest?.id);
   const [peek, setPeek] = useState<string | null>(null);
   const { items, width } = useMemo(() => layoutLine(STORIES, open, room, size), [open, room, size]);
   const tags = items.flatMap((it) => (it.kind === "story" ? [it.story] : []));
   const shown = STORIES.find((s) => s.id === (peek ?? picked));
+  useEffect(() => {
+    shelfMemory.open = open;
+    shelfMemory.picked = picked;
+  }, [open, picked]);
 
-  // 开合一年以后，把那一年的开头挪到眼前
+  // 开合一年以后，把那一年的开头挪到眼前；从书里回来时，把刚看的那本挪到正中
   const pending = useRef<number | null>(open);
+  const back = useRef(shelfMemory.picked !== undefined ? picked : undefined);
   useLayoutEffect(() => {
     const el = scroller.current;
     const year = pending.current;
     if (!el || year === null || !room) return;
     pending.current = null;
+    const tag = back.current && items.find((i) => i.kind === "story" && i.story.id === back.current);
+    back.current = undefined;
+    if (tag) {
+      el.scrollTo({ left: Math.max(0, tag.x - el.clientWidth / 2) });
+      return;
+    }
     const it = items.find((i) => i.kind !== "story" && i.year === year);
     if (!it) return;
     const w = it.kind === "flag" ? size.flagW : size.yearW;

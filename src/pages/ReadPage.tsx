@@ -2,6 +2,8 @@ import { useEffect, useRef, type TouchEvent } from "react";
 import { CoverView, PageView } from "../render/PageView.tsx";
 import { creditLine } from "../story/script.ts";
 import type { Story } from "../story/types.ts";
+import { shelfMemory } from "./shelfMemory.ts";
+import { yearOf } from "./timeline.ts";
 import { useStoryPlayer } from "./useStoryPlayer.ts";
 
 type Props = {
@@ -21,6 +23,11 @@ export function ReadPage({ story, page }: Props) {
   const touch = useRef<{ x: number; y: number } | null>(null);
   const player = useStoryPlayer(story, at, next);
   const { toggle } = player;
+
+  useEffect(() => {
+    shelfMemory.open = yearOf(story);
+    shelfMemory.picked = story.id;
+  }, [story]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
