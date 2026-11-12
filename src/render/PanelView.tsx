@@ -30,7 +30,7 @@ export function PanelView({ panel, layout, uid, upTo = Infinity, border = true }
           <Background scene={panel.scene} uid={uid} />
           {(panel.props ?? []).map((p, i) => !p.front && <PropView key={i} prop={p} uid={`${uid}-p${i}`} />)}
           {layout.actors.map((a, i) => (
-            <g key={i} transform={`translate(${a.x},${STAGE.ground})`}>
+            <g key={i} transform={`translate(${a.x},${STAGE.ground - (a.actor.lift ?? 0)})`}>
               <ellipse cx={0} cy={4} rx={a.spec.body.shoulder * 1.6} ry={a.spec.body.limb * 0.5} fill="#000" opacity={0.12} />
               <Figure spec={a.spec} pose={a.actor.pose} face={a.actor.face} facing={a.facing} hold={a.actor.hold}
                 talking={talking.has(a.actor.who)} seat={a.actor.seat} tip={a.actor.tip} perch={a.actor.perch} />

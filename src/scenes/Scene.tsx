@@ -733,6 +733,8 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "trike": return <Trike {...p} />;
     case "screen": return <Screen {...p} />;
     case "glasses": return <Specs {...p} />;
+    case "trampoline": return <Trampoline {...p} />;
+    case "pad": return <LearningPad {...p} />;
   }
 }
 
@@ -1202,6 +1204,135 @@ const CODE: readonly (readonly [number, readonly (readonly [number, string])[]])
   [2, [[0.24, "#c3e88d"], [0.12, "#ffcb6b"]]],
   [0, [[0.06, "#89ddff"]]],
 ];
+
+/** 小孩玩的圆蹦床（侧面稍微俯看）：蓝色软包边，黑色弹力网，几条弯腿。站上去的人 lift 写 size 的 0.2 */
+function Trampoline({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const cy = bottom - w * 0.2;
+  const legs = [-0.4, -0.14, 0.14, 0.4];
+  return (
+    <g>
+      {legs.map((u) => (
+        <path key={u} d={`M ${x + u * w},${cy + w * 0.05} q ${u * w * 0.12},${w * 0.08} ${u * w * 0.06},${bottom - cy - w * 0.05}`}
+          fill="none" stroke={INK} strokeWidth={Math.max(12, w * 0.035)} strokeLinecap="round" />
+      ))}
+      {legs.map((u) => (
+        <path key={`in${u}`} d={`M ${x + u * w},${cy + w * 0.05} q ${u * w * 0.12},${w * 0.08} ${u * w * 0.06},${bottom - cy - w * 0.05}`}
+          fill="none" stroke="#9aa6b5" strokeWidth={Math.max(5, w * 0.02)} strokeLinecap="round" />
+      ))}
+      <ellipse cx={x} cy={cy + w * 0.04} rx={w / 2} ry={w * 0.1} fill="#3a86c8" {...line} strokeWidth={5} />
+      <ellipse cx={x} cy={cy} rx={w / 2} ry={w * 0.1} fill="#5fb2ef" {...line} strokeWidth={5} />
+      <ellipse cx={x} cy={cy} rx={w * 0.4} ry={w * 0.07} fill="#2f3542" {...line} strokeWidth={4} />
+      <ellipse cx={x - w * 0.12} cy={cy - w * 0.02} rx={w * 0.12} ry={w * 0.015} fill="#ffffff" opacity={0.18} />
+    </g>
+  );
+}
+
+/** 学习机列表里每首歌后面的小图片 */
+function SongIcon({ n, cx, cy, s }: { n: number; cx: number; cy: number; s: number }) {
+  const st = { stroke: INK, strokeWidth: Math.max(2, s * 0.06), strokeLinejoin: "round" as const };
+  switch (n % 6) {
+    case 0: {
+      const pts = Array.from({ length: 10 }, (_, i) => {
+        const a = -Math.PI / 2 + (i * Math.PI) / 5;
+        const r = i % 2 ? s * 0.2 : s * 0.42;
+        return `${cx + Math.cos(a) * r},${cy + Math.sin(a) * r}`;
+      }).join(" ");
+      return <polygon points={pts} fill="#ffd84d" {...st} />;
+    }
+    case 1:
+      return (
+        <g>
+          <path d={`M ${cx + s * 0.1},${cy} l ${s * 0.3},${-s * 0.22} v ${s * 0.44} Z`} fill="#5fb2ef" {...st} />
+          <ellipse cx={cx - s * 0.08} cy={cy} rx={s * 0.3} ry={s * 0.2} fill="#5fb2ef" {...st} />
+          <circle cx={cx - s * 0.2} cy={cy - s * 0.04} r={s * 0.04} fill={INK} />
+        </g>
+      );
+    case 2:
+      return (
+        <g>
+          <circle cx={cx} cy={cy + s * 0.05} r={s * 0.32} fill="#ff6b5b" {...st} />
+          <path d={`M ${cx},${cy - s * 0.25} q ${s * 0.18},${-s * 0.18} ${s * 0.3},${-s * 0.1} q ${-s * 0.1},${s * 0.14} ${-s * 0.3},${s * 0.1} Z`} fill="#5cc27a" {...st} />
+        </g>
+      );
+    case 3:
+      return (
+        <g>
+          {Array.from({ length: 8 }, (_, i) => {
+            const a = (i * Math.PI) / 4;
+            return <path key={i} d={`M ${cx + Math.cos(a) * s * 0.3},${cy + Math.sin(a) * s * 0.3} L ${cx + Math.cos(a) * s * 0.44},${cy + Math.sin(a) * s * 0.44}`} stroke="#ff9f43" strokeWidth={s * 0.08} strokeLinecap="round" />;
+          })}
+          <circle cx={cx} cy={cy} r={s * 0.22} fill="#ffb84d" {...st} />
+        </g>
+      );
+    case 4:
+      return <path d={`M ${cx + s * 0.1},${cy - s * 0.38} A ${s * 0.38} ${s * 0.38} 0 1 0 ${cx + s * 0.3},${cy + s * 0.22} A ${s * 0.3} ${s * 0.3} 0 0 1 ${cx + s * 0.1},${cy - s * 0.38} Z`} fill="#ffe08a" {...st} />;
+    default:
+      return (
+        <g>
+          {[0, 1, 2, 3, 4].map((i) => {
+            const a = -Math.PI / 2 + (i * 2 * Math.PI) / 5;
+            return <circle key={i} cx={cx + Math.cos(a) * s * 0.2} cy={cy + Math.sin(a) * s * 0.2} r={s * 0.16} fill="#ff8fb1" {...st} />;
+          })}
+          <circle cx={cx} cy={cy} r={s * 0.12} fill="#ffd84d" {...st} />
+        </g>
+      );
+  }
+}
+
+const PAD_ROWS = [0.62, 0.48, 0.7, 0.4, 0.56, 0.66];
+
+/** 小天才学习机（正面）：儿歌列表，每首歌是一行看不懂的字，后面一个小图片；pick 是小念指着的那一行 */
+function LearningPad({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const h = w * 0.66;
+  const L = x - w / 2;
+  const T = bottom - h;
+  const b = w * 0.07;
+  const sx = L + b;
+  const sy = T + b;
+  const sw = w - b * 2;
+  const sh = h - b * 2;
+  const head = sh * 0.14;
+  const rowH = (sh - head) / PAD_ROWS.length;
+  const stroke = Math.max(3, w * 0.008);
+  const pick = thing.pick;
+  const iconX = sx + sw * 0.84;
+  return (
+    <g>
+      <rect x={L} y={T} width={w} height={h} rx={w * 0.06} fill="#4fb3ff" {...line} strokeWidth={5} />
+      <text x={x} y={T + b * 0.55} fontSize={b * 0.62} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">小天才</text>
+      <circle cx={L + w - b * 0.5} cy={T + h / 2} r={b * 0.22} fill="#ffffff" stroke={INK} strokeWidth={stroke} />
+      <rect x={sx} y={sy} width={sw} height={sh} rx={w * 0.02} fill="#ffffff" stroke={INK} strokeWidth={stroke} />
+      <rect x={sx} y={sy} width={sw} height={head} rx={w * 0.02} fill="#ff9f43" />
+      <text x={sx + sw * 0.06} y={sy + head / 2} fontSize={head * 0.62} dominantBaseline="central" fill="#ffffff" className="story-font">儿歌</text>
+      {PAD_ROWS.map((len, i) => {
+        const cy = sy + head + rowH * (i + 0.5);
+        return (
+          <g key={i}>
+            {i === pick && <rect x={sx + sw * 0.02} y={cy - rowH * 0.46} width={sw * 0.9} height={rowH * 0.92} rx={rowH * 0.2} fill="#fff1b8" stroke="#ffb84d" strokeWidth={stroke} />}
+            <rect x={sx + sw * 0.06} y={cy - rowH * 0.2} width={sw * 0.62 * len} height={rowH * 0.16} rx={rowH * 0.08} fill="#c9d2dc" />
+            <rect x={sx + sw * 0.06} y={cy + rowH * 0.08} width={sw * 0.3 * len} height={rowH * 0.12} rx={rowH * 0.06} fill="#e3e8ee" />
+            <rect x={iconX - rowH * 0.4} y={cy - rowH * 0.4} width={rowH * 0.8} height={rowH * 0.8} rx={rowH * 0.16} fill="#f2f6fa" />
+            <SongIcon n={i} cx={iconX} cy={cy} s={rowH * 0.72} />
+          </g>
+        );
+      })}
+      <rect x={sx + sw * 0.955} y={sy + head + rowH * 0.3} width={sw * 0.016} height={sh * 0.25} rx={sw * 0.008} fill="#c9d2dc" />
+      {pick !== undefined && (() => {
+        const tip: Pt = [iconX + rowH * 0.4, sy + head + rowH * (pick + 0.8)];
+        const fist: Pt = [tip[0] + rowH * 0.55, tip[1] + rowH * 1.1];
+        const finger = `M ${tip[0]},${tip[1]} L ${fist[0]},${fist[1]}`;
+        return (
+          <g>
+            <path d={finger} stroke={INK} strokeWidth={rowH * 0.32 + 10} strokeLinecap="round" />
+            <path d={finger} stroke={BABY_SKIN} strokeWidth={rowH * 0.32} strokeLinecap="round" />
+            <ellipse cx={fist[0] + rowH * 0.12} cy={fist[1] + rowH * 0.25} rx={rowH * 0.5} ry={rowH * 0.42} fill={BABY_SKIN} {...line} strokeWidth={5} />
+            <path d={`M ${fist[0] - rowH * 0.25},${fist[1] + rowH * 0.12} q ${rowH * 0.2},${rowH * 0.08} ${rowH * 0.4},0`} fill="none" stroke={INK} strokeWidth={Math.max(3, rowH * 0.06)} strokeLinecap="round" />
+          </g>
+        );
+      })()}
+    </g>
+  );
+}
 
 /** 摘下来放着的一副眼镜（正面），镜腿折在后面露出两截 */
 function Specs({ x, bottom, w }: { x: number; bottom: number; w: number }) {

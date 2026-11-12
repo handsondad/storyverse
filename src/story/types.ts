@@ -31,11 +31,13 @@ export type Actor = {
   readonly perch?: boolean;
   /** 换件上衣的颜色（#rrggbb）：两个哥哥这样的同一个角色一起出场时，分得出谁是谁 */
   readonly top?: string;
+  /** 脚底离地多高（舞台单位）：站在蹦床这样的东西上 */
+  readonly lift?: number;
 };
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面） */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面）；trampoline 小孩的圆蹦床；pad 小天才学习机，屏幕上是儿歌列表，每首歌后面一个小图片 */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -75,6 +77,8 @@ export type Thing = {
   readonly hat?: "party" | "big" | "grad";
   /** 宝宝戴着大人的大眼镜（侧面一只大圆镜片，镜腿挂到耳朵） */
   readonly specs?: boolean;
+  /** pad 学习机上小手指着第几首歌（0～5，从上往下），那一行亮起来 */
+  readonly pick?: number;
   /** stand 的宝宝踮着脚、两只小手举高往前够 */
   readonly reach?: boolean;
   /** crawl / sit 的宝宝嘟着小嘴吹气（吹蜡烛），嘴前面有几道风 */

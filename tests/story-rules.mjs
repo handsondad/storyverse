@@ -1,4 +1,4 @@
-// 故事内容检查：版式格数、气泡字数、角色是否存在、气泡有没有挡脸、字体缺不缺字。
+﻿// 故事内容检查：版式格数、气泡字数、角色是否存在、气泡有没有挡脸、字体缺不缺字。
 // 用法：
 //   npm run check
 //   npm run check -- glowing-boots
@@ -66,6 +66,7 @@ export function checkStory(story) {
       if (!CHARACTER_IDS.includes(a.who)) say(where, `没有角色 ${a.who}`);
       if (seen.has(a.who) && !["ayi", "shushu", "gege", "jiejie"].includes(a.who)) say(where, `${a.who} 出现了两次`);
       if (a.top && !/^#[0-9a-f]{6}$/i.test(a.top)) say(where, `top 要写 #rrggbb 颜色`);
+      if (a.lift !== undefined && (a.lift < 0 || a.lift > 300)) say(where, "演员的 lift 在 0～300");
       seen.add(a.who);
       if (a.pose && !POSES.includes(a.pose)) say(where, `没有姿势 ${a.pose}`);
       if (a.face && !EXPRESSIONS.includes(a.face)) say(where, `没有表情 ${a.face}`);
@@ -113,6 +114,7 @@ export function checkStory(story) {
       if (p.thing?.hair && !["fuzz", "bald"].includes(p.thing.hair)) say(where, "hair 只能是 fuzz / bald");
       if (p.thing?.hat && !["party", "big", "grad"].includes(p.thing.hat)) say(where, "hat 只能是 party / big / grad");
       if (p.thing?.specs && !(p.thing.kind === "baby" && p.thing.move)) say(where, "specs 只给 crawl / sit / stand 的宝宝用");
+      if (p.thing?.pick !== undefined && (p.thing.kind !== "pad" || ![0, 1, 2, 3, 4, 5].includes(p.thing.pick))) say(where, "pick 只给 pad 用，是 0～5");
       if (p.thing?.reach && !(p.thing.kind === "baby" && p.thing.move === "stand")) say(where, "reach 只给 stand 的宝宝用");
       if ((p.thing?.sick || p.thing?.patch || p.thing?.color || p.thing?.blow) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color、blow 只给 crawl / sit 的宝宝用");
       if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");

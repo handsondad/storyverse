@@ -53,7 +53,7 @@ export function placeActors(panel: Pick<Panel, "actors">, squeeze = 1): PlacedAc
     const facing = defaultFacing(actor, panel.actors);
     const skeleton = solve(spec.body, POSE_ANGLES[actor.pose ?? "stand"]);
     const flip = facing === "left" ? -1 : 1;
-    const g = STAGE.ground;
+    const g = STAGE.ground - (actor.lift ?? 0);
     const chair = actor.seat ? seating(spec.body, skeleton, actor.seat, actor.tip) : null;
     const move = chair ? chair.map : (p: Pt) => p;
     const onStage = (p: Pt): Pt => {
@@ -115,13 +115,15 @@ export function thingHeight(t: Thing, size: number): number {
     case "trike": return size * (t.load || t.rider ? 0.6 : 0.5);
     case "screen": return size * 0.76;
     case "glasses": return size * 0.36;
+    case "trampoline": return size * 0.3;
+    case "pad": return size * 0.66;
   }
 }
 
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {
