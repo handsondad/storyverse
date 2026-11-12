@@ -27,6 +27,8 @@ export type Actor = {
   readonly outfit?: OutfitId;
   /** 戴顶帽子：party 尖尖的生日帽 */
   readonly hat?: "party";
+  /** 换件上衣的颜色（#rrggbb）：两个哥哥这样的同一个角色一起出场时，分得出谁是谁 */
+  readonly top?: string;
 };
 
 /** 表情符号里没有的东西，由引擎画出来 */
@@ -67,8 +69,10 @@ export type Thing = {
   readonly flip?: boolean;
   /** crawl / sit 的宝宝的头发：fuzz 毛茸茸一层；bald 刚理的小光头，亮亮的。不写是一小撮 */
   readonly hair?: "fuzz" | "bald";
-  /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽 */
-  readonly hat?: "party";
+  /** crawl / sit 的宝宝戴顶帽子：party 尖尖的生日帽；big 大大的生日帽（小念自己过生日戴的） */
+  readonly hat?: "party" | "big";
+  /** crawl / sit 的宝宝嘟着小嘴吹气（吹蜡烛），嘴前面有几道风 */
+  readonly blow?: boolean;
   /** crawl / sit 的宝宝生病了：小脸烧得红红的，眼睛没精神 */
   readonly sick?: boolean;
   /** crawl / sit 的宝宝额头上贴着退烧贴 */

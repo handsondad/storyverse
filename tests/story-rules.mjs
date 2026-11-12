@@ -25,6 +25,8 @@ const LIMITS = {
   sfx: 8,
   bubblesPerPanel: 4,
   actorsPerPanel: 4,
+  /** 一大家人围在一起这种远景，最多挤这么多 */
+  actorsPerWidePanel: 7,
 };
 
 const chars = (text) => [...text].length;
@@ -56,12 +58,14 @@ export function checkStory(story) {
     const table = panel.scene.table;
     if (table && !(table.from >= 0 && table.to <= 1 && table.from < table.to)) say(where, "table 的 from、to 要在 0～1，而且 from < to");
     if (panel.actors.length === 0 && !(panel.props?.length)) say(where, "格子里至少要有一个角色或道具");
-    if (panel.actors.length > LIMITS.actorsPerPanel) say(where, `角色超过 ${LIMITS.actorsPerPanel} 个`);
+    const maxActors = panel.shot === "wide" ? LIMITS.actorsPerWidePanel : LIMITS.actorsPerPanel;
+    if (panel.actors.length > maxActors) say(where, `角色超过 ${maxActors} 个${panel.shot === "wide" ? "" : `（远景 shot: "wide" 最多 ${LIMITS.actorsPerWidePanel} 个）`}`);
 
     const seen = new Set();
     for (const a of panel.actors) {
       if (!CHARACTER_IDS.includes(a.who)) say(where, `没有角色 ${a.who}`);
-      if (seen.has(a.who)) say(where, `${a.who} 出现了两次`);
+      if (seen.has(a.who) && !["ayi", "shushu", "gege", "jiejie"].includes(a.who)) say(where, `${a.who} 出现了两次`);
+      if (a.top && !/^#[0-9a-f]{6}$/i.test(a.top)) say(where, `top 要写 #rrggbb 颜色`);
       seen.add(a.who);
       if (a.pose && !POSES.includes(a.pose)) say(where, `没有姿势 ${a.pose}`);
       if (a.face && !EXPRESSIONS.includes(a.face)) say(where, `没有表情 ${a.face}`);
@@ -98,8 +102,8 @@ export function checkStory(story) {
       if (p.thing?.cry && !p.thing.move) say(where, "cry 只给 crawl / sit 的宝宝用");
       if ((p.thing?.hair || p.thing?.hat) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "hair、hat 只给 crawl / sit 的宝宝用");
       if (p.thing?.hair && !["fuzz", "bald"].includes(p.thing.hair)) say(where, "hair 只能是 fuzz / bald");
-      if (p.thing?.hat && p.thing.hat !== "party") say(where, "hat 只能是 party");
-      if ((p.thing?.sick || p.thing?.patch || p.thing?.color) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color 只给 crawl / sit 的宝宝用");
+      if (p.thing?.hat && !["party", "big"].includes(p.thing.hat)) say(where, "hat 只能是 party / big");
+      if ((p.thing?.sick || p.thing?.patch || p.thing?.color || p.thing?.blow) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color、blow 只给 crawl / sit 的宝宝用");
       if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }

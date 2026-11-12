@@ -934,7 +934,14 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
       ) : (
         <>
           <path d={`M ${cx + r * 0.25},${cy - r * 0.2} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
-          {thing.giggle
+          {thing.blow ? (
+            <>
+              <ellipse cx={cx + r * 0.86} cy={cy + r * 0.32} rx={r * 0.1} ry={r * 0.12} fill="#e8505b" stroke={INK} strokeWidth={stroke} />
+              {[-0.22, 0.06, 0.34].map((dy) => (
+                <path key={dy} d={`M ${cx + r * 1.12},${cy + r * (0.32 + dy)} l ${r * (dy === 0.06 ? 0.55 : 0.4)},${r * dy * 0.4}`} fill="none" stroke="#7cc4ff" strokeWidth={stroke * 1.4} strokeLinecap="round" />
+              ))}
+            </>
+          ) : thing.giggle
             ? <path d={`M ${cx + r * 0.48},${cy + r * 0.28} q ${r * 0.24},${r * 0.06} ${r * 0.44},${-r * 0.04} q ${-r * 0.04},${r * 0.38} ${-r * 0.24},${r * 0.36} q ${-r * 0.18},${-r * 0.04} ${-r * 0.2},${-r * 0.32} Z`} fill="#e8505b" stroke={INK} strokeWidth={stroke} strokeLinejoin="round" />
             : <path d={`M ${cx + r * 0.55},${cy + r * 0.35} q ${r * 0.14},${r * 0.12} ${r * 0.3},${-r * 0.04}`} {...eye} />}
         </>
@@ -946,7 +953,8 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
         <rect x={cx + r * 0.1} y={cy - r * 0.78} width={r * 0.62} height={r * 0.36} rx={r * 0.1} fill="#bfe6ff" stroke={INK} strokeWidth={stroke}
           transform={`rotate(38 ${cx + r * 0.41} ${cy - r * 0.6})`} />
       )}
-      {thing.hat && <PartyHat x={cx - r * 0.05} y={cy - r * 0.8} w={r * 1.05} h={r * 1.35} tilt={r * 0.3} color={PARTY_HAT} line={stroke * 1.4} />}
+      {thing.hat === "party" && <PartyHat x={cx - r * 0.05} y={cy - r * 0.8} w={r * 1.05} h={r * 1.35} tilt={r * 0.3} color={PARTY_HAT} line={stroke * 1.4} />}
+      {thing.hat === "big" && <PartyHat x={cx - r * 0.05} y={cy - r * 0.75} w={r * 1.4} h={r * 2.2} tilt={r * 0.45} color="#7fc8ff" line={stroke * 1.5} />}
     </g>
   );
 }

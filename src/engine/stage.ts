@@ -48,7 +48,7 @@ export function placeActors(panel: Pick<Panel, "actors">, squeeze = 1): PlacedAc
   const xs = panel.actors.map(actorX);
   const mid = xs.length ? (Math.min(...xs) + Math.max(...xs)) / 2 : STAGE.w / 2;
   return panel.actors.map((actor, i) => {
-    const spec = dressed(CAST[actor.who], actor.outfit, actor.hat);
+    const spec = dressed(CAST[actor.who], actor.outfit, actor.hat, actor.top);
     const x = mid + (xs[i] - mid) * squeeze;
     const facing = defaultFacing(actor, panel.actors);
     const skeleton = solve(spec.body, POSE_ANGLES[actor.pose ?? "stand"]);
@@ -99,7 +99,7 @@ export function thingHeight(t: Thing, size: number): number {
       return size * (0.12 + 0.3 * puff) + (t.sealed ? 30 : 0);
     }
     case "baby":
-      if (t.move) return size * ((t.tub ? 0.76 : t.ride ? 0.77 : t.move === "sit" ? 0.54 : 0.44) + (t.hat ? 0.16 : 0));
+      if (t.move) return size * ((t.tub ? 0.76 : t.ride ? 0.77 : t.move === "sit" ? 0.54 : 0.44) + (t.hat === "big" ? 0.26 : t.hat ? 0.16 : 0));
       return t.kick ? size * (t.ball ? 0.62 : 0.46) : size * (t.diaper ? 0.5 : 0.62);
     case "band": return size * 0.42;
     case "ball": return size;

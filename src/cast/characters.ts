@@ -191,7 +191,8 @@ export const OUTFIT_IDS = Object.keys(OUTFITS) as OutfitId[];
 
 export const PARTY_HAT = "#ff8fb1";
 
-export function dressed(spec: CharacterSpec, outfit?: OutfitId, hat?: "party"): CharacterSpec {
-  if (!outfit && !hat) return spec;
-  return { ...spec, look: { ...spec.look, ...(outfit ? OUTFITS[outfit] : {}), ...(hat ? { partyHat: PARTY_HAT } : {}) } };
+export function dressed(spec: CharacterSpec, outfit?: OutfitId, hat?: "party", top?: string): CharacterSpec {
+  if (!outfit && !hat && !top) return spec;
+  const look = { ...spec.look, ...(outfit ? OUTFITS[outfit] : {}), ...(hat ? { partyHat: PARTY_HAT } : {}) };
+  return { ...spec, look: top ? { ...look, top: { ...look.top, color: top } } : look };
 }
