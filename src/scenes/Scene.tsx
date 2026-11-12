@@ -682,6 +682,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "ball": return <Ball cx={p.x} cy={p.bottom - p.w / 2} r={p.w / 2} spin={0} />;
     case "clipper": return <Clipper {...p} />;
     case "box": return <MedicineBox {...p} />;
+    case "tub": return <Tub {...p} />;
   }
 }
 
@@ -931,7 +932,9 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
       ) : (
         <>
           <path d={`M ${cx + r * 0.25},${cy - r * 0.2} q ${r * 0.14},${-r * 0.16} ${r * 0.28},0`} {...eye} />
-          <path d={`M ${cx + r * 0.55},${cy + r * 0.35} q ${r * 0.14},${r * 0.12} ${r * 0.3},${-r * 0.04}`} {...eye} />
+          {thing.giggle
+            ? <path d={`M ${cx + r * 0.48},${cy + r * 0.28} q ${r * 0.24},${r * 0.06} ${r * 0.44},${-r * 0.04} q ${-r * 0.04},${r * 0.38} ${-r * 0.24},${r * 0.36} q ${-r * 0.18},${-r * 0.04} ${-r * 0.2},${-r * 0.32} Z`} fill="#e8505b" stroke={INK} strokeWidth={stroke} strokeLinejoin="round" />
+            : <path d={`M ${cx + r * 0.55},${cy + r * 0.35} q ${r * 0.14},${r * 0.12} ${r * 0.3},${-r * 0.04}`} {...eye} />}
         </>
       )}
       {thing.sick
@@ -948,13 +951,14 @@ function BabyHead({ cx, cy, r, w, thing }: { cx: number; cy: number; r: number; 
 
 /** 坐着的宝宝（侧面，脸朝右），两腿往前伸；哭的时候一只手捂着头 */
 function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  if (thing.tub) return <TubBaby x={x} bottom={bottom} w={w} thing={thing} />;
   const limb = w * 0.05;
   const r = w * 0.12;
   const hip: Pt = [x, bottom - limb * 0.6];
   const hx = x + w * 0.01;
   const hy = bottom - w * 0.42;
   const shoulder: Pt = [x + w * 0.01, bottom - w * 0.25];
-  const hand: Pt = thing.cry ? [hx - r * 0.35, hy - r * 0.92] : [x + w * 0.13, bottom - w * 0.13];
+  const hand: Pt = thing.cry ? [hx - r * 0.35, hy - r * 0.92] : thing.splash ? [x + w * 0.2, bottom - w * 0.3] : [x + w * 0.13, bottom - w * 0.13];
   const romper = thing.color ?? ROMPER;
   return (
     <g>
@@ -966,6 +970,56 @@ function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
       {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, romper)}
       <BabyHead cx={hx} cy={hy} r={r} w={w} thing={thing} />
       {thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
+    </g>
+  );
+}
+
+const TUB = "#ff9fb8";
+const WATER = "#bfe6ff";
+
+/** 大澡盆（大号洗脸盆）的几块：W 是盆口宽，back 是盆里面，front 是挡在前面的盆壁 */
+function tubShape(x: number, bottom: number, W: number) {
+  const rx = W / 2;
+  const ry = W * 0.1;
+  const rimY = bottom - W * 0.36;
+  const back = <ellipse cx={x} cy={rimY} rx={rx} ry={ry} fill="#e5839c" {...line} strokeWidth={5} />;
+  const front = (
+    <g>
+      <path d={`M ${x - rx},${rimY} A ${rx} ${ry} 0 0 0 ${x + rx},${rimY} L ${x + rx * 0.78},${bottom - ry * 0.5} Q ${x},${bottom + ry * 0.5} ${x - rx * 0.78},${bottom - ry * 0.5} Z`}
+        fill={TUB} {...line} strokeWidth={5} />
+      <path d={`M ${x - rx * 0.62},${rimY + ry * 1.6} Q ${x - rx * 0.7},${bottom - W * 0.12} ${x - rx * 0.56},${bottom - W * 0.06}`} fill="none" stroke="#ffffff" strokeWidth={Math.max(5, W * 0.02)} strokeLinecap="round" opacity={0.6} />
+    </g>
+  );
+  return { rx, ry, rimY, back, front };
+}
+
+/** 空的大澡盆 */
+function Tub({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const t = tubShape(x, bottom, w);
+  return <g>{t.back}{t.front}</g>;
+}
+
+/** 光着身子坐在澡盆里的宝宝：水面挡住肚子以下；splash 时举手拍水、水花四溅 */
+function TubBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const t = tubShape(x, bottom, w * 0.82);
+  const wy = t.rimY + t.ry * 0.35;
+  const wrx = t.rx * 0.88;
+  const wry = t.ry * 0.72;
+  const drops: Pt[] = [[x + w * 0.32, wy - w * 0.16], [x + w * 0.4, wy - w * 0.04], [x - w * 0.34, wy - w * 0.1], [x + w * 0.24, wy - w * 0.3], [x - w * 0.26, wy - w * 0.22]];
+  return (
+    <g>
+      {t.back}
+      <ellipse cx={x} cy={wy} rx={wrx} ry={wry} fill={WATER} stroke={INK} strokeWidth={3} />
+      <SittingBaby x={x - w * 0.03} bottom={wy + w * 0.05} w={w} thing={{ ...thing, tub: false, color: thing.color ?? BABY_SKIN }} />
+      <path d={`M ${x - wrx},${wy} A ${wrx} ${wry} 0 0 0 ${x + wrx},${wy} Z`} fill={WATER} opacity={0.92} />
+      {t.front}
+      {thing.splash && drops.map(([dx, dy], i) => (
+        <path key={i} d={`M ${dx},${dy - w * 0.035} q ${w * 0.028},${w * 0.04} 0,${w * 0.055} q ${-w * 0.028},${-w * 0.015} 0,${-w * 0.055} Z`}
+          fill="#9fd8ff" stroke={INK} strokeWidth={3} strokeLinejoin="round" />
+      ))}
+      {thing.splash && [-1, 1].map((s) => (
+        <path key={s} d={`M ${x + s * t.rx * 0.55},${wy - w * 0.01} q ${s * w * 0.06},${-w * 0.1} ${s * w * 0.14},${-w * 0.06}`} fill="none" stroke="#7cc4ff" strokeWidth={Math.max(4, w * 0.012)} strokeLinecap="round" />
+      ))}
     </g>
   );
 }

@@ -84,7 +84,9 @@ export function checkStory(story) {
       if ((p.thing?.kick || p.thing?.ball) && p.thing.kind !== "baby") say(where, "kick、ball 只给 baby 用（单独一个球用 kind: \"ball\"）");
       if (p.thing?.kick && !["up", "left", "right", "grab", "toes"].includes(p.thing.kick)) say(where, "kick 只能是 up / left / right / grab / toes");
       if (p.thing?.ball && !["up", "left", "right"].includes(p.thing.kick)) say(where, "写 ball 就要写 kick: up / left / right：球顶在蹬起来的脚丫上");
-      if (p.thing?.giggle && !p.thing.kick) say(where, "giggle 只给侧面躺着的宝宝（写了 kick 的）用");
+      if (p.thing?.giggle && !p.thing.kick && !p.thing.move) say(where, "giggle 只给写了 kick、crawl / sit 的宝宝用");
+      if ((p.thing?.tub || p.thing?.splash) && !(p.thing.kind === "baby" && p.thing.move === "sit")) say(where, "tub、splash 只给 sit 的宝宝用");
+      if (p.thing?.splash && !p.thing.tub) say(where, "splash 是在澡盆里拍水：写 splash 就要写 tub");
       if (p.thing?.giggle && p.thing.kick === "toes") say(where, "啃脚丫时嘴被挡住了，不用写 giggle");
       if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");
       if (p.thing?.move && !["crawl", "sit"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit");

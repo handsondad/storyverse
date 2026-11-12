@@ -31,7 +31,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名） */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆） */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -54,7 +54,7 @@ export type Thing = {
   readonly kick?: "up" | "left" | "right" | "grab" | "toes";
   /** 蹬腿的宝宝脚丫上顶着小球（跟着 kick 转） */
   readonly ball?: boolean;
-  /** 侧面躺着的宝宝张嘴咯咯笑（toes 时嘴被脚丫挡住，不用写） */
+  /** 宝宝张嘴咯咯笑：侧面躺着的（toes 时嘴被脚丫挡住，不用写）和 crawl / sit 的都行 */
   readonly giggle?: boolean;
   /**
    * 穿连体衣的宝宝侧面：crawl 四肢着地往左爬；sit 坐着，脸朝右，两腿往前伸。
@@ -75,6 +75,10 @@ export type Thing = {
   readonly patch?: boolean;
   /** crawl / sit 的宝宝连体衣的颜色，默认黄色（小念）；别人家的宝宝换个颜色，免得像小念 */
   readonly color?: string;
+  /** sit 的宝宝光着身子坐在装了水的大澡盆里（盆挡住肚子以下） */
+  readonly tub?: boolean;
+  /** 澡盆里的宝宝举着小手拍水，水花四溅 */
+  readonly splash?: boolean;
 };
 
 /** 舞台上的道具：一个表情符号，或者一个画出来的东西（emoji 和 thing 写一个） */
