@@ -3,12 +3,12 @@
  * 画图组件和检查器都用它，所以检查器能报出"气泡挡脸""放不下"这类问题。
  */
 import type { CharacterId } from "../cast/characters.ts";
-import type { Page, Panel, Story } from "../story/types.ts";
+import type { Page, Panel, Prop, Story } from "../story/types.ts";
 import type { Shot } from "../story/vocab.ts";
 import { placeBubbles, placeCaptions, type BubbleBox, type CaptionBox, type Face } from "./bubbles.ts";
 import { frame } from "./camera.ts";
 import { layoutPage, overlaps, PAGE, panelCount, type Rect } from "./layout.ts";
-import { placeActors, propBox, propName, type Box, type PlacedActor } from "./stage.ts";
+import { placeActors, propBox, propName, STAGE, type Box, type PlacedActor } from "./stage.ts";
 import { textWidth } from "./text.ts";
 
 const SFX_SPOTS: readonly (readonly [number, number])[] = [
@@ -163,12 +163,38 @@ export function composePage(page: Page): PanelLayout[] {
 /** 封面：整页一个远景舞台，上面留出书名的地方 */
 export const COVER_TITLE_H = 300;
 
-export function composeCover(story: Story): PanelLayout {
+/** 封面上人的头和身子都在镜头里（胳膊伸出去一点不算） */
+function coverFits(actors: readonly PlacedActor[], cam: Rect): boolean {
+  return actors.every((a) => inFrame(a, cam, false) && a.torso.minX >= cam.x && a.torso.maxX <= cam.x + cam.w);
+}
+
+/**
+ * 封面是竖的，镜头只拍得下半个舞台宽。装不下时和格子一样让大家往中间站；
+ * 道具跟着离它最近的人一起挪，抱在怀里、拿在手边的东西不会和人错开。
+ */
+export function composeCover(story: Story): PanelLayout & { readonly props: readonly Prop[] } {
   const rect = { x: 0, y: 0, w: PAGE.w, h: PAGE.h };
   const panel: Panel = { ...story.cover, shot: "wide", beats: [] };
-  const actors = placeActors(panel);
-  const camera = frame({ aspect: rect.w / rect.h, shot: "wide", actors, props: (panel.props ?? []).map(propBox), bubbles: true });
-  return { rect, camera, scale: rect.w / camera.w, shot: "wide", actors, bubbles: [], captions: [], sfx: [], issues: [] };
+  const base = placeActors(panel);
+  const shoot = (k: number) => {
+    const actors = placeActors(panel, k);
+    const props = (panel.props ?? []).map((p): Prop => {
+      if (!base.length) return p;
+      const x = 100 + p.x * (STAGE.w - 200);
+      const near = base.reduce((best, a, i) => (Math.abs(a.x - x) < Math.abs(base[best].x - x) ? i : best), 0);
+      return { ...p, x: p.x + (actors[near].x - base[near].x) / (STAGE.w - 200) };
+    });
+    const camera = frame({ aspect: rect.w / rect.h, shot: "wide", actors, props: props.map(propBox), bubbles: true });
+    return { actors, props, camera };
+  };
+  let staged = shoot(1);
+  for (let k = 0.9; !coverFits(staged.actors, staged.camera) && k > 0.35; k -= 0.05) {
+    const next = shoot(k);
+    if (tooClose(next.actors)) break;
+    staged = next;
+  }
+  const { actors, props, camera } = staged;
+  return { rect, camera, scale: rect.w / camera.w, shot: "wide", actors, props, bubbles: [], captions: [], sfx: [], issues: [] };
 }
 
 /** 整本书的问题清单，检查器用 */
@@ -178,6 +204,10 @@ export function storyIssues(story: Story): string[] {
     const need = panelCount(page.layout);
     if (page.panels.length !== need) out.push(`第 ${p + 1} 页：版式 ${page.layout} 要 ${need} 格，写了 ${page.panels.length} 格`);
     composePage(page).forEach((l, i) => l.issues.forEach((msg) => out.push(`第 ${p + 1} 页第 ${i + 1} 格：${msg}`)));
+  });
+  const cover = composeCover(story);
+  cover.actors.filter((a) => !coverFits([a], cover.camera)).forEach((a) => {
+    out.push(`封面：${a.actor.who} 被裁到画外了，人太多站不下。封面是竖的，只拍得下半个舞台宽，少放一个人或让大家站近一点`);
   });
   return out;
 }

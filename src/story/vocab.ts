@@ -18,6 +18,8 @@ export const EXPRESSIONS = [
   "shy",       // 害羞，脸红
   "sleepy",    // 困了，头上"Zz"
   "proud",     // 得意，闪闪发光
+  "serious",   // 一脸严肃：皱着眉、抿着嘴，不是生气
+  "yuck",      // 皱着眉、挤着眼、嘴巴歪歪（辣着了、不爱吃）
 ] as const;
 export type Expression = (typeof EXPRESSIONS)[number];
 
@@ -39,6 +41,10 @@ export const POSES = [
   "hug",    // 张开手臂往前抱
   "hold",   // 两手捧着东西（配合 hold 字段）
   "boss",   // 坐着往后一仰，两手抱在脑后，翘着二郎腿，像个小领导（配 seat: "sofa"）
+  "tug",    // 坐在小凳子上弯着腰，抬起前面那只脚，两手往脚上套袜子
+  "wipe",   // 蹲着往前探身，一只手按在前面的地上擦
+  "rub",    // 两只手揉眼睛
+  "sniff",  // 两手把东西举到鼻子前闻一闻（配合 hold 字段）
 ] as const;
 export type Pose = (typeof POSES)[number];
 
@@ -47,7 +53,7 @@ export const PLACES = ["living-room", "dining-room", "bathroom", "hospital", "pa
 export type Place = (typeof PLACES)[number];
 
 /** 画出来的道具（表情符号里没有的东西） */
-export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike", "screen", "glasses", "trampoline", "pad", "sofa", "highchair", "cushion"] as const;
+export const THINGS = ["pillow", "baby", "band", "ball", "clipper", "box", "tub", "steam", "photo", "board", "trike", "screen", "glasses", "trampoline", "pad", "sofa", "highchair", "cushion", "sock", "shoes", "puddle", "tissue", "phone", "jug", "puzzle"] as const;
 export type ThingKind = (typeof THINGS)[number];
 
 export const TIMES = ["morning", "day", "evening", "night"] as const;

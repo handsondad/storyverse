@@ -3,7 +3,7 @@
  * 同一页里有好几格，渐变 id 要带上 uid，免得互相串。
  */
 import { INK, PARTY_HAT } from "../cast/characters.ts";
-import { EMOJI_FONT } from "../cast/Figure.tsx";
+import { EMOJI_FONT, SOCK } from "../cast/Figure.tsx";
 import { PartyHat } from "../cast/Head.tsx";
 import { KidSofa } from "../cast/KidSofa.tsx";
 import type { Pt } from "../cast/rig.ts";
@@ -739,7 +739,399 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "highchair": return <HighChairThing {...p} />;
     case "cushion": return <CushionPad x0={p.x - p.w / 2} x1={p.x + p.w / 2} top={p.bottom - p.w * 0.3} h={p.w * 0.3} state={p.thing.cushion} needle />;
     case "sofa": return <KidSofa back={p.x - p.w * 0.4} front={p.x + p.w * 0.45} seat={p.bottom - p.w * 0.42} rest={p.bottom - p.w * 1.1} bottom={p.bottom} line={5} />;
+    case "sock": return p.thing.worn ? <WrongSockFoot {...p} /> : <LoneSock {...p} />;
+    case "shoes": return <DadShoes {...p} />;
+    case "puddle": return <Puddle {...p} />;
+    case "tissue": return <Tissues {...p} />;
+    case "phone": return <Phone {...p} />;
+    case "jug": return <Jug {...p} />;
+    case "puzzle": return <Puzzle {...p} />;
   }
+}
+
+const PUZZLE = { cols: 4, rows: 3, mixed: [5, 2, 9, 0, 11, 7, 1, 10, 3, 8, 6, 4], torn: [1, 6, 9] } as const;
+
+/**
+ * 一板拼图（正面）：4×3 块，图上是蓝天、太阳、白云、小山、马路和一辆小红车。
+ * 每块的凸起用同一条边的路径正着、反着走，相邻两块严丝合缝。
+ * mixed 时每块形状不动、里面的画换成别的块上的；torn 时有几块只剩上面一条画，底下露出纸板。
+ */
+function Puzzle({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const pad = w * 0.03;
+  const W = w - pad * 2;
+  const H = W * 0.75;
+  const L = x - W / 2;
+  const T = bottom - pad - H;
+  const cw = W / PUZZLE.cols;
+  const ch = H / PUZZLE.rows;
+  const m = w * 0.08;
+  const sw = Math.max(2.5, w * 0.006);
+  const id = `puzzle-${Math.round(x)}-${Math.round(bottom)}-${Math.round(w)}`;
+  const seg = (p: Pt, q: Pt, n: Pt | null): string => {
+    if (!n) return `L ${q[0]},${q[1]}`;
+    const at = (t: number, out = 0): string => `${p[0] + (q[0] - p[0]) * t + n[0] * out},${p[1] + (q[1] - p[1]) * t + n[1] * out}`;
+    const k = w * 0.07;
+    return `L ${at(0.36)} C ${at(0.24, k)} ${at(0.76, k)} ${at(0.64)} L ${q[0]},${q[1]}`;
+  };
+  const vSign = (r: number, c: number) => ((r + c) % 2 === 0 ? 1 : -1);
+  const hSign = (r: number, c: number) => ((r + c) % 2 === 1 ? 1 : -1);
+  const cell = (r: number, c: number): string => {
+    const x0 = L + c * cw, x1 = x0 + cw, y0 = T + r * ch, y1 = y0 + ch;
+    return [
+      `M ${x0},${y0}`,
+      seg([x0, y0], [x1, y0], r > 0 ? [0, hSign(r - 1, c)] : null),
+      seg([x1, y0], [x1, y1], c < PUZZLE.cols - 1 ? [vSign(r, c), 0] : null),
+      seg([x1, y1], [x0, y1], r < PUZZLE.rows - 1 ? [0, hSign(r, c)] : null),
+      seg([x0, y1], [x0, y0], c > 0 ? [vSign(r, c - 1), 0] : null),
+      "Z",
+    ].join(" ");
+  };
+  const picture = (
+    <g>
+      <rect x={L - m} y={T - m} width={W + m * 2} height={H + m * 2} fill="#8fd3ff" />
+      <circle cx={L + W * 0.82} cy={T + H * 0.22} r={W * 0.09} fill="#ffd84d" stroke="#f0a830" strokeWidth={sw} />
+      <ellipse cx={L + W * 0.24} cy={T + H * 0.2} rx={W * 0.1} ry={H * 0.06} fill="#ffffff" />
+      <ellipse cx={L + W * 0.32} cy={T + H * 0.17} rx={W * 0.07} ry={H * 0.06} fill="#ffffff" />
+      <ellipse cx={L + W * 0.22} cy={T + H * 0.8} rx={W * 0.45} ry={H * 0.3} fill="#7ccf6b" />
+      <ellipse cx={L + W * 0.82} cy={T + H * 0.84} rx={W * 0.4} ry={H * 0.26} fill="#5fb85a" />
+      <rect x={L - m} y={T + H * 0.82} width={W + m * 2} height={H * 0.18 + m} fill="#9aa0a6" />
+      <path d={`M ${L - m},${T + H * 0.91} L ${L + W + m},${T + H * 0.91}`} stroke="#ffffff" strokeWidth={sw * 1.6} strokeDasharray={`${W * 0.06} ${W * 0.05}`} />
+      <g stroke={INK} strokeWidth={sw}>
+        <rect x={L + W * 0.45} y={T + H * 0.5} width={W * 0.16} height={H * 0.14} rx={W * 0.03} fill="#ff5a5a" />
+        <rect x={L + W * 0.48} y={T + H * 0.53} width={W * 0.1} height={H * 0.07} rx={W * 0.01} fill="#bfe6ff" />
+        <rect x={L + W * 0.38} y={T + H * 0.62} width={W * 0.3} height={H * 0.14} rx={W * 0.04} fill="#ff5a5a" />
+        <circle cx={L + W * 0.45} cy={T + H * 0.78} r={W * 0.04} fill="#3a3a48" />
+        <circle cx={L + W * 0.61} cy={T + H * 0.78} r={W * 0.04} fill="#3a3a48" />
+      </g>
+    </g>
+  );
+  const cells = Array.from({ length: PUZZLE.cols * PUZZLE.rows }, (_, i) => ({ i, r: Math.floor(i / PUZZLE.cols), c: i % PUZZLE.cols }));
+  return (
+    <g>
+      <rect x={x - w / 2} y={bottom - H - pad * 2} width={w} height={H + pad * 2} rx={pad} fill="#d9b98c" {...line} strokeWidth={Math.max(4, w * 0.012)} />
+      {cells.map(({ i, r, c }) => {
+        const src = thing.pieces === "mixed" ? PUZZLE.mixed[i] : i;
+        const dx = (c - (src % PUZZLE.cols)) * cw;
+        const dy = (r - Math.floor(src / PUZZLE.cols)) * ch;
+        const torn = thing.pieces === "torn" && (PUZZLE.torn as readonly number[]).includes(i);
+        const x0 = L + c * cw, y0 = T + r * ch;
+        const teeth = Array.from({ length: 7 }, (_, k) => `${x0 - m + (k / 6) * (cw + m * 2)},${y0 + ch * (k % 2 ? 0.2 : 0.32)}`).join(" ");
+        return (
+          <g key={i}>
+            <clipPath id={`${id}-${i}`}><path d={cell(r, c)} /></clipPath>
+            <g clipPath={`url(#${id}-${i})`}>
+              <g transform={`translate(${dx},${dy})`}>{picture}</g>
+              {torn && (
+                <>
+                  <polygon points={`${teeth} ${x0 + cw + m},${y0 + ch + m} ${x0 - m},${y0 + ch + m}`} fill="#d9b98c" stroke="#ffffff" strokeWidth={sw * 2} strokeLinejoin="round" />
+                  {[0.5, 0.7].map((k) => <path key={k} d={`M ${x0 + cw * 0.2},${y0 + ch * k} l ${cw * 0.5},${ch * 0.04}`} stroke="#b8956a" strokeWidth={sw} strokeLinecap="round" />)}
+                </>
+              )}
+            </g>
+            <path d={cell(r, c)} fill="none" stroke="#4a3b2c" strokeWidth={sw} strokeLinejoin="round" />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+const GOO = { fill: "#3f9cf0", stroke: "#1d5fa8" };
+
+/** 洗衣液大桶的盖子（侧面），cx, cy 是盖子中心 */
+function JugCap({ cx, cy, w, a = 0 }: { cx: number; cy: number; w: number; a?: number }) {
+  const cw = w * 0.3;
+  const ch = w * 0.16;
+  return (
+    <g transform={`rotate(${a} ${cx} ${cy})`}>
+      <rect x={cx - cw / 2} y={cy - ch / 2} width={cw} height={ch} rx={ch * 0.25} fill="#ff5a5a" {...line} strokeWidth={Math.max(4, w * 0.02)} />
+      {[-0.25, 0, 0.25].map((k) => <line key={k} x1={cx + cw * k} y1={cy - ch * 0.25} x2={cx + cw * k} y2={cy + ch * 0.25} stroke="#c93c3c" strokeWidth={Math.max(3, w * 0.015)} strokeLinecap="round" />)}
+    </g>
+  );
+}
+
+/**
+ * 洗衣液大桶（侧面）：蓝桶、白标签，左上提手，右上瓶口。
+ * 先在以桶底中点为原点的局部坐标里画立着的桶；spill 时整个转 90 度躺下，瓶口落到右下贴着地。
+ */
+function Jug({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const sw = Math.max(5, w * 0.022);
+  const open = !!thing.cap;
+  const bodyTop = -0.95 * w;
+  const neck = { x0: w * 0.15, x1: w * 0.39, top: -1.06 * w };
+  const handle = `M ${-w * 0.4},${bodyTop + w * 0.04} Q ${-w * 0.4},${-1.14 * w} ${-w * 0.2},${-1.14 * w} Q ${-w * 0.02},${-1.14 * w} ${-w * 0.02},${bodyTop + w * 0.04}`;
+  const jug = (
+    <g>
+      <path d={handle} fill="none" stroke={INK} strokeWidth={w * 0.11 + sw * 2} strokeLinecap="round" />
+      <path d={handle} fill="none" stroke="#4f9fe0" strokeWidth={w * 0.11} strokeLinecap="round" />
+      <rect x={neck.x0} y={neck.top} width={neck.x1 - neck.x0} height={-bodyTop + neck.top + w * 0.2} fill="#4f9fe0" {...line} strokeWidth={sw} />
+      {open
+        ? <ellipse cx={(neck.x0 + neck.x1) / 2} cy={neck.top} rx={(neck.x1 - neck.x0) / 2} ry={w * 0.035} fill="#1e4f80" {...line} strokeWidth={sw * 0.8} />
+        : <JugCap cx={(neck.x0 + neck.x1) / 2} cy={neck.top - w * 0.05} w={w} />}
+      <rect x={-w / 2} y={bodyTop} width={w} height={-bodyTop} rx={w * 0.13} fill="#5aaef0" {...line} strokeWidth={sw} />
+      <rect x={-w * 0.42} y={bodyTop + w * 0.1} width={w * 0.08} height={w * 0.6} rx={w * 0.04} fill="#ffffff" opacity={0.4} />
+      <rect x={-w * 0.3} y={-0.72 * w} width={w * 0.62} height={w * 0.46} rx={w * 0.06} fill="#ffffff" {...line} strokeWidth={sw * 0.7} />
+      {[[-0.12, -0.6, 0.05], [0.02, -0.64, 0.035], [0.14, -0.59, 0.045]].map(([dx, dy, r]) => (
+        <circle key={dx} cx={dx * w} cy={dy * w} r={r * w} fill="#bfe6ff" stroke="#3b8fd6" strokeWidth={sw * 0.5} />
+      ))}
+      <text x={w * 0.01} y={-0.41 * w} fontSize={w * 0.15} textAnchor="middle" dominantBaseline="central" fill="#2f6fae" className="story-font">洗衣液</text>
+    </g>
+  );
+  if (thing.cap !== "spill") {
+    return (
+      <g>
+        <g transform={`translate(${x},${bottom})`}>{jug}</g>
+        {open && <JugCap cx={x - w * 0.75} cy={bottom - w * 0.07} w={w} a={-18} />}
+      </g>
+    );
+  }
+  const h = 1.2 * w;
+  const x0 = x - (h + w * 1.6) / 2;
+  const mouth: Pt = [x0 + -neck.top, bottom - w / 2 + (neck.x0 + neck.x1) / 2];
+  const pc = x0 + h + w * 0.5;
+  const ph = w * 0.28;
+  const cy = bottom - ph * 0.2;
+  const pool = `M ${x0 + w * 0.6},${cy} Q ${x0 + w * 0.55},${cy - ph * 0.55} ${x0 + w * 0.95},${cy - ph * 0.5}
+    Q ${pc - w * 0.2},${cy - ph * 0.7} ${pc + w * 0.3},${cy - ph * 0.5} Q ${pc + w * 0.95},${cy - ph * 0.6} ${pc + w * 0.9},${cy - ph * 0.05}
+    Q ${pc + w * 0.98},${cy + ph * 0.45} ${pc + w * 0.4},${cy + ph * 0.4} Q ${pc - w * 0.1},${cy + ph * 0.62} ${pc - w * 0.5},${cy + ph * 0.42}
+    Q ${x0 + w * 0.7},${cy + ph * 0.55} ${x0 + w * 0.6},${cy} Z`;
+  return (
+    <g>
+      <path d={pool} fill={GOO.fill} fillOpacity={0.9} stroke={GOO.stroke} strokeWidth={sw} strokeLinejoin="round" />
+      <g transform={`translate(${x0},${bottom - w / 2}) rotate(90)`}>{jug}</g>
+      <path d={`M ${mouth[0]},${mouth[1] - w * 0.11} Q ${mouth[0] + w * 0.24},${mouth[1] - w * 0.11} ${mouth[0] + w * 0.34},${cy - ph * 0.25}
+        L ${mouth[0] + w * 0.04},${cy - ph * 0.25} Q ${mouth[0] + w * 0.02},${mouth[1] + w * 0.06} ${mouth[0]},${mouth[1] + w * 0.11} Z`}
+        fill={GOO.fill} stroke={GOO.stroke} strokeWidth={sw * 0.8} strokeLinejoin="round" />
+      <ellipse cx={pc + w * 0.3} cy={cy - ph * 0.15} rx={w * 0.2} ry={ph * 0.12} fill="#ffffff" opacity={0.75} />
+      {[[0.1, -0.75, 0.07], [0.36, -1.05, 0.05], [0.62, -0.7, 0.065], [0.85, -1.0, 0.04], [-0.2, -0.95, 0.045]].map(([dx, dy, r]) => (
+        <circle key={dx} cx={pc + dx * w} cy={cy + dy * ph} r={r * w} fill="#ffffff" fillOpacity={0.7} stroke={GOO.stroke} strokeWidth={sw * 0.6} />
+      ))}
+      <JugCap cx={pc + w * 1.1} cy={bottom - w * 0.07} w={w} a={24} />
+    </g>
+  );
+}
+
+/** 手机特写：竖着的黑边手机，屏幕上在放动画片（小山、太阳、小兔子），右边一排点赞小圆圈，底下进度条 */
+function Phone({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const h = w * 1.8;
+  const L = x - w / 2;
+  const T = bottom - h;
+  const b = w * 0.06;
+  const sx = L + b;
+  const sy = T + b * 2;
+  const sw = w - b * 2;
+  const sh = h - b * 4;
+  const st = Math.max(3, w * 0.012);
+  const id = `phone-${Math.round(x)}-${Math.round(bottom)}-${Math.round(w)}`;
+  const ad = thing.show === "ad";
+  return (
+    <g>
+      <rect x={L} y={T} width={w} height={h} rx={w * 0.12} fill="#2f2f3a" {...line} strokeWidth={Math.max(5, w * 0.02)} />
+      <rect x={x - w * 0.12} y={T + b * 0.7} width={w * 0.24} height={b * 0.55} rx={b * 0.28} fill="#55556a" />
+      <clipPath id={id}><rect x={sx} y={sy} width={sw} height={sh} rx={w * 0.05} /></clipPath>
+      <g clipPath={`url(#${id})`}>
+        {ad ? (
+          <>
+            <rect x={sx} y={sy} width={sw} height={sh} fill="#ffd84d" />
+            {[0.2, 0.5, 0.8].map((k) => <circle key={k} cx={sx + sw * k} cy={sy + sh * (k === 0.5 ? 0.78 : 0.24)} r={sw * 0.08} fill="#ffe98f" />)}
+            <rect x={sx + sw * 0.1} y={sy + sh * 0.36} width={sw * 0.8} height={sh * 0.24} rx={sw * 0.06} fill="#ff4d4d" stroke={INK} strokeWidth={st} />
+            <text x={x} y={sy + sh * 0.48} fontSize={sw * 0.3} textAnchor="middle" dominantBaseline="central" fill="#ffffff" className="story-font">广告</text>
+            <circle cx={sx + sw * 0.86} cy={sy + sh * 0.06} r={sw * 0.06} fill="#ffffff" stroke={INK} strokeWidth={st * 0.8} />
+            <path d={`M ${sx + sw * 0.83},${sy + sh * 0.06 - sw * 0.03} l ${sw * 0.06},${sw * 0.06} M ${sx + sw * 0.89},${sy + sh * 0.06 - sw * 0.03} l ${-sw * 0.06},${sw * 0.06}`} stroke={INK} strokeWidth={st * 0.8} strokeLinecap="round" />
+          </>
+        ) : (
+          <>
+            <rect x={sx} y={sy} width={sw} height={sh} fill="#8fd3ff" />
+            <circle cx={sx + sw * 0.75} cy={sy + sh * 0.2} r={sw * 0.12} fill="#ffd84d" />
+            <ellipse cx={sx + sw * 0.3} cy={sy + sh * 0.72} rx={sw * 0.6} ry={sh * 0.16} fill="#7ccf6b" />
+            <ellipse cx={sx + sw * 0.9} cy={sy + sh * 0.76} rx={sw * 0.5} ry={sh * 0.14} fill="#5fb85a" />
+            <rect x={sx} y={sy + sh * 0.78} width={sw} height={sh * 0.22} fill="#5fb85a" />
+            <g stroke={INK} strokeWidth={st}>
+              <ellipse cx={sx + sw * 0.34} cy={sy + sh * 0.4} rx={sw * 0.05} ry={sw * 0.14} fill="#ffffff" />
+              <ellipse cx={sx + sw * 0.46} cy={sy + sh * 0.4} rx={sw * 0.05} ry={sw * 0.14} fill="#ffffff" />
+              <circle cx={sx + sw * 0.4} cy={sy + sh * 0.53} r={sw * 0.15} fill="#ffffff" />
+              <ellipse cx={sx + sw * 0.4} cy={sy + sh * 0.68} rx={sw * 0.17} ry={sw * 0.14} fill="#ffffff" />
+            </g>
+            <circle cx={sx + sw * 0.35} cy={sy + sh * 0.52} r={sw * 0.018} fill={INK} />
+            <circle cx={sx + sw * 0.45} cy={sy + sh * 0.52} r={sw * 0.018} fill={INK} />
+            <ellipse cx={sx + sw * 0.4} cy={sy + sh * 0.56} rx={sw * 0.025} ry={sw * 0.018} fill="#ff8fa3" />
+            {[0.38, 0.5, 0.62].map((k) => <circle key={k} cx={sx + sw * 0.88} cy={sy + sh * k} r={sw * 0.06} fill="#ffffff" opacity={0.9} />)}
+            <path d={`M ${sx + sw * 0.88},${sy + sh * 0.39} l ${-sw * 0.03},${-sw * 0.02} a ${sw * 0.015},${sw * 0.015} 0 0 1 ${sw * 0.03},${-sw * 0.01} a ${sw * 0.015},${sw * 0.015} 0 0 1 ${sw * 0.03},${sw * 0.01} Z`} fill="#ff5a6e" />
+            <rect x={sx + sw * 0.06} y={sy + sh * 0.93} width={sw * 0.88} height={sh * 0.012} rx={sh * 0.006} fill="#ffffff" opacity={0.6} />
+            <rect x={sx + sw * 0.06} y={sy + sh * 0.93} width={sw * 0.38} height={sh * 0.012} rx={sh * 0.006} fill="#ff5a6e" />
+          </>
+        )}
+        {thing.show === "swipe" && (
+          <g>
+            {[0.18, 0.28].map((k) => (
+              <path key={k} d={`M ${x - sw * 0.12},${sy + sh * (k + 0.06)} L ${x},${sy + sh * k} L ${x + sw * 0.12},${sy + sh * (k + 0.06)}`}
+                fill="none" stroke="#ffffff" strokeWidth={sw * 0.05} strokeLinecap="round" strokeLinejoin="round" />
+            ))}
+          </g>
+        )}
+      </g>
+      {thing.show === "swipe" && (() => {
+        const tip: Pt = [x + sw * 0.05, sy + sh * 0.5];
+        const fist: Pt = [x + sw * 0.2, bottom + w * 0.1];
+        const fw = w * 0.13;
+        const finger = `M ${tip[0]},${tip[1]} L ${fist[0]},${fist[1]}`;
+        return (
+          <g>
+            <path d={finger} stroke={INK} strokeWidth={fw + 10} strokeLinecap="round" />
+            <path d={finger} stroke={BABY_SKIN} strokeWidth={fw} strokeLinecap="round" />
+            <ellipse cx={fist[0] + fw * 0.4} cy={fist[1] + fw * 0.6} rx={fw * 1.5} ry={fw * 1.2} fill={BABY_SKIN} {...line} strokeWidth={5} />
+            <path d={`M ${tip[0] - fw * 0.9},${tip[1] + fw * 0.6} l 0,${fw * 1.6} M ${tip[0] + fw * 0.9},${tip[1] + fw * 0.8} l 0,${fw * 1.4}`} stroke="#ffffff" strokeWidth={st * 1.4} strokeLinecap="round" opacity={0.8} />
+          </g>
+        );
+      })()}
+    </g>
+  );
+}
+
+/** 地上洒的一摊水：扁扁的浅蓝水洼，边上溅着几个小水点，亮光一闪 */
+function Puddle({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.16;
+  const cy = bottom - h / 2;
+  const sw = Math.max(4, w * 0.012);
+  const d = `M ${x - w * 0.42},${cy} Q ${x - w * 0.46},${cy - h * 0.5} ${x - w * 0.2},${cy - h * 0.45} Q ${x - w * 0.05},${cy - h * 0.62} ${x + w * 0.12},${cy - h * 0.42}
+    Q ${x + w * 0.38},${cy - h * 0.55} ${x + w * 0.4},${cy - h * 0.05} Q ${x + w * 0.44},${cy + h * 0.45} ${x + w * 0.1},${cy + h * 0.42}
+    Q ${x - w * 0.1},${cy + h * 0.6} ${x - w * 0.3},${cy + h * 0.4} Q ${x - w * 0.44},${cy + h * 0.35} ${x - w * 0.42},${cy} Z`;
+  return (
+    <g>
+      <path d={d} fill="#aee0ff" fillOpacity={0.85} stroke="#4aa3df" strokeWidth={sw} strokeLinejoin="round" />
+      <ellipse cx={x - w * 0.12} cy={cy - h * 0.08} rx={w * 0.12} ry={h * 0.12} fill="#ffffff" opacity={0.8} />
+      <ellipse cx={x + w * 0.16} cy={cy + h * 0.12} rx={w * 0.05} ry={h * 0.08} fill="#ffffff" opacity={0.6} />
+      {[[0.5, -0.1, 0.035], [0.56, 0.25, 0.022], [-0.52, 0.15, 0.028]].map(([dx, dy, r]) => (
+        <ellipse key={dx} cx={x + dx * w} cy={cy + dy * h} rx={r * w} ry={r * w * 0.5} fill="#aee0ff" stroke="#4aa3df" strokeWidth={sw * 0.8} />
+      ))}
+    </g>
+  );
+}
+
+/** 两张白纸巾，一前一后错开，有点皱 */
+function Tissues({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.8;
+  const sw = Math.max(4, w * 0.03);
+  const sheet = (cx: number, cy: number, a: number, shade: string) => {
+    const s = w * 0.36;
+    const d = `M ${cx - s},${cy - s * 0.9} Q ${cx},${cy - s * 1.05} ${cx + s},${cy - s * 0.85} Q ${cx + s * 1.08},${cy} ${cx + s * 0.92},${cy + s * 0.9}
+      Q ${cx},${cy + s * 1.02} ${cx - s * 0.95},${cy + s * 0.88} Q ${cx - s * 1.06},${cy} ${cx - s},${cy - s * 0.9} Z`;
+    return (
+      <g transform={`rotate(${a} ${cx} ${cy})`}>
+        <path d={d} fill={shade} {...line} strokeWidth={sw} />
+        <path d={`M ${cx - s * 0.6},${cy - s * 0.2} q ${s * 0.3},${s * 0.2} ${s * 0.7},${s * 0.05}`} fill="none" stroke="#c9d6e2" strokeWidth={sw * 0.8} strokeLinecap="round" />
+      </g>
+    );
+  };
+  return (
+    <g>
+      {sheet(x - w * 0.1, bottom - h * 0.56, -14, "#eef3f8")}
+      {sheet(x + w * 0.1, bottom - h * 0.44, 10, "#ffffff")}
+    </g>
+  );
+}
+
+/** 爸爸的一双棕皮鞋（侧面，鞋头朝右）：摆好了是并排一前一后；messy 一只鞋头朝左歪着、一只鞋头翘起来 */
+function DadShoes({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const L = w * 0.82;
+  const H = w * 0.36;
+  const sw = Math.max(5, w * 0.02);
+  const shoe = (x0: number, b: number, shade: boolean) => {
+    const u = (k: number) => x0 + k * L;
+    const v = (k: number) => b - k * H;
+    const upper = `M ${u(0)},${v(0.12)} L ${u(0)},${v(0.7)} Q ${u(0)},${v(1)} ${u(0.12)},${v(1)} L ${u(0.4)},${v(0.92)}
+      Q ${u(0.58)},${v(0.62)} ${u(0.8)},${v(0.52)} Q ${u(1)},${v(0.45)} ${u(1)},${v(0.25)} L ${u(1)},${v(0.12)} Z`;
+    return (
+      <g>
+        <rect x={u(-0.01)} y={v(0.16)} width={L * 1.02} height={H * 0.16} rx={H * 0.07} fill="#3d2a1e" {...line} strokeWidth={sw} />
+        <path d={upper} fill={shade ? "#5f4130" : "#7a5238"} {...line} strokeWidth={sw} />
+        <ellipse cx={u(0.25)} cy={v(0.95)} rx={L * 0.14} ry={H * 0.07} fill="#3d2a1e" />
+        <path d={`M ${u(0.44)},${v(0.86)} l ${L * 0.08},${H * 0.1} M ${u(0.5)},${v(0.76)} l ${L * 0.08},${H * 0.1}`} stroke="#f3e6d3" strokeWidth={sw * 0.8} strokeLinecap="round" />
+        <path d={`M ${u(0.7)},${v(0.48)} q ${L * 0.1},${-H * 0.04} ${L * 0.18},${H * 0.06}`} fill="none" stroke="#ffffff" strokeWidth={sw * 0.7} strokeLinecap="round" opacity={0.35} />
+      </g>
+    );
+  };
+  if (thing.messy) {
+    const ax = x - w * 1.05;
+    const acx = ax + L / 2;
+    const bx = x + w * 0.25;
+    return (
+      <g>
+        <g transform={`rotate(-12 ${acx} ${bottom}) translate(${2 * acx},0) scale(-1,1)`}>{shoe(ax, bottom, false)}</g>
+        <g transform={`rotate(-24 ${bx} ${bottom})`}>{shoe(bx, bottom, false)}</g>
+      </g>
+    );
+  }
+  return (
+    <g>
+      {shoe(x - w / 2 + w * 0.18, bottom - w * 0.05, true)}
+      {shoe(x - w / 2, bottom, false)}
+    </g>
+  );
+}
+
+/** 一只小蓝袜子，侧面、袜头朝右，袜跟和袜头颜色深一点，歪着放 */
+function LoneSock({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 0.9;
+  const top = bottom - h;
+  const L = x - w * 0.42;
+  const tubeR = L + w * 0.4;
+  const R = x + w * 0.5;
+  const foot = w * 0.38;
+  const r = foot / 2;
+  const sw = Math.max(5, w * 0.025);
+  const id = `sock-${Math.round(x)}-${Math.round(bottom)}-${Math.round(w)}`;
+  const d = `M ${L},${top} L ${tubeR},${top} L ${tubeR},${bottom - foot} L ${R - r},${bottom - foot}
+    Q ${R},${bottom - foot} ${R},${bottom - r} Q ${R},${bottom} ${R - r},${bottom} L ${L + r},${bottom} Q ${L},${bottom} ${L},${bottom - r} Z`;
+  return (
+    <g transform={`rotate(-12 ${x} ${bottom - h / 2})`}>
+      <clipPath id={id}><path d={d} /></clipPath>
+      <path d={d} fill={SOCK.cloth} />
+      <g clipPath={`url(#${id})`} fill={SOCK.patch}>
+        <circle cx={L + r * 0.4} cy={bottom - r * 0.4} r={r * 1.1} />
+        <rect x={R - r * 1.2} y={bottom - foot} width={r * 1.2} height={foot} />
+        <rect x={L} y={top} width={tubeR - L} height={h * 0.16} fill={SOCK.cuff} />
+      </g>
+      {[0.3, 0.5, 0.7].map((k) => (
+        <path key={k} d={`M ${L + (tubeR - L) * k},${top + h * 0.03} l 0,${h * 0.1}`} stroke={SOCK.patch} strokeWidth={sw * 0.6} strokeLinecap="round" opacity={0.5} />
+      ))}
+      <path d={d} fill="none" {...line} strokeWidth={sw} />
+    </g>
+  );
+}
+
+/** 小脚丫特写（脚尖朝右）：袜子套反了，深色的袜跟鼓在脚背上，脚后跟露在外面 */
+function WrongSockFoot({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const skin = "#ffd9b8";
+  const top = bottom - w * 0.7;
+  const u = (k: number) => x + k * w;
+  const v = (k: number) => bottom - k * w;
+  const sw = Math.max(5, w * 0.014);
+  const id = `sockfoot-${Math.round(x)}-${Math.round(bottom)}-${Math.round(w)}`;
+  const foot = `M ${u(-0.32)},${top} L ${u(-0.32)},${v(0.3)} Q ${u(-0.45)},${v(0.28)} ${u(-0.45)},${v(0.12)} Q ${u(-0.45)},${bottom} ${u(-0.3)},${bottom}
+    L ${u(0.38)},${bottom} Q ${u(0.5)},${bottom} ${u(0.5)},${v(0.12)} Q ${u(0.5)},${v(0.22)} ${u(0.36)},${v(0.26)}
+    L ${u(-0.02)},${v(0.34)} Q ${u(-0.06)},${v(0.38)} ${u(-0.06)},${top} Z`;
+  // 袜口斜着卡在脚踝前面到脚心之间，后面整个脚后跟露在外面
+  const rim = `M ${u(-0.06)},${v(0.42)} Q ${u(-0.2)},${v(0.3)} ${u(-0.24)},${bottom}`;
+  return (
+    <g>
+      <clipPath id={id}><path d={foot} /></clipPath>
+      <path d={foot} fill={skin} />
+      <g clipPath={`url(#${id})`}>
+        <ellipse cx={u(-0.36)} cy={v(0.1)} rx={w * 0.07} ry={w * 0.05} fill="#ff9e9e" opacity={0.45} />
+        <path d={`${rim} L ${u(0.6)},${bottom} L ${u(0.6)},${v(0.42)} Z`} fill={SOCK.cloth} />
+        <rect x={u(0.36)} y={top} width={w * 0.2} height={w * 0.7} fill={SOCK.patch} />
+        {[0.24, 0.15, 0.06].map((k) => (
+          <path key={k} d={`M ${u(0.04)},${v(k + 0.02)} q ${w * 0.08},${-w * 0.02} ${w * 0.16},0`} fill="none" stroke={SOCK.patch} strokeWidth={sw * 0.6} strokeLinecap="round" opacity={0.5} />
+        ))}
+      </g>
+      <path d={foot} fill="none" {...line} strokeWidth={sw} />
+      <path d={rim} fill="none" stroke={SOCK.cuff} strokeWidth={w * 0.03} strokeLinecap="round" />
+      <path d={rim} fill="none" {...line} strokeWidth={sw * 0.7} />
+      <path d={`M ${u(0.02)},${v(0.31)} Q ${u(0.04)},${v(0.46)} ${u(0.16)},${v(0.44)} Q ${u(0.28)},${v(0.42)} ${u(0.26)},${v(0.27)}`}
+        fill={SOCK.patch} {...line} strokeWidth={sw} />
+    </g>
+  );
 }
 
 /** 药盒：正面贴着白标签写药名，带个小绿十字；颜色跟着药名变 */

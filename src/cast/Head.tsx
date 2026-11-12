@@ -25,6 +25,8 @@ export const FACES: Record<Expression, FaceSpec> = {
   shy: { eyes: "down", brows: "worried", mouth: "small", talk: "talk", blush: 2.2, marks: ["sweat"] },
   sleepy: { eyes: "closed", brows: "flat", mouth: "small", talk: "talk", marks: ["zzz"] },
   proud: { eyes: "happy", brows: "raised", mouth: "grin", marks: ["sparkle"] },
+  serious: { eyes: "open", brows: "angry", mouth: "flat", talk: "talk" },
+  yuck: { eyes: "tight", brows: "worried", mouth: "wavy", talk: "wail" },
 };
 
 const EYE = "#2b201a";

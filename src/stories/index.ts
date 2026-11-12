@@ -1,4 +1,14 @@
 import type { Story } from "../story/types.ts";
+import puzzleTime from "./puzzle-time/story.ts";
+import storyTime from "./story-time/story.ts";
+import smellFirst from "./smell-first/story.ts";
+import strongHands from "./strong-hands/story.ts";
+import ning from "./ning/story.ts";
+import watchAds from "./watch-ads/story.ts";
+import bigName from "./big-name/story.ts";
+import littleHelper from "./little-helper/story.ts";
+import tidyGuard from "./tidy-guard/story.ts";
+import doItMyself from "./do-it-myself/story.ts";
 import brokenChair from "./broken-chair/story.ts";
 import littleSofa from "./little-sofa/story.ts";
 import littleGenius from "./little-genius/story.ts";
@@ -26,7 +36,7 @@ import highChair from "./high-chair/story.ts";
 import wrongMuseum from "./wrong-museum/story.ts";
 
 /** 书架上的故事，按发布先后排 */
-export const STORIES: readonly Story[] = [wrongMuseum, glowingBoots, highChair, latexPillow, born, bellyButton, kickBall, yummyToes, bedEdge, laoyeBirthday, firstCold, vaccine, crawlCourt, bathBasin, hotWater, littleRider, firstBirthday, littleGuitar, balanceBoard, littleDriver, littleCoder, bigGlasses, littleGenius, littleSofa, brokenChair];
+export const STORIES: readonly Story[] = [wrongMuseum, glowingBoots, highChair, latexPillow, born, bellyButton, kickBall, yummyToes, bedEdge, laoyeBirthday, firstCold, vaccine, crawlCourt, bathBasin, hotWater, littleRider, firstBirthday, littleGuitar, balanceBoard, littleDriver, littleCoder, bigGlasses, littleGenius, littleSofa, brokenChair, doItMyself, tidyGuard, littleHelper, bigName, watchAds, ning, strongHands, smellFirst, storyTime, puzzleTime];
 
 export function storyById(id: string): Story | undefined {
   return STORIES.find((s) => s.id === id);

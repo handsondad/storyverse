@@ -2,12 +2,12 @@ import type { Expression, Place, Pose, Shot } from "./vocab.ts";
 
 export const EXPRESSION_LABELS: Record<Expression, string> = {
   neutral: "平常", happy: "开心", laugh: "大笑", surprised: "吃惊", sad: "难过", cry: "哭",
-  angry: "生气", scared: "害怕", thinking: "想事情", confused: "疑惑", shy: "害羞", sleepy: "困了", proud: "得意",
+  angry: "生气", scared: "害怕", thinking: "想事情", confused: "疑惑", shy: "害羞", sleepy: "困了", proud: "得意", serious: "严肃", yuck: "辣着了",
 };
 
 export const POSE_LABELS: Record<Pose, string> = {
   stand: "站", wave: "挥手", point: "指", cheer: "欢呼", jump: "跳", think: "托下巴", walk: "走",
-  run: "跑", sit: "坐", push: "蹬腿", recline: "半躺", crouch: "蹲", shrug: "摊手", hug: "抱", hold: "捧着", boss: "小领导",
+  run: "跑", sit: "坐", push: "蹬腿", recline: "半躺", crouch: "蹲", shrug: "摊手", hug: "抱", hold: "捧着", boss: "小领导", tug: "穿袜子", wipe: "擦地", rub: "揉眼睛", sniff: "闻一闻",
 };
 
 export const PLACE_LABELS: Record<Place, string> = {

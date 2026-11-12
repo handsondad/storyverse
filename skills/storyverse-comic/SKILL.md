@@ -96,6 +96,7 @@ description: >-
 - 想事情 → `pose: "think"` + `face: "thinking"`
 - 欢呼 → `pose: "cheer"` + `face: "happy"`
 - 捧东西 → `pose: "hold"` + `hold: "🎁"`
+- 闻一闻、尝一口 → `pose: "sniff"` + `hold: "🧄"`，东西举到鼻子嘴巴前；辣着了、不爱吃 → `face: "yuck"`（皱眉、挤眼、嘴巴歪歪）。坐在餐椅上也能用，腿自然垂着（见 `src/stories/smell-first/story.ts`）
 
 ### 画出来的道具
 
@@ -125,6 +126,13 @@ description: >-
 - 小沙发：人坐上去写演员的 `seat: "sofa"`（配 `pose: "sit"` 端坐，或 `pose: "boss"` 往后一仰、两手抱在脑后、翘二郎腿，像个小领导）；空着摆在地上用 `{ thing: { kind: "sofa" }, x, size: 220 }`，和小念坐的那张一样大
 - 蹦床：`{ thing: { kind: "trampoline" }, x, size: 420 }`，站上去的演员同一个 `at`，写 `lift: size * 0.2`（演员的 `lift` 是脚底离地多高），配 `pose: "jump"` 就是在蹦
 - 学习机：`{ thing: { kind: "pad", pick }, x, lift, size }`，屏幕上是儿歌列表（标题「小天才」），每行看不清的字后面一个小图片；`pick`（0～5）那一行亮起来，一只小手指着那个小图。放在桌上 `lift: 205, size: 300`；特写 size 600 左右。只有道具、或者道具在演员一边的格子，写 `shot: "wide"` 才不会被裁掉
+- 袜子：演员写 `feet` 就不穿鞋，`bare` 光脚丫、`socks` 穿着小蓝袜子、`wrong` 前面那只脚袜子套反了（深色袜跟鼓在脚背上、脚后跟露在外面），后面那只还光着。单独一只袜子 `{ thing: { kind: "sock" }, x, lift, size: 100～120 }`，拿在手里写 `front: true`；扯飞了就把 `lift` 写高配个「嗖！」。脚丫特写写 `worn: "wrong"`，纯色背景 `size: 900, lift: 60, shot: "wide"`。姿势 `tug` 是坐在小凳子上弯腰往脚上套袜子，袜子放在脚边 `x: at + 0.1, lift: 60, size: 100`；`face: "serious"` 是一脸严肃（皱眉、抿嘴，不带青筋）（见 `src/stories/do-it-myself/story.ts`）
+- 爸爸的一双棕皮鞋：`{ thing: { kind: "shoes" }, x, size: 240, front: true }`，侧面、鞋头朝右，并排摆得整整齐齐；`messy: true` 东一只西一只（左边那只鞋头朝左歪着，右边那只鞋头翘起来，左右各多占半个 size），放在两个人中间的空地上（见 `src/stories/tidy-guard/story.ts`）
+- 地上洒的一摊水：`{ thing: { kind: "puddle" }, x, size: 240～300 }`；两张白纸巾：`{ thing: { kind: "tissue" }, x, lift, size: 80～110, front: true }`，拿在手里 `lift: 140`。姿势 `wipe` 是蹲着往前探身、一只手按在地上擦，纸巾放在 `x: at + 0.11, lift: 8, size: 80`、水在 `at + 0.14`（见 `src/stories/little-helper/story.ts`）
+- 扫帚这样的长东西别用 `hold`（画在两手中间会变成一根小棍），用表情符号道具立在人旁边：`{ emoji: "🧹", x: at + 0.05, lift: 120, size: 260, front: true }`
+- 手机特写：`{ thing: { kind: "phone" }, x, lift, size: 240～330 }`，竖着，屏幕上放着小兔子动画片；`show: "swipe"` 一根小手指往上划，`show: "ad"` 黄底大红字「广告」。只有道具的格子写 `shot: "wide"`。拿在手里的小手机用 `hold: "📱"`。姿势 `rub` 是低着头两手揉眼睛（见 `src/stories/watch-ads/story.ts`）
+- 洗衣液大桶：`{ thing: { kind: "jug" }, x, size: 200, front: true }`，蓝桶红盖、白标签写「洗衣液」，左边提手、右边瓶口；`cap: "off"` 盖子拧下来扔在桶左边地上，`cap: "spill"` 桶躺倒了、洗衣液从瓶口淌出一大摊冒泡泡（往右占到 1.4 个 size，盖子在最右边），放在两个人中间要留够地方。只有桶的特写用纯色背景 `size: 420, shot: "wide"`（见 `src/stories/strong-hands/story.ts`）
+- 一板拼图：`{ thing: { kind: "puzzle" }, x, lift, size }`，4×3 块，图上是蓝天、太阳、小山、马路和小红车；`pieces: "mixed"` 形状对上了、画是乱的，`pieces: "torn"` 有几块图案被撕掉、露出纸板。特写用纯色背景 `x: 0.5, lift: 40, size: 520, shot: "wide"`；拿在手里、散在地上的小拼图块用表情符号 🧩（见 `src/stories/puzzle-time/story.ts`）
 - 妈妈小时候的老照片：`{ thing: { kind: "photo" }, x, size }`，特写用 700 左右；拿在手里配 `pose: "hold"`、面朝右，照片 `x: at + 0.08, lift: 270, size: 160, front: true`（见 `src/stories/little-rider/story.ts`）
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）
@@ -137,12 +145,22 @@ description: >-
 ### 椅子和饭桌
 
 - `seat: "chair"`（大人的椅子）或 `"high-chair"`（小孩的高脚餐椅），配 `pose: "sit"`；不写 `seat` 时 `sit` 坐小凳子
+- 卧室里坐在大床边上：`{ at: 0.76, pose: "sit", perch: true, lift: 120 }`，不画小凳子（见 `src/stories/story-time/story.ts`）
 - `pose: "push"`：坐着两腿往前伸直蹬，身子往后仰
 - `seat: "bed"` + `pose: "recline"`：半躺在带轮子的推床上，盖着被子。头在床背那头，`facing: "left"` 时头朝右；推床的人站在床背后，别挨着脸
 - `tip`：连人带椅子往后翘的角度。15～30 前腿翘起，80 左右整个倒在地上；人和椅子一起转，气泡和镜头会跟着脸走
 - 饭桌写在场景里：`scene: { place: "dining-room", table: { from: 0.31, to: 0.95 } }`，画在人前面。盘子用道具，`lift: 205` 正好放在桌面上
 - 站着说话的格子别带桌子，不然桌子会横在人身上
 - 一个故事里同一张饭桌的几格，座位写成小函数共用（见 `src/stories/high-chair/story.ts`），翻页时桌椅不会跳
+
+## 封面
+
+封面是这本书的门脸，要让人一眼看出讲的是哪件事：
+
+- 用故事里真实的地点（客厅、卫生间、饭桌……），不要用 `burst` / `plain` 换个颜色糊弄
+- 放两三个人，摆出这个故事最有意思的那一刻：谁在干什么、谁在一旁什么表情；把故事的主角道具（袜子、鞋、洗衣液桶、拼图……）放进去
+- 封面是竖的，镜头只拍得下半个舞台宽：人和道具都写在 0.3～0.7 之间。站不下时引擎会让大家往中间站、道具跟着离它最近的人挪；还是站不下，检查器会报「封面：某某被裁到画外了」
+- 改完截一张看看：`npm run snapshot -- <id> 0`
 
 ## 背景
 
@@ -161,7 +179,7 @@ description: >-
 | `museum` | 美术馆外景（柱廊、台阶），`tint` 换墙色 |
 | `subway` | 地铁车厢（绿色座位、拉手），`tint` 换车厢色 |
 | `plain` | 纯色底，适合强调对话 |
-| `burst` | 放射线，适合欢呼、惊喜 |
+| `burst` | 放射线，适合格子里的欢呼、惊喜（别拿来当封面） |
 
 `time`: `morning` / `day` / `evening` / `night`  
 `weather`: `clear`（默认）/ `rain`

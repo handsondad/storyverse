@@ -48,4 +48,8 @@ export const POSE_ANGLES: Record<Pose, PoseAngles> = {
   hug: { armL: [-72, 4], armR: [76, -4], ...legs, lean: 6, handL: "open", handR: "open" },
   hold: { armL: [-14, -62], armR: [14, -96], ...legs },
   boss: { armL: [120, 70], armR: [120, 70], legL: [-76, 76], legR: [95, -65], lean: -18, tilt: -6, seat: true, thighScale: 0.82 },
+  rub: { armL: [-50, -128], armR: [56, 126], ...legs, lean: 14, tilt: 22 },
+  sniff: { armL: [-60, -110], armR: [70, 100], ...legs, tilt: 8 },
+  wipe: { armL: [-30, -40], armR: [36, 8], legL: [58, -96], legR: [58, -96], lean: 34, tilt: -20, handR: "open" },
+  tug: { armL: [-46, -20], armR: [54, -16], legL: [-76, 76], legR: [100, -50], lean: 28, tilt: -14, seat: true, thighScale: 0.82 },
 };

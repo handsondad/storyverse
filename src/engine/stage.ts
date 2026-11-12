@@ -120,13 +120,20 @@ export function thingHeight(t: Thing, size: number): number {
     case "sofa": return size * 1.1;
     case "highchair": return size * 1.25;
     case "cushion": return size * 0.3;
+    case "sock": return size * (t.worn ? 0.7 : 0.9);
+    case "shoes": return size * 0.42;
+    case "puddle": return size * 0.16;
+    case "tissue": return size * 0.8;
+    case "phone": return size * 1.8;
+    case "jug": return size * (t.cap === "spill" ? 1 : 1.2);
+    case "puzzle": return size * 0.81;
   }
 }
 
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机", sofa: "小沙发", highchair: "餐椅", cushion: "垫子" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机", sofa: "小沙发", highchair: "餐椅", cushion: "垫子", sock: "袜子", shoes: "鞋", puddle: "水", tissue: "纸巾", phone: "手机", jug: "洗衣液", puzzle: "拼图" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {

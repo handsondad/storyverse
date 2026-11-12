@@ -44,7 +44,7 @@ export function CoverView({ story, snap = false, className = "page-svg" }: { sto
   return (
     <svg viewBox={`0 0 ${PAGE.w} ${PAGE.h}`} className={className} role="img" aria-label={`${story.title} 封面`}
       data-snap={snap ? "" : undefined} data-pages={story.pages.length}>
-      <PanelView panel={{ ...story.cover, beats: [] }} layout={layout} uid={`${story.id}-cover`} border={false} />
+      <PanelView panel={{ ...story.cover, props: layout.props, beats: [] }} layout={layout} uid={`${story.id}-cover`} border={false} />
       <g transform={`rotate(-2 ${PAGE.w / 2} ${by + boardH / 2})`}>
         <rect x={(PAGE.w - boardW) / 2 + 8} y={by + 10} width={boardW} height={boardH} rx={36} fill={INK} opacity={0.25} />
         <rect x={(PAGE.w - boardW) / 2} y={by} width={boardW} height={boardH} rx={36} fill="#fffdf8" stroke={INK} strokeWidth={8} />

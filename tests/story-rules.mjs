@@ -68,6 +68,7 @@ export function checkStory(story) {
       if (seen.has(a.who) && !["ayi", "shushu", "gege", "jiejie"].includes(a.who)) say(where, `${a.who} 出现了两次`);
       if (a.top && !/^#[0-9a-f]{6}$/i.test(a.top)) say(where, `top 要写 #rrggbb 颜色`);
       if (a.lift !== undefined && (a.lift < 0 || a.lift > 300)) say(where, "演员的 lift 在 0～300");
+      if (a.feet && !["bare", "socks", "wrong"].includes(a.feet)) say(where, "feet 只能是 bare / socks / wrong");
       seen.add(a.who);
       if (a.pose && !POSES.includes(a.pose)) say(where, `没有姿势 ${a.pose}`);
       if (a.face && !EXPRESSIONS.includes(a.face)) say(where, `没有表情 ${a.face}`);
@@ -124,6 +125,11 @@ export function checkStory(story) {
       if (p.thing?.reach && !(p.thing.kind === "baby" && p.thing.move === "stand")) say(where, "reach 只给 stand 的宝宝用");
       if ((p.thing?.sick || p.thing?.patch || p.thing?.color || p.thing?.blow) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color、blow 只给 crawl / sit 的宝宝用");
       if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");
+      if (p.thing?.worn && (p.thing.kind !== "sock" || p.thing.worn !== "wrong")) say(where, "worn 只给 sock 用，只能是 wrong");
+      if (p.thing?.messy && p.thing.kind !== "shoes") say(where, "messy 只给 shoes 用");
+      if (p.thing?.show && (p.thing.kind !== "phone" || !["swipe", "ad"].includes(p.thing.show))) say(where, "show 只给 phone 用，只能是 swipe / ad");
+      if (p.thing?.cap && (p.thing.kind !== "jug" || !["off", "spill"].includes(p.thing.cap))) say(where, "cap 只给 jug 用，只能是 off / spill");
+      if (p.thing?.pieces && (p.thing.kind !== "puzzle" || !["mixed", "torn"].includes(p.thing.pieces))) say(where, "pieces 只给 puzzle 用，只能是 mixed / torn");
       if (p.thing?.kick && (p.thing.diaper || p.thing.navel)) say(where, "侧面蹬腿的宝宝穿连体衣，不写 diaper、navel");
     }
 

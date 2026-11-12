@@ -22,10 +22,16 @@ type FigureProps = {
   tip?: number;
   /** 坐在道具上（三轮车座），不画小凳子 */
   perch?: boolean;
+  feet?: Feet;
 };
 
+export type Feet = "bare" | "socks" | "wrong";
+
+/** 小蓝袜子：袜身、袜跟和袜头、袜口。舞台上的 sock 道具也用这套颜色 */
+export const SOCK = { cloth: "#8fd3ff", patch: "#4a9be0", cuff: "#ffffff" } as const;
+
 /** 一个角色，脚底中点在 (0, 0)。外面用 translate 放到舞台上 */
-export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink, seat, tip, perch }: FigureProps) {
+export function Figure({ spec, pose = "stand", face = "neutral", facing = "right", talking = false, hold, blink, seat, tip, perch, feet }: FigureProps) {
   const sk = solve(spec.body, POSE_ANGLES[pose]);
   const angles = POSE_ANGLES[pose];
   const flip = facing === "left" ? -1 : 1;
@@ -41,7 +47,7 @@ export function Figure({ spec, pose = "stand", face = "neutral", facing = "right
       {chair && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Chair s={chair} spec={spec} /></g>}
       <g transform={chair ? mirrored(chair, flip) : undefined}>
         <FigureBody spec={spec} sk={sk} pose={pose} face={face} flip={flip} talking={talking} hold={hold} blink={blink}
-          headT={headT} stool={!!angles.seat && !chair && !perch} line={line} longSleeve={longSleeve} />
+          headT={headT} stool={!!angles.seat && !chair && !perch} line={line} longSleeve={longSleeve} feet={feet} />
       </g>
       {chair?.kind === "bed" && <g transform={`scale(${flip},1) ${chairTransform(chair)}`}><Blanket s={chair} spec={spec} /></g>}
     </g>
@@ -55,10 +61,10 @@ function mirrored(s: Seating, flip: number): string {
 
 type BodyProps = {
   spec: CharacterSpec; sk: Skeleton; pose: Pose; face: Expression; flip: number; talking: boolean; hold?: string; blink?: boolean;
-  headT: string; stool: boolean; line: number; longSleeve: boolean;
+  headT: string; stool: boolean; line: number; longSleeve: boolean; feet?: Feet;
 };
 
-function FigureBody({ spec, sk, pose, face, flip, talking, hold, blink, headT, stool, line, longSleeve }: BodyProps) {
+function FigureBody({ spec, sk, pose, face, flip, talking, hold, blink, headT, stool, line, longSleeve, feet }: BodyProps) {
   const angles = POSE_ANGLES[pose];
   const { look, body } = spec;
   return (
@@ -67,7 +73,7 @@ function FigureBody({ spec, sk, pose, face, flip, talking, hold, blink, headT, s
         <g transform={headT}><BackHair spec={spec} /></g>
         <Arm limb={sk.armL} spec={spec} hand={angles.handL} long={longSleeve} shade />
         {stool && <Stool sk={sk} spec={spec} />}
-        <Legs sk={sk} spec={spec} />
+        <Legs sk={sk} spec={spec} feet={feet} />
         <Torso sk={sk} spec={spec} />
         <Neck sk={sk} spec={spec} />
         <g transform={headT}><Head spec={spec} face={face} talking={talking} blink={blink} /></g>
@@ -165,7 +171,7 @@ function HandShape({ at, from, kind, spec }: { at: Pt; from: Pt; kind: Hand; spe
   );
 }
 
-function Legs({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
+function Legs({ sk, spec, feet }: { sk: Skeleton; spec: CharacterSpec; feet?: Feet }) {
   const { body, look } = spec;
   const o = ow(spec);
   const w = body.limb;
@@ -178,7 +184,8 @@ function Legs({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
     <g>
       {legs.map((l, i) => <path key={`o${i}`} d={limbPath(l)} {...round} stroke={INK} strokeWidth={w + o * 2} />)}
       {legs.map((l, i) => <path key={`f${i}`} d={limbPath(l)} {...round} stroke={look.skin} strokeWidth={w} />)}
-      {look.socks && legs.map((l, i) => <path key={`s${i}`} d={slice(l, 0.84, 0.97)} {...round} stroke={look.socks} strokeWidth={w} />)}
+      {look.socks && !feet && legs.map((l, i) => <path key={`s${i}`} d={slice(l, 0.84, 0.97)} {...round} stroke={look.socks} strokeWidth={w} />)}
+      {feet === "socks" && legs.map((l, i) => <path key={`s${i}`} d={slice(l, 0.8, 0.97)} {...round} stroke={SOCK.cloth} strokeWidth={w} />)}
       {cover > 0 && (
         <g>
           {legs.map((l, i) => <path key={`co${i}`} d={slice(l, 0, cover)} {...round} stroke={INK} strokeWidth={w + 4 + o * 2} />)}
@@ -187,7 +194,7 @@ function Legs({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
           {legs.map((l, i) => <path key={`cf${i}`} d={slice(l, 0, cover)} {...round} stroke={look.bottom.color} strokeWidth={w + 4} />)}
         </g>
       )}
-      {legs.map((l, i) => <Shoe key={`sh${i}`} leg={l} spec={spec} />)}
+      {legs.map((l, i) => <Shoe key={`sh${i}`} leg={l} spec={spec} kind={!feet ? "shoe" : feet === "wrong" ? (i === 1 ? "wrong" : "bare") : feet === "socks" ? "sock" : "bare"} />)}
       {kind === "skirt" && <Skirt sk={sk} spec={spec} />}
     </g>
   );
@@ -195,16 +202,47 @@ function Legs({ sk, spec }: { sk: Skeleton; spec: CharacterSpec }) {
 
 const rectProps = (r: { x: number; y: number; w: number; h: number }) => ({ x: r.x, y: r.y, width: r.w, height: r.h });
 
-function Shoe({ leg, spec }: { leg: Limb; spec: CharacterSpec }) {
+/** 脚：shoe 穿鞋；bare 光脚丫；sock 穿好袜子；wrong 袜子套反了，袜跟鼓在脚背上，脚后跟露在外面 */
+function Shoe({ leg, spec, kind }: { leg: Limb; spec: CharacterSpec; kind: "shoe" | "bare" | "sock" | "wrong" }) {
   const w = spec.body.limb;
+  const clip = `sock-${kind}-${w}`;
+  const o = ow(spec) * 2;
   const len = dist(leg.mid, leg.end) || 1;
   const d: Pt = [(leg.end[0] - leg.mid[0]) / len, (leg.end[1] - leg.mid[1]) / len];
   const f: Pt = [d[1], -d[0]];
   const c: Pt = [leg.end[0] + f[0] * w * 0.32 + d[0] * w * 0.05, leg.end[1] + f[1] * w * 0.32 + d[1] * w * 0.05];
   const angle = (Math.atan2(f[1], f[0]) * 180) / Math.PI;
+  if (kind === "shoe") {
+    return (
+      <ellipse cx={c[0]} cy={c[1]} rx={w * 0.98} ry={w * 0.55} transform={`rotate(${angle} ${c[0]} ${c[1]})`}
+        fill={spec.look.shoes} stroke={INK} strokeWidth={o} />
+    );
+  }
+  // 往下是 +y、往脚尖是 +x
+  const bare = <ellipse rx={w * 0.9} ry={w * 0.5} fill={spec.look.skin} stroke={INK} strokeWidth={o} />;
+  const sock = kind === "wrong" ? { cx: w * 0.32, rx: w * 0.74, ry: w * 0.56 } : { cx: 0, rx: w * 0.95, ry: w * 0.55 };
   return (
-    <ellipse cx={c[0]} cy={c[1]} rx={w * 0.98} ry={w * 0.55} transform={`rotate(${angle} ${c[0]} ${c[1]})`}
-      fill={spec.look.shoes} stroke={INK} strokeWidth={ow(spec) * 2} />
+    <g transform={`translate(${c[0]},${c[1]}) rotate(${angle})`}>
+      {kind === "bare" ? bare : (
+        <>
+          {kind === "wrong" && bare}
+          <clipPath id={clip}><ellipse cx={sock.cx} rx={sock.rx} ry={sock.ry} /></clipPath>
+          <ellipse cx={sock.cx} rx={sock.rx} ry={sock.ry} fill={SOCK.cloth} />
+          <g clipPath={`url(#${clip})`} fill={SOCK.patch}>
+            <ellipse cx={sock.cx + sock.rx * 0.85} rx={sock.rx * 0.32} ry={sock.ry * 1.2} />
+            {kind === "sock" && <ellipse cx={-sock.rx * 0.85} rx={sock.rx * 0.32} ry={sock.ry * 1.2} />}
+          </g>
+          <ellipse cx={sock.cx} rx={sock.rx} ry={sock.ry} fill="none" stroke={INK} strokeWidth={o} />
+          {kind === "wrong" && (
+            <>
+              <path d={`M ${sock.cx - sock.rx * 0.88},${-sock.ry * 0.5} Q ${sock.cx - sock.rx * 0.98},0 ${sock.cx - sock.rx * 0.88},${sock.ry * 0.5}`}
+                fill="none" stroke={SOCK.cuff} strokeWidth={w * 0.16} strokeLinecap="round" />
+              <ellipse cx={sock.cx + w * 0.02} cy={-sock.ry * 0.88} rx={w * 0.36} ry={w * 0.26} fill={SOCK.patch} stroke={INK} strokeWidth={o} />
+            </>
+          )}
+        </>
+      )}
+    </g>
   );
 }
 
