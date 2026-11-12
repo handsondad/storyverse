@@ -59,8 +59,28 @@ const story: Story = {
       ],
     },
     {
-      layout: "1-1",
+      layout: "2-1",
       panels: [
+        {
+          scene: desk,
+          shot: "wide",
+          actors: [dad({ face: "happy" })],
+          props: [monitor, onLap()],
+          beats: [
+            { caption: "他老是像模像样地坐到电脑前，" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#26324d" },
+          actors: [],
+          props: [
+            { thing: nian("sit"), x: 0.38, size: 420 },
+            { thing: { kind: "screen" }, x: 0.64, lift: 120, size: 260 },
+          ],
+          beats: [
+            { caption: "小眼睛盯着屏幕，一眨不眨。" },
+          ],
+        },
         {
           scene: desk,
           shot: "wide",
@@ -71,6 +91,52 @@ const story: Story = {
             { say: "dad", text: "这一行呀，是让电脑画个圆。" },
           ],
         },
+      ],
+    },
+    {
+      layout: "2-2",
+      panels: [
+        {
+          scene: desk,
+          shot: "medium",
+          focus: "dad",
+          actors: [dad({ face: "happy" })],
+          props: [onLap()],
+          beats: [
+            { say: "dad", text: "看懂了吗？" },
+          ],
+        },
+        {
+          scene: { place: "burst", tint: "#d6efff" },
+          actors: [],
+          props: [{ thing: nian("sit", { giggle: true }), x: 0.5, size: 520 }],
+          beats: [
+            { caption: "小念咯咯一笑，好像真懂了！" },
+          ],
+        },
+        {
+          scene: desk,
+          shot: "close",
+          focus: "dad",
+          actors: [dad({ face: "laugh" })],
+          props: [onLap({ giggle: true })],
+          beats: [
+            { say: "dad", text: "好，那爸爸接着讲！" },
+          ],
+        },
+        {
+          scene: { place: "living-room", time: "day" },
+          shot: "close",
+          actors: [{ who: "mom", at: 0.5, pose: "shrug", face: "laugh" }],
+          beats: [
+            { caption: "妈妈在一旁听着，好气又好笑。" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "1-1-1",
+      panels: [
         {
           scene: desk,
           shot: "wide",
@@ -80,15 +146,9 @@ const story: Story = {
           ],
           props: [monitor, onLap({ giggle: true })],
           beats: [
-            { caption: "妈妈在一旁听着，好气又好笑。" },
             { say: "mom", text: "你俩呀，真是一对程序员父子！" },
           ],
         },
-      ],
-    },
-    {
-      layout: "1-1",
-      panels: [
         {
           scene: { place: "burst", tint: "#d6efff" },
           actors: [],

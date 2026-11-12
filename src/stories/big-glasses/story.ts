@@ -20,34 +20,72 @@ const story: Story = {
   credits: { by: ["nian", "dad", "mom"] },
   cover: {
     scene: floor,
-    actors: [{ who: "dad", at: 0.2, pose: "point", face: "laugh", facing: "right" }],
-    props: [{ thing: nian("sit", { specs: true, giggle: true }), x: 0.55, size: 420, front: true }],
+    actors: [{ who: "dad", at: 0.33, pose: "point", face: "laugh", facing: "right" }],
+    props: [{ thing: nian("sit", { specs: true, giggle: true }), x: 0.6, size: 380, front: true }],
   },
   pages: [
     {
-      layout: "1-2",
+      layout: "1-1-1",
       panels: [
+        {
+          scene: { place: "plain", tint: "#e8f4ff" },
+          shot: "wide",
+          actors: [],
+          props: [
+            { thing: { kind: "glasses" }, x: 0.4, lift: 140, size: 260 },
+            { thing: { kind: "glasses" }, x: 0.62, lift: 140, size: 260 },
+          ],
+          beats: [
+            { caption: "2025年12月12日，小念发现了好玩的东西。" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#fff3d6" },
+          shot: "wide",
+          actors: [],
+          props: [{ thing: nian("stand"), x: 0.45, size: 420 }],
+          beats: [
+            { caption: "一看到桌上的眼镜，他就往桌子边跑。" },
+            { sfx: "嗒嗒嗒" },
+          ],
+        },
         {
           scene: room,
           shot: "wide",
           actors: [],
           props: [...onTable, { thing: nian("stand", { reach: true }), x: 0.41, size: 280, front: true }],
           beats: [
-            { caption: "2025年12月12日，小念总往桌子边跑。" },
             { caption: "他比桌子矮，够不着，急得支支吾吾。" },
             { sfx: "嗯！啊啊！" },
           ],
         },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
         {
-          scene: { place: "plain", tint: "#fff3d6" },
+          scene: floor,
+          shot: "wide",
           actors: [
-            { who: "mom", at: 0.38, face: "confused", facing: "right" },
-            { who: "dad", at: 0.62, pose: "think", face: "thinking", facing: "left" },
+            { who: "mom", at: 0.26, face: "confused", facing: "right" },
+            { who: "dad", at: 0.76, pose: "think", face: "thinking", facing: "left" },
           ],
+          props: [{ thing: nian("stand", { reach: true }), x: 0.5, size: 320 }],
           beats: [
             { caption: "爸爸妈妈一开始都猜不出来。" },
             { say: "mom", text: "宝宝，你要啥呀？" },
             { say: "dad", text: "要水？还是要小球？" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#ffe6e0" },
+          shot: "wide",
+          actors: [],
+          props: [{ thing: nian("stand", { reach: true }), x: 0.5, size: 480 }],
+          beats: [
+            { caption: "小念急得直摇头，小手一个劲儿往上够。" },
+            { sfx: "嗯嗯！", at: [0.78, 0.35] },
           ],
         },
         {
@@ -61,7 +99,7 @@ const story: Story = {
       ],
     },
     {
-      layout: "1-1",
+      layout: "1-2-1",
       panels: [
         {
           scene: room,
@@ -71,6 +109,23 @@ const story: Story = {
           beats: [
             { caption: "从那以后，小念总是要戴眼镜。" },
             { sfx: "嘿嘿！" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#fff0c2" },
+          shot: "wide",
+          actors: [],
+          props: [{ thing: nian("sit", { specs: true, giggle: true }), x: 0.47, size: 1000 }],
+          beats: [
+            { caption: "大大的眼镜，挂在小小的脸上。" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#e3f5e8" },
+          shot: "close",
+          actors: [{ who: "mom", at: 0.5, pose: "stand", face: "scared" }],
+          beats: [
+            { say: "mom", text: "哎呀，快摘下来！", kind: "shout" },
           ],
         },
         {
@@ -86,16 +141,24 @@ const story: Story = {
       ],
     },
     {
-      layout: "1-1",
+      layout: "2-1",
       panels: [
         {
           scene: floor,
           shot: "wide",
-          actors: [{ who: "dad", at: 0.24, pose: "point", face: "laugh", facing: "right" }],
-          props: [{ thing: nian("sit", { specs: true, giggle: true }), x: 0.58, size: 440 }],
+          actors: [{ who: "dad", at: 0.34, pose: "point", face: "laugh", facing: "right" }],
+          props: [{ thing: nian("sit", { specs: true, giggle: true }), x: 0.62, size: 360 }],
           beats: [
             { caption: "爸爸倒看着直乐。" },
             { say: "dad", text: "哈哈，像个小小博士！" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#dff1ff" },
+          shot: "close",
+          actors: [{ who: "dad", at: 0.5, pose: "wave", face: "laugh" }],
+          beats: [
+            { say: "dad", text: "小博士，请多指教！" },
           ],
         },
         {

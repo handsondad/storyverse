@@ -36,6 +36,36 @@ const story: Story = {
           ],
         },
         {
+          scene: { place: "burst", tint: "#ffe9a8" },
+          shot: "close",
+          actors: [{ who: "nian", at: 0.5, pose: "cheer", face: "happy" }],
+          beats: [
+            { caption: "小念高兴极了！" },
+            { say: "nian", text: "我的小沙发！", kind: "shout" },
+          ],
+        },
+        {
+          scene: home,
+          actors: [{ who: "shushu", at: 0.5, pose: "point", face: "happy", facing: "left" }],
+          beats: [
+            { say: "shushu", text: "快坐上去试试！" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "2-1",
+      panels: [
+        {
+          scene: home,
+          shot: "wide",
+          actors: [{ who: "nian", at: 0.3, pose: "walk", face: "happy", facing: "right" }],
+          props: [{ thing: { kind: "sofa" }, x: 0.68, size: 220 }],
+          beats: [
+            { caption: "小念走过去，转身一坐——" },
+          ],
+        },
+        {
           scene: home,
           actors: [onSofa(0.5, { pose: "sit", face: "laugh" })],
           beats: [
@@ -44,16 +74,47 @@ const story: Story = {
         },
         {
           scene: home,
-          actors: [onSofa(0.5, { face: "happy" })],
+          shot: "wide",
+          actors: [
+            onSofa(0.32, { pose: "sit", face: "happy" }),
+            { who: "shushu", at: 0.72, pose: "stand", face: "happy", facing: "left" },
+          ],
           beats: [
-            { caption: "他往后一仰，还摆了个动作——" },
+            { say: "shushu", text: "不大不小，刚刚好！" },
+            { say: "nian", text: "我坐着正好！" },
           ],
         },
       ],
     },
     {
-      layout: "1-1",
+      layout: "1-2-1",
       panels: [
+        {
+          scene: home,
+          shot: "wide",
+          actors: [onSofa(0.5, { face: "happy" })],
+          beats: [
+            { caption: "他往后一仰，还摆了个动作——" },
+          ],
+        },
+        {
+          scene: home,
+          shot: "close",
+          actors: [onSofa(0.5)],
+          beats: [
+            { caption: "两只小手往脑后一抱，小腿一翘。" },
+          ],
+        },
+        {
+          scene: home,
+          actors: [
+            { who: "dad", at: 0.3, pose: "stand", face: "surprised", facing: "right" },
+            { who: "mom", at: 0.7, pose: "point", face: "surprised", facing: "right" },
+          ],
+          beats: [
+            { say: "mom", text: "哟，快看小念！" },
+          ],
+        },
         {
           scene: { place: "burst", tint: "#ffe9a8" },
           shot: "wide",
@@ -63,6 +124,11 @@ const story: Story = {
             { sfx: "派头十足！" },
           ],
         },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
         {
           scene: home,
           shot: "wide",
@@ -75,6 +141,20 @@ const story: Story = {
             { caption: "爸爸妈妈都笑了。" },
             { say: "dad", text: "瞧这架势！" },
             { say: "mom", text: "这是专为小念做的小沙发呀！" },
+          ],
+        },
+        {
+          scene: home,
+          actors: [onSofa(0.5, { pose: "sit", face: "happy" })],
+          beats: [
+            { say: "nian", text: "谢谢叔叔！" },
+          ],
+        },
+        {
+          scene: home,
+          actors: [{ who: "shushu", at: 0.5, pose: "wave", face: "laugh", facing: "left" }],
+          beats: [
+            { say: "shushu", text: "喜欢就好！" },
           ],
         },
       ],

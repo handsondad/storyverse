@@ -118,7 +118,44 @@ const story: Story = {
       ],
     },
     {
-      layout: "1-1-1",
+      layout: "2-1",
+      panels: [
+        {
+          scene: { place: "park", time: "day" },
+          shot: "wide",
+          actors: [{ who: "nian", at: 0.62, pose: "hold", face: "happy", facing: "left", hold: "🌿" }],
+          props: [{ emoji: "🦔", x: 0.3, size: 110 }],
+          beats: [
+            { caption: "原来是一只小刺猬滚过草地，送来了薄荷叶。" },
+            { say: "nian", text: "好香呀！谢谢小刺猬！" },
+          ],
+        },
+        {
+          scene: { place: "park", time: "evening", weather: "rain" },
+          shot: "medium",
+          focus: "nian",
+          actors: [
+            { who: "nian", at: 0.55, pose: "cheer", face: "laugh" },
+            { who: "mom", at: 0.3, pose: "walk", face: "happy", facing: "right" },
+          ],
+          beats: [
+            { caption: "第三站：云朵田野，天空低低的。" },
+            { say: "nian", text: "细细的雨丝，凉凉的！" },
+          ],
+        },
+        {
+          scene: { place: "park", time: "evening", weather: "rain" },
+          shot: "wide",
+          actors: [{ who: "nian", at: 0.6, pose: "hold", face: "surprised", facing: "left", hold: "🪶" }],
+          props: [{ emoji: "🐦", x: 0.3, lift: 430, size: 100 }],
+          beats: [
+            { caption: "小燕子飞过，送来一根轻轻的羽毛。" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "1-2",
       panels: [
         {
           scene: { place: "park", time: "evening", weather: "rain" },
@@ -130,7 +167,6 @@ const story: Story = {
           ],
           props: [{ emoji: "🌈", x: 0.62, lift: 520, size: 140 }],
           beats: [
-            { caption: "第三站：云朵田野，天空低低的。" },
             { say: "dad", text: "看！彩虹出来了！" },
             { say: "nian", text: "雨鞋亮起了金色的光！", kind: "shout" },
             { sfx: "叮！", color: "#ffd166" },
@@ -151,6 +187,25 @@ const story: Story = {
           ],
         },
         {
+          scene: { place: "park", time: "evening" },
+          shot: "wide",
+          actors: [
+            { who: "nian", at: 0.45, pose: "walk", face: "happy", facing: "left" },
+            { who: "mom", at: 0.25, pose: "walk", face: "happy", facing: "left" },
+            { who: "dad", at: 0.68, pose: "walk", face: "happy", facing: "left" },
+          ],
+          props: [{ emoji: "👢", x: 0.45, size: 60, glow: "#ffd166", front: true }],
+          beats: [
+            { caption: "天黑前，雨鞋把小念稳稳送回了家。" },
+            { say: "nian", text: "谢谢你，雨鞋！" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "1",
+      panels: [
+        {
           scene: { place: "bedroom", time: "night" },
           shot: "medium",
           actors: [
@@ -158,7 +213,7 @@ const story: Story = {
             { who: "dad", at: "left", pose: "sit", face: "happy" },
             { who: "mom", at: "right", pose: "sit", face: "happy" },
           ],
-          props: [{ emoji: "👢", x: 0.82, lift: 40, size: 90, glow: "#ffd166" }],
+          props: [{ emoji: "👢", x: 0.63, size: 80, glow: "#ffd166", front: true }],
           beats: [
             { caption: "晚上，雨鞋安静地放在床边。" },
             { say: "nian", text: "明天……还去找彩虹吗？", kind: "whisper" },

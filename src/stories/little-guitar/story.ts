@@ -45,11 +45,35 @@ const story: Story = {
         },
         {
           scene: home,
+          actors: [
+            { who: "ayi", at: 0.34, pose: "point", face: "happy", facing: "right" },
+            { who: "gege", at: 0.66, pose: "hold", face: "proud", facing: "left", hold: "🎸" },
+          ],
+          beats: [
+            { say: "ayi", text: "哥哥，给大家弹一首！" },
+            { say: "gege", text: "好嘞！" },
+          ],
+        },
+        {
+          scene: home,
           actors: [{ who: "gege", at: 0.5, pose: "hold", face: "happy", hold: "🎸" }],
           props: [note(0.3, 600), note(0.72, 660, 70)],
           beats: [
             { caption: "到家后，哥哥表演了吉他弹唱。" },
             { say: "gege", text: "啦啦啦～啦啦～" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "2-1",
+      panels: [
+        {
+          scene: home,
+          shot: "close",
+          actors: [{ who: "nian", at: 0.5, pose: "stand", face: "surprised" }],
+          beats: [
+            { say: "nian", text: "哥哥好厉害！", kind: "thought" },
           ],
         },
         {
@@ -60,11 +84,6 @@ const story: Story = {
             { say: "nian", text: "我也要试试！", kind: "shout" },
           ],
         },
-      ],
-    },
-    {
-      layout: "1-1",
-      panels: [
         {
           scene: home,
           actors: [
@@ -76,6 +95,11 @@ const story: Story = {
             { say: "nian", text: "哇！" },
           ],
         },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
         {
           scene: home,
           shot: "wide",
@@ -90,10 +114,25 @@ const story: Story = {
             { say: "dad", text: "嗯嗯～嗯嗯嗯～" },
           ],
         },
+        {
+          scene: home,
+          shot: "close",
+          actors: [{ who: "mom", at: 0.5, pose: "stand", face: "happy" }],
+          beats: [
+            { say: "mom", text: "唱的是妈妈呀！" },
+          ],
+        },
+        {
+          scene: home,
+          actors: [{ who: "gege", at: 0.5, pose: "point", face: "laugh" }],
+          beats: [
+            { say: "gege", text: "弟弟唱得真好！" },
+          ],
+        },
       ],
     },
     {
-      layout: "1-2",
+      layout: "1-2-1",
       panels: [
         {
           scene: home,
@@ -108,7 +147,7 @@ const story: Story = {
           ],
           beats: [
             { caption: "大家都高兴得大笑，给小念鼓掌。" },
-            { sfx: "啪啪啪！", at: [0.5, 0.2] },
+            { sfx: "啪啪啪！" },
           ],
         },
         {
@@ -120,6 +159,14 @@ const story: Story = {
           beats: [
             { say: "shushu", text: "小念有音乐天赋呀！" },
             { say: "ayi", text: "跟哥哥搞个组合吧！" },
+          ],
+        },
+        {
+          scene: home,
+          shot: "close",
+          actors: [{ who: "nian", at: 0.5, pose: "hold", face: "confused", hold: "🎸" }],
+          beats: [
+            { say: "nian", text: "组合是什么呀？" },
           ],
         },
         {

@@ -18,8 +18,8 @@ const story: Story = {
   credits: { by: ["nian", "dad", "mom"] },
   cover: {
     scene: room,
-    actors: [{ who: "mom", at: 0.3, pose: "hold", face: "laugh", facing: "right" }],
-    props: [photoInHand(0.3), riding(0.66, 460)],
+    actors: [{ who: "mom", at: 0.36, pose: "hold", face: "laugh", facing: "right" }],
+    props: [photoInHand(0.36), riding(0.64, 400)],
   },
   pages: [
     {
@@ -53,12 +53,25 @@ const story: Story = {
       ],
     },
     {
-      layout: "1-1",
+      layout: "2-1",
       panels: [
         {
+          scene: room,
+          shot: "wide",
+          actors: [{ who: "mom", at: 0.38, pose: "crouch", face: "happy", facing: "right" }],
+          props: [
+            { thing: { kind: "photo" }, x: 0.47, lift: 150, size: 150, front: true },
+            { thing: nian({ giggle: true }), x: 0.66, size: 340 },
+          ],
+          beats: [
+            { caption: "妈妈蹲下来，给小念看照片。" },
+          ],
+        },
+        {
           scene: { place: "plain", tint: "#f3e3c3" },
+          shot: "wide",
           actors: [],
-          props: [{ thing: { kind: "photo" }, x: 0.52, lift: 30, size: 720 }],
+          props: [{ thing: { kind: "photo" }, x: 0.5, lift: 60, size: 640 }],
           beats: [
             { caption: "照片上，小小的妈妈骑在摩托车上，看起来十分威武！" },
           ],
@@ -76,7 +89,7 @@ const story: Story = {
       ],
     },
     {
-      layout: "2-1",
+      layout: "1-1-1",
       panels: [
         {
           scene: { place: "plain", tint: "#e3f1ff" },
@@ -98,11 +111,45 @@ const story: Story = {
         {
           scene: room,
           shot: "wide",
+          actors: [{ who: "mom", at: 0.78, pose: "crouch", face: "surprised", facing: "left" }],
+          props: [riding(0.38, 420)],
+          beats: [
+            { say: "mom", text: "哇，骑得真快！" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
+        {
+          scene: room,
+          shot: "wide",
           actors: [{ who: "mom", at: 0.24, pose: "hold", face: "laugh", facing: "right" }],
           props: [photoInHand(0.24), riding(0.62, 440)],
           beats: [
             { caption: "妈妈看着，哈哈大笑。" },
             { say: "mom", text: "哈哈哈，又一个小骑手！" },
+          ],
+        },
+        {
+          scene: { place: "plain", tint: "#e3f5e8" },
+          shot: "close",
+          actors: [{ who: "mom", at: 0.5, pose: "cheer", face: "laugh" }],
+          beats: [
+            { say: "mom", text: "跟妈妈小时候一样威风！" },
+          ],
+        },
+        {
+          scene: { place: "burst", tint: "#fff0c2" },
+          shot: "wide",
+          actors: [],
+          props: [
+            { thing: { kind: "photo" }, x: 0.45, lift: 460, size: 260 },
+            riding(0.5, 380),
+          ],
+          beats: [
+            { caption: "一大一小，两个威风的小骑手！" },
           ],
         },
       ],

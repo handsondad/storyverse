@@ -10,8 +10,8 @@ const close: SceneSpec = { place: "plain", tint: "#fff0f4" };
 const onMat = (kick: Thing["kick"], giggle = false): Prop =>
   ({ thing: { kind: "baby", kick, giggle }, x: 0.46, size: 460, front: true });
 /** 小念的特写 */
-const closeUp = (kick: Thing["kick"], giggle = false): Prop =>
-  ({ thing: { kind: "baby", kick, giggle }, x: 0.52, lift: 40, size: 900 });
+const closeUp = (kick: Thing["kick"], giggle = false, size = 900): Prop =>
+  ({ thing: { kind: "baby", kick, giggle }, x: 0.52, lift: 40, size });
 
 const story: Story = {
   id: "yummy-toes",
@@ -26,7 +26,7 @@ const story: Story = {
   },
   pages: [
     {
-      layout: "1-2",
+      layout: "1-2-1",
       panels: [
         {
           scene: room,
@@ -41,6 +41,14 @@ const story: Story = {
         {
           scene: close,
           actors: [],
+          props: [closeUp("left")],
+          beats: [
+            { caption: "小脚丫蹬过来、蹬过去，一刻不停。" },
+          ],
+        },
+        {
+          scene: close,
+          actors: [],
           props: [closeUp("grab")],
           beats: [
             { caption: "他最爱用小手抓着自己的小脚丫玩。" },
@@ -48,7 +56,9 @@ const story: Story = {
         },
         {
           scene: room,
-          actors: [{ who: "mom", at: 0.5, pose: "stand", face: "happy" }],
+          shot: "wide",
+          actors: [{ who: "mom", at: 0.18, pose: "crouch", face: "happy", facing: "right" }],
+          props: [onMat("grab")],
           beats: [
             { say: "mom", text: "小手抓小脚，抓得真牢！" },
           ],
@@ -68,6 +78,14 @@ const story: Story = {
           ],
         },
         {
+          scene: room,
+          shot: "close",
+          actors: [{ who: "mom", at: 0.5, pose: "stand", face: "surprised" }],
+          beats: [
+            { say: "mom", text: "咦？小念在吃什么？" },
+          ],
+        },
+        {
           scene: close,
           actors: [],
           props: [closeUp("toes")],
@@ -76,6 +94,11 @@ const story: Story = {
             { sfx: "吧唧" },
           ],
         },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
         {
           scene: room,
           shot: "wide",
@@ -85,15 +108,10 @@ const story: Story = {
             { say: "mom", text: "哈哈，小念，脚丫好吃吗？" },
           ],
         },
-      ],
-    },
-    {
-      layout: "2-1",
-      panels: [
         {
           scene: close,
           actors: [],
-          props: [closeUp("grab", true)],
+          props: [closeUp("grab", true, 680)],
           beats: [
             { caption: "小念「呜呜」地叫，啥也听不懂，" },
           ],
@@ -104,6 +122,19 @@ const story: Story = {
           beats: [
             { caption: "还一个劲儿地咯咯笑。" },
             { say: "mom", text: "哈哈哈，真是个小吃货！" },
+          ],
+        },
+      ],
+    },
+    {
+      layout: "1-1",
+      panels: [
+        {
+          scene: { place: "burst", tint: "#ffe3ec" },
+          actors: [],
+          props: [closeUp("up", true)],
+          beats: [
+            { sfx: "咯咯咯！" },
           ],
         },
         {

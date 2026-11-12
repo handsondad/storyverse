@@ -12,6 +12,8 @@ const BLUE = "#9fd0ff";
 const PINK = "#ffbcd2";
 const MINT = "#b8ecc8";
 const car = (x: number, size = 110): Prop => ({ emoji: "🚗", x, size, front: true });
+/** 妈妈在 0.6 抱着小念 */
+const inMomsArms: Prop = { thing: { kind: "baby", move: "sit" }, x: 0.6 - 110 / 1400, lift: 250, size: 380, front: true };
 
 const story: Story = {
   id: "crawl-court",
@@ -39,18 +41,32 @@ const story: Story = {
           ],
         },
         {
+          scene: { place: "living-room", time: "day" },
+          shot: "wide",
+          actors: [],
+          props: [crawler(0.5, { giggle: true }, 420)],
+          beats: [
+            { caption: "这边爬到那边，那边又爬回这边。" },
+          ],
+        },
+        {
           scene: court,
           shot: "wide",
           actors: [
             { who: "dad", at: 0.3, pose: "point", face: "happy", facing: "right" },
             { who: "mom", at: 0.6, pose: "hug", face: "happy", facing: "left" },
           ],
-          props: [{ thing: { kind: "baby", move: "sit" }, x: 0.6 - 110 / 1400, lift: 250, size: 380, front: true }],
+          props: [inMomsArms],
           beats: [
             { caption: "4月20日，爸爸妈妈带他去体育公园玩。" },
             { say: "dad", text: "看，那边有个门球场！" },
           ],
         },
+      ],
+    },
+    {
+      layout: "2-2",
+      panels: [
         {
           scene: court,
           shot: "wide",
@@ -60,13 +76,19 @@ const story: Story = {
             { caption: "门球场早被娃娃们「占」了，成了遛娃的好地方。" },
           ],
         },
-      ],
-    },
-    {
-      layout: "2-1",
-      panels: [
         {
-          scene: { place: "plain", tint: "#e3f6e8" },
+          scene: court,
+          shot: "wide",
+          actors: [{ who: "dad", at: 0.66, pose: "crouch", face: "happy", facing: "left" }],
+          props: [crawler(0.4, {}, 300)],
+          beats: [
+            { caption: "爸爸把小念放到地上。" },
+            { say: "dad", text: "去吧，跟大家一起爬！" },
+          ],
+        },
+        {
+          scene: court,
+          shot: "wide",
           actors: [],
           props: [crawler(0.37, { color: BLUE, flip: true }, 300), crawler(0.6, { color: PINK }, 300)],
           beats: [
@@ -75,12 +97,18 @@ const story: Story = {
         },
         {
           scene: { place: "burst", tint: "#fff3b0" },
+          shot: "wide",
           actors: [],
           props: [crawler(0.47, {}, 560)],
           beats: [
             { caption: "小念是里面最爱爬的那一个！" },
           ],
         },
+      ],
+    },
+    {
+      layout: "1-2",
+      panels: [
         {
           scene: court,
           shot: "wide",
@@ -95,11 +123,18 @@ const story: Story = {
             { say: "gege", text: "哇，他爬得好快！" },
           ],
         },
-      ],
-    },
-    {
-      layout: "1-2",
-      panels: [
+        {
+          scene: court,
+          shot: "wide",
+          actors: [
+            { who: "mom", at: 0.6, pose: "cheer", face: "laugh", facing: "left" },
+            { who: "dad", at: 0.8, pose: "cheer", face: "happy", facing: "left" },
+          ],
+          props: [crawler(0.43, {}, 260)],
+          beats: [
+            { say: "mom", text: "小念，加油！" },
+          ],
+        },
         {
           scene: court,
           shot: "wide",
@@ -110,12 +145,31 @@ const story: Story = {
             { sfx: "嘀嘀——", at: [0.3, 0.62] },
           ],
         },
+      ],
+    },
+    {
+      layout: "2-1",
+      panels: [
         {
-          scene: { place: "plain", tint: "#fff1c9" },
+          scene: court,
+          shot: "wide",
           actors: [],
-          props: [{ thing: { kind: "baby", move: "sit" }, x: 0.4, size: 560 }, car(0.62, 150)],
+          props: [{ thing: { kind: "baby", move: "sit", giggle: true }, x: 0.42, size: 440 }, car(0.6, 130)],
           beats: [
             { caption: "追上啦！" },
+          ],
+        },
+        {
+          scene: court,
+          shot: "wide",
+          actors: [],
+          props: [
+            crawler(0.36, { color: MINT, flip: true }, 250),
+            crawler(0.53, { giggle: true }, 270),
+            crawler(0.68, { color: PINK }, 250),
+          ],
+          beats: [
+            { caption: "门球场上的爬爬队，小念爬得最欢！" },
           ],
         },
         {
@@ -125,7 +179,7 @@ const story: Story = {
             { who: "dad", at: 0.3, pose: "stand", face: "laugh", facing: "right" },
             { who: "mom", at: 0.6, pose: "hug", face: "laugh", facing: "left" },
           ],
-          props: [{ thing: { kind: "baby", move: "sit" }, x: 0.6 - 110 / 1400, lift: 250, size: 380, front: true }],
+          props: [inMomsArms],
           beats: [
             { say: "mom", text: "真是一个好动的小念呀！" },
             { say: "dad", text: "一刻都停不下来！" },
