@@ -683,6 +683,7 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "clipper": return <Clipper {...p} />;
     case "box": return <MedicineBox {...p} />;
     case "tub": return <Tub {...p} />;
+    case "steam": return <Steam {...p} />;
   }
 }
 
@@ -958,18 +959,55 @@ function SittingBaby({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
   const hx = x + w * 0.01;
   const hy = bottom - w * 0.42;
   const shoulder: Pt = [x + w * 0.01, bottom - w * 0.25];
-  const hand: Pt = thing.cry ? [hx - r * 0.35, hy - r * 0.92] : thing.splash ? [x + w * 0.2, bottom - w * 0.3] : [x + w * 0.13, bottom - w * 0.13];
+  const onHead = thing.cry && !thing.hand;
+  const hand: Pt = onHead ? [hx - r * 0.35, hy - r * 0.92]
+    : thing.splash ? [x + w * 0.2, bottom - w * 0.3]
+    : thing.hand ? [x + w * 0.18, bottom - w * 0.22] : [x + w * 0.13, bottom - w * 0.13];
   const romper = thing.color ?? ROMPER;
+  const fist = <BabyHand at={hand} r={limb * 0.7} kind={thing.hand} />;
   return (
     <g>
       {babyLimb(`M ${hip[0]},${hip[1]} L ${x + w * 0.12},${bottom - limb * 0.9} L ${x + w * 0.22},${bottom - limb * 0.6}`, limb, romper)}
       <ellipse cx={x + w * 0.235} cy={bottom - limb * 0.9} rx={limb * 0.6} ry={limb * 0.9} fill={BABY_SKIN} {...line} strokeWidth={5} />
       <ellipse cx={x - w * 0.01} cy={bottom - w * 0.15} rx={w * 0.1} ry={w * 0.14} fill={romper} {...line} strokeWidth={5} />
-      {!thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, romper)}
-      {!thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
-      {thing.cry && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, romper)}
+      {!onHead && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hand[0]},${hand[1]}`, limb, romper)}
+      {!onHead && fist}
+      {onHead && babyLimb(`M ${shoulder[0]},${shoulder[1]} L ${hx - r * 1.05},${hy + r * 0.2} L ${hand[0]},${hand[1]}`, limb, romper)}
       <BabyHead cx={hx} cy={hy} r={r} w={w} thing={thing} />
-      {thing.cry && <circle cx={hand[0]} cy={hand[1]} r={limb * 0.7} fill={BABY_SKIN} {...line} strokeWidth={5} />}
+      {onHead && fist}
+    </g>
+  );
+}
+
+/** 宝宝的小拳头：烫着了是红红的一团（不画伤口），包扎好是一团白纱布 */
+function BabyHand({ at, r, kind }: { at: Pt; r: number; kind?: Thing["hand"] }) {
+  if (kind === "bandage") {
+    return (
+      <g>
+        <circle cx={at[0]} cy={at[1]} r={r * 1.35} fill="#ffffff" {...line} strokeWidth={5} />
+        <path d={`M ${at[0] - r * 1.1},${at[1] - r * 0.5} q ${r * 1.1},${r * 0.35} ${r * 2.2},0 M ${at[0] - r * 1.2},${at[1] + r * 0.25} q ${r * 1.2},${r * 0.35} ${r * 2.4},0`}
+          fill="none" stroke="#c9d6e0" strokeWidth={Math.max(3, r * 0.18)} strokeLinecap="round" />
+      </g>
+    );
+  }
+  return (
+    <g>
+      <circle cx={at[0]} cy={at[1]} r={r} fill={BABY_SKIN} {...line} strokeWidth={5} />
+      {kind === "red" && <circle cx={at[0]} cy={at[1]} r={r * 0.72} fill="#ff6b6b" opacity={0.55} />}
+    </g>
+  );
+}
+
+/** 往上冒的三缕热气 */
+function Steam({ x, bottom, w }: { x: number; bottom: number; w: number }) {
+  const h = w * 1.2;
+  return (
+    <g fill="none" stroke="#a9bccb" strokeWidth={Math.max(8, w * 0.09)} strokeLinecap="round" opacity={0.85}>
+      {[-0.3, 0, 0.3].map((f, i) => {
+        const sx = x + f * w;
+        const top = bottom - h * (i === 1 ? 1 : 0.85);
+        return <path key={f} d={`M ${sx},${bottom} c ${w * 0.18},${-(bottom - top) * 0.25} ${-w * 0.18},${-(bottom - top) * 0.5} 0,${-(bottom - top) * 0.75} s ${-w * 0.1},${-(bottom - top) * 0.2} 0,${-(bottom - top) * 0.25}`} />;
+      })}
     </g>
   );
 }

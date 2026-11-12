@@ -111,6 +111,8 @@ description: >-
 - 宝宝写了 `kick` 就画成侧面：穿黄连体衣仰面躺在爬行垫上，小腿举起来蹬（头朝左）；`up` / `left` / `right` 换着写像在来回蹬，`ball: true` 脚丫上顶个小球；`grab` 小手抱着脚丫，`toes` 啃脚趾头；`giggle: true` 张嘴咯咯笑。宝宝不会说话，咿咿呜呜写进旁白，别给他气泡。放在客厅地上用 `x: 0.46, size: 460, front: true`（别放沙发前，腿和沙发会糊在一起），特写用纯色背景 `size: 900, lift: 40`（见 `src/stories/kick-ball/story.ts`）
 - 宝宝写 `move` 就是会爬会坐的样子（还是黄连体衣、侧面）：`crawl` 往左爬，`sit` 坐着脸朝右；`cry: true` 哇哇大哭（坐着时一手捂头），`flip: true` 左右翻过来。放在卧室床上用 `lift: 230, size: 360`；抱在大人怀里：大人 `pose: "hug"` 面朝右站在 at，宝宝 `move: "sit", flip: true, x: at + 110/1400, lift: 250, size: 380, front: true`（见 `src/stories/bed-edge/story.ts` 的 `inArms`）。会爬会坐的宝宝还能写 `hair: "fuzz"`（毛茸茸一层）/ `"bald"`（刚理的小光头，亮亮的），`hat: "party"` 戴生日帽，`sick: true` 生病（小脸烧得红红的、没精神），`patch: true` 额头贴退烧贴；`color` 换连体衣颜色，别人家的宝宝都换个颜色，黄色留给小念；`giggle: true` 张嘴咯咯笑。`sit` 的宝宝写 `tub: true` 就光着身子坐在粉色大澡盆里（放地上 `size: 420, front: true`），`splash: true` 举手拍水溅水花（见 `src/stories/bath-basin/story.ts`）
 - 空的大澡盆：`{ thing: { kind: "tub" }, x, size: 300, front: true }`
+- `sit` 的宝宝写 `hand: "red"` 那只伸出来的小手红红的（烫着了，不画伤口），`"bandage"` 包着白纱布；和 `cry` 一起写就是伸着这只手哭（见 `src/stories/hot-water/story.ts`）
+- 冒热气：`{ thing: { kind: "steam" }, x, lift, size: 90～120 }`，放在热水、杯子上面（☕ 本身不带热气）
 - 药盒：`{ thing: { kind: "box", label: "退烧贴" }, x, lift, size: 120 }`，`label` 必写，颜色跟着药名变；放药店柜台上用 `lift: 205`（见 `src/stories/first-cold/story.ts`）
 - 理发的电推子：`{ thing: { kind: "clipper" }, x, lift, size: 200 }`，刀头朝左，放在宝宝头顶右边（见 `src/stories/laoye-birthday/story.ts`）
 - 大人小孩戴生日帽：角色写 `hat: "party"`
