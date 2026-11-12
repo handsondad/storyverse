@@ -736,6 +736,8 @@ function ThingView(p: { x: number; bottom: number; w: number; thing: Thing }) {
     case "glasses": return <Specs {...p} />;
     case "trampoline": return <Trampoline {...p} />;
     case "pad": return <LearningPad {...p} />;
+    case "highchair": return <HighChairThing {...p} />;
+    case "cushion": return <CushionPad x0={p.x - p.w / 2} x1={p.x + p.w / 2} top={p.bottom - p.w * 0.3} h={p.w * 0.3} state={p.thing.cushion} needle />;
     case "sofa": return <KidSofa back={p.x - p.w * 0.4} front={p.x + p.w * 0.45} seat={p.bottom - p.w * 0.42} rest={p.bottom - p.w * 1.1} bottom={p.bottom} line={5} />;
   }
 }
@@ -1206,6 +1208,134 @@ const CODE: readonly (readonly [number, readonly (readonly [number, string])[]])
   [2, [[0.24, "#c3e88d"], [0.12, "#ffcb6b"]]],
   [0, [[0.06, "#89ddff"]]],
 ];
+
+const CUSHION = "#8fd3ff";
+
+/** 餐椅垫子：好好的有小圆点；torn 扯开一道口子、露出白棉花；patched 口子上是姥爷缝的针脚 */
+function CushionPad({ x0, x1, top, h, state, needle }: { x0: number; x1: number; top: number; h: number; state?: Thing["cushion"]; needle?: boolean }) {
+  const w = x1 - x0;
+  const mid = x0 + w * 0.55;
+  const rip = `M ${mid - w * 0.14},${top + h * 0.15} l ${w * 0.07},${h * 0.3} l ${w * 0.05},${-h * 0.2} l ${w * 0.06},${h * 0.4}`;
+  return (
+    <g>
+      <rect x={x0} y={top} width={w} height={h} rx={h * 0.45} fill={CUSHION} {...line} strokeWidth={5} />
+      {[0.18, 0.38, 0.8].map((k) => <circle key={k} cx={x0 + w * k} cy={top + h * 0.5} r={h * 0.1} fill="#ffffff" opacity={0.8} />)}
+      {state === "torn" && (
+        <g>
+          <path d={rip} fill="none" stroke={INK} strokeWidth={4} strokeLinejoin="round" />
+          {[[-0.1, -0.1], [0.02, -0.25], [0.12, -0.05]].map(([dx, dy]) => (
+            <circle key={dx} cx={mid + w * dx} cy={top + h * dy} r={h * 0.22} fill="#ffffff" stroke={INK} strokeWidth={3} />
+          ))}
+        </g>
+      )}
+      {state === "patched" && (
+        <g stroke={INK} strokeWidth={3} strokeLinecap="round">
+          <path d={rip} fill="none" opacity={0.6} />
+          {[0, 1, 2, 3].map((i) => {
+            const cx = mid - w * 0.1 + i * w * 0.055;
+            return <path key={i} d={`M ${cx - w * 0.015},${top + h * 0.2} L ${cx + w * 0.015},${top + h * 0.8}`} />;
+          })}
+        </g>
+      )}
+      {state === "patched" && needle && (
+        <g strokeLinecap="round">
+          <path d={`M ${mid + w * 0.12},${top + h * 0.3} q ${w * 0.12},${-h * 1.6} ${w * 0.3},${-h * 0.9}`} fill="none" stroke="#e85d4a" strokeWidth={3} />
+          <path d={`M ${mid + w * 0.12},${top + h * 0.3} l ${w * 0.08},${-h * 0.9}`} stroke={INK} strokeWidth={9} />
+          <path d={`M ${mid + w * 0.12},${top + h * 0.3} l ${w * 0.08},${-h * 0.9}`} stroke="#dfe5ec" strokeWidth={4} />
+        </g>
+      )}
+    </g>
+  );
+}
+
+/**
+ * 宝宝的木头高脚餐椅（侧面，朝右）：靠背、座板、前面一块小餐盘、脚踏横杆。
+ * strap 保护带（torn 扯断了两头耷拉着）；cushion 垫子（torn / patched / gone）；nails 钉子震出来、椅子直晃；rope 爸爸用绳子绑的；rider 坐在上面的宝宝
+ */
+function HighChairThing({ x, bottom, w, thing }: { x: number; bottom: number; w: number; thing: Thing }) {
+  const wood = "#f4b26a";
+  const t = w * 0.06;
+  const seatY = bottom - w * 0.62;
+  const xb = x - w * 0.3;
+  const xf = x + w * 0.22;
+  const backTop: Pt = [xb - w * 0.06, seatY - w * 0.6];
+  const bar = (d: string, width: number, key: string, shade = false) => (
+    <g key={key}>
+      <path d={d} fill="none" stroke={INK} strokeWidth={width + 10} strokeLinecap="round" />
+      <path d={d} fill="none" stroke={wood} strokeWidth={width} strokeLinecap="round" />
+      {shade && <path d={d} fill="none" stroke="#000" strokeOpacity={0.18} strokeWidth={width} strokeLinecap="round" />}
+    </g>
+  );
+  const pad = thing.cushion !== "gone";
+  const padH = w * 0.07;
+  const seatTop = seatY - t * 0.5 - (pad ? padH : 0);
+  const hip = xb + w * 0.13;
+  const joints: Pt[] = [[xb + w * 0.02, seatY], [xf, seatY], [xb - w * 0.02, seatY - w * 0.28]];
+  const rope = "#c8955a";
+  return (
+    <g strokeLinejoin="round">
+      {bar(`M ${xb + w * 0.08},${seatY} L ${xb - w * 0.1},${bottom - 8} M ${xf - w * 0.04},${seatY} L ${xf + w * 0.14},${bottom - 8}`, t, "far", true)}
+      {bar(`M ${xb - w * 0.13},${bottom - w * 0.22} L ${xf + w * 0.14},${bottom - w * 0.22}`, t * 0.8, "foot")}
+      {bar(`M ${xb + w * 0.03},${seatY} L ${xb - w * 0.17},${bottom} M ${xf},${seatY} L ${xf + w * 0.2},${bottom}`, t, "near")}
+      {bar(`M ${xb},${seatY} L ${backTop[0]},${backTop[1]}`, t * 1.6, "back")}
+      <rect x={xb - t * 0.5} y={seatY - t * 0.5} width={xf - xb + t} height={t} rx={t * 0.4} fill={wood} {...line} strokeWidth={5} />
+      {pad && (
+        <g>
+          <path d={`M ${xb + t},${seatY - padH} L ${backTop[0] + t * 1.1},${backTop[1] + w * 0.06}`} fill="none" stroke={INK} strokeWidth={padH + 10} strokeLinecap="round" />
+          <path d={`M ${xb + t},${seatY - padH} L ${backTop[0] + t * 1.1},${backTop[1] + w * 0.06}`} fill="none" stroke={CUSHION} strokeWidth={padH} strokeLinecap="round" />
+          <CushionPad x0={xb + t * 0.4} x1={xf} top={seatY - t * 0.5 - padH} h={padH} state={thing.cushion} />
+        </g>
+      )}
+      {thing.strap === "torn" && (
+        <g stroke="#e85d4a" strokeWidth={w * 0.03} strokeLinecap="round" fill="none">
+          <path d={`M ${xb + w * 0.02},${seatY - w * 0.12} q ${w * 0.04},${w * 0.08} ${w * 0.01},${w * 0.17}`} />
+          <path d={`M ${xf - w * 0.03},${seatY - t} q ${w * 0.04},${w * 0.08} ${w * 0.01},${w * 0.16}`} />
+        </g>
+      )}
+      {thing.rider && <ThingView x={hip} bottom={seatTop} w={w * 0.85} thing={thing.rider} />}
+      {thing.strap !== "torn" && (
+        <g>
+          <path d={`M ${xb + w * 0.01},${seatY - w * 0.13} Q ${hip + w * 0.04},${seatY - w * 0.04} ${xf - w * 0.04},${seatY - t}`} fill="none" stroke={INK} strokeWidth={w * 0.04 + 8} strokeLinecap="round" />
+          <path d={`M ${xb + w * 0.01},${seatY - w * 0.13} Q ${hip + w * 0.04},${seatY - w * 0.04} ${xf - w * 0.04},${seatY - t}`} fill="none" stroke="#e85d4a" strokeWidth={w * 0.04} strokeLinecap="round" />
+          <rect x={hip + w * 0.02} y={seatY - w * 0.09} width={w * 0.06} height={w * 0.045} rx={w * 0.01} fill="#dfe5ec" stroke={INK} strokeWidth={3} />
+        </g>
+      )}
+      {bar(`M ${x + w * 0.28},${seatY - w * 0.16} L ${xf + w * 0.02},${seatY}`, t * 0.8, "strut")}
+      <rect x={x + w * 0.02} y={seatY - w * 0.2} width={w * 0.36} height={w * 0.05} rx={w * 0.02} fill="#fff3d6" {...line} strokeWidth={5} />
+      {thing.nails && (
+        <g>
+          {joints.map(([jx, jy], i) => (
+            <g key={i} transform={`rotate(${i === 1 ? 30 : -30} ${jx} ${jy})`}>
+              <path d={`M ${jx},${jy} l 0,${-w * 0.07}`} stroke={INK} strokeWidth={w * 0.014 + 5} strokeLinecap="round" />
+              <path d={`M ${jx},${jy} l 0,${-w * 0.07}`} stroke="#b8c0cc" strokeWidth={w * 0.014} strokeLinecap="round" />
+              <rect x={jx - w * 0.022} y={jy - w * 0.08} width={w * 0.044} height={w * 0.016} rx={w * 0.006} fill="#b8c0cc" stroke={INK} strokeWidth={3} />
+            </g>
+          ))}
+          {[xb - w * 0.24, xf + w * 0.27].map((lx, i) => (
+            <path key={lx} d={`M ${lx},${bottom - w * 0.16} q ${(i ? 1 : -1) * w * 0.04},${w * 0.06} 0,${w * 0.12} M ${lx + (i ? 1 : -1) * w * 0.05},${bottom - w * 0.2} q ${(i ? 1 : -1) * w * 0.05},${w * 0.08} 0,${w * 0.16}`}
+              fill="none" stroke={INK} strokeWidth={4} strokeLinecap="round" opacity={0.55} />
+          ))}
+        </g>
+      )}
+      {thing.rope && (
+        <g>
+          {joints.map(([jx, jy], i) => {
+            const r = w * 0.045;
+            const d = `M ${jx - r},${jy - r} L ${jx + r},${jy + r} M ${jx - r},${jy + r} L ${jx + r},${jy - r} M ${jx - r * 1.1},${jy} L ${jx + r * 1.1},${jy}`;
+            return (
+              <g key={i}>
+                <path d={d} stroke={INK} strokeWidth={w * 0.022 + 6} strokeLinecap="round" />
+                <path d={d} stroke={rope} strokeWidth={w * 0.022} strokeLinecap="round" />
+              </g>
+            );
+          })}
+          <path d={`M ${xf + w * 0.03},${seatY + w * 0.02} q ${w * 0.05},${w * 0.06} ${w * 0.02},${w * 0.14}`} fill="none" stroke={INK} strokeWidth={w * 0.02 + 6} strokeLinecap="round" />
+          <path d={`M ${xf + w * 0.03},${seatY + w * 0.02} q ${w * 0.05},${w * 0.06} ${w * 0.02},${w * 0.14}`} fill="none" stroke={rope} strokeWidth={w * 0.02} strokeLinecap="round" />
+        </g>
+      )}
+    </g>
+  );
+}
 
 /** 小孩玩的圆蹦床（侧面稍微俯看）：蓝色软包边，黑色弹力网，几条弯腿。站上去的人 lift 写 size 的 0.2 */
 function Trampoline({ x, bottom, w }: { x: number; bottom: number; w: number }) {

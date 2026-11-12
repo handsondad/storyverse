@@ -37,7 +37,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面）；trampoline 小孩的圆蹦床；pad 小天才学习机，屏幕上是儿歌列表，每首歌后面一个小图片；sofa 小孩的单人小沙发（空的，人坐上去用演员的 seat: "sofa"） */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面）；trampoline 小孩的圆蹦床；pad 小天才学习机，屏幕上是儿歌列表，每首歌后面一个小图片；sofa 小孩的单人小沙发（空的，人坐上去用演员的 seat: "sofa"）；highchair 宝宝的木头高脚餐椅（带小餐盘、保护带、垫子），宝宝坐上去写 rider；cushion 从餐椅上扯下来的垫子 */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -104,7 +104,15 @@ export type Thing = {
   readonly shape?: "rock" | "arch" | "slide";
   /** rock 的木板歪多少度：正数右头往下，负数左头往下（-20～20） */
   readonly tilt?: number;
-  /** 木板上的宝宝（crawl / sit / stand 的 baby），跟着木板的弧度歪；三轮车驾驶座上的宝宝（sit） */
+  /** highchair 的保护带：torn 扯断了，两头耷拉着 */
+  readonly strap?: "torn";
+  /** highchair / cushion 的垫子：torn 扯烂了露出棉花；patched 缝补过；gone（只给 highchair）垫子没了 */
+  readonly cushion?: "torn" | "patched" | "gone";
+  /** highchair 的钉子都震出来了，椅子腿直晃 */
+  readonly nails?: boolean;
+  /** highchair 用绳子绑过 */
+  readonly rope?: boolean;
+  /** 木板上的宝宝（crawl / sit / stand 的 baby），跟着木板的弧度歪；三轮车驾驶座、高脚餐椅上的宝宝（sit） */
   readonly rider?: Thing;
   /** 三轮车后斗里装的东西：grass 一大堆喂牛的草 */
   readonly load?: "grass";

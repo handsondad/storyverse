@@ -100,7 +100,12 @@ export function checkStory(story) {
       if ((p.thing?.move || p.thing?.cry || p.thing?.flip) && p.thing.kind !== "baby") say(where, "move、cry、flip 只给 baby 用");
       if (p.thing?.move && !["crawl", "sit", "stand"].includes(p.thing.move)) say(where, "move 只能是 crawl / sit / stand");
       if ((p.thing?.shape || p.thing?.tilt !== undefined || p.thing?.spot !== undefined || p.thing?.lean !== undefined) && p.thing.kind !== "board") say(where, "shape、tilt、spot、lean 只给 board 用");
-      if (p.thing?.rider && !["board", "trike"].includes(p.thing.kind)) say(where, "rider 只给 board、trike 用");
+      if (p.thing?.rider && !["board", "trike", "highchair"].includes(p.thing.kind)) say(where, "rider 只给 board、trike、highchair 用");
+      if (p.thing?.kind === "highchair" && p.thing.rider && p.thing.rider.move !== "sit") say(where, "餐椅上的 rider 是坐着的宝宝（move: \"sit\"）");
+      if ((p.thing?.strap || p.thing?.nails || p.thing?.rope) && p.thing.kind !== "highchair") say(where, "strap、nails、rope 只给 highchair 用");
+      if (p.thing?.strap && p.thing.strap !== "torn") say(where, "strap 只能是 torn");
+      if (p.thing?.cushion && !(p.thing.kind === "highchair" || (p.thing.kind === "cushion" && p.thing.cushion !== "gone"))) say(where, "cushion 只给 highchair（torn / patched / gone）和 cushion（torn / patched）用");
+      if (p.thing?.cushion && !["torn", "patched", "gone"].includes(p.thing.cushion)) say(where, "cushion 只能是 torn / patched / gone");
       if (p.thing?.kind === "trike" && p.thing.rider && p.thing.rider.move !== "sit") say(where, "三轮车上的 rider 是坐着的宝宝（move: \"sit\"）");
       if (p.thing?.load && (p.thing.kind !== "trike" || p.thing.load !== "grass")) say(where, "load 只给 trike 用，只能是 grass");
       if (p.thing?.shape && !["rock", "arch", "slide"].includes(p.thing.shape)) say(where, "board 的 shape 只能是 rock / arch / slide");

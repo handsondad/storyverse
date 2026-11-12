@@ -118,13 +118,15 @@ export function thingHeight(t: Thing, size: number): number {
     case "trampoline": return size * 0.3;
     case "pad": return size * 0.66;
     case "sofa": return size * 1.1;
+    case "highchair": return size * 1.25;
+    case "cushion": return size * 0.3;
   }
 }
 
 /** 木板上的宝宝有木板多宽的几成 */
 export const BOARD_RIDER = 0.55;
 
-const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机", sofa: "小沙发" };
+const THING_NAMES: Record<Thing["kind"], string> = { pillow: "枕头", baby: "宝宝", band: "腕带", ball: "小球", clipper: "推子", box: "药盒", tub: "澡盆", steam: "热气", photo: "照片", board: "木板", trike: "三轮车", screen: "电脑", glasses: "眼镜", trampoline: "蹦床", pad: "学习机", sofa: "小沙发", highchair: "餐椅", cushion: "垫子" };
 
 /** 检查器报问题时怎么称呼一个道具 */
 export function propName(p: Prop): string {
