@@ -1,7 +1,7 @@
-/* 颜色、圆角和《身体奇遇记》保持一个系列；漫画里的字统一用站酷快乐体（public/fonts/story.woff，npm run font 生成） */
+/* 颜色、圆角和《身体奇遇记》保持一个系列；漫画里的字统一用站酷快乐体（public/fonts/story.woff2，npm run font 生成） */
 @font-face {
   font-family: "StoryFont";
-  src: url("/fonts/story.woff") format("woff");
+  src: url("/fonts/story.woff2") format("woff2");
   font-display: block;
 }
 

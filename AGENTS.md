@@ -47,7 +47,7 @@
 - `src/engine/`：版式、镜头、气泡排布、折行（纯函数）
 - `src/scenes/`：背景（客厅、餐厅、卫生间、医院走廊、公园、卧室、美术馆、地铁、药店、街上、门球场、老家的田、纯色、放射线）和饭桌（药店里是柜台）
 - `src/render/`：SVG 画图组件
-- `public/fonts/story.woff`：站酷快乐体子集（OFL）
+- `public/fonts/story.woff2`：站酷快乐体子集（OFL）
 - `tools/snapshot.mjs`：无头浏览器截 PNG
 - `src/story/script.ts`：把故事摊成按顺序念的台词表，「听故事」和配音工具共用
 - `src/pages/useStoryPlayer.ts`：听故事（一句一句冒出来、放配音、念完自动翻页）
