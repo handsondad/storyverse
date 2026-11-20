@@ -59,7 +59,8 @@ export function placeCaptions(texts: readonly string[], panel: Rect): CaptionBox
     const bh = h + 18;
     const right = i % 2 === 1;
     const x = right ? panel.x + panel.w - bw - 10 : panel.x + 10;
-    const y = right ? panel.y + panel.h - bh - 10 : panel.y + 10 + Math.floor(i / 2) * (bh + 8);
+    const row = Math.floor(i / 2) * (bh + 8);
+    const y = right ? panel.y + panel.h - bh - 10 - row : panel.y + 10 + row;
     return { x, y, w: bw, h: bh, lines, fontSize: CAPTION_FONT };
   });
 }

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { LAYOUT_IDS, layoutPage, panelCount } from "../src/engine/layout.ts";
+import { LAYOUT_IDS, layoutPage, overlaps, panelCount } from "../src/engine/layout.ts";
+import { placeCaptions } from "../src/engine/bubbles.ts";
 import { wrap, textWidth } from "../src/engine/text.ts";
 import { composePanel } from "../src/engine/compose.ts";
 
@@ -83,4 +84,11 @@ test("气泡和拟声字会自动避开 baby 道具的脸", () => {
     beats: [{ say: "mom", text: "小念坐得真稳！" }, { sfx: "咯咯！" }],
   }, rect);
   assert.deepEqual(l.issues, []);
+});
+
+test("一格里旁白多了，左右两列各自往里叠，不会压在一起", () => {
+  const boxes = placeCaptions(["第一句", "第二句", "第三句", "第四句"], { x: 0, y: 0, w: 400, h: 400 });
+  for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) assert.ok(!overlaps(boxes[i], boxes[j]), `旁白 ${i} 和 ${j} 叠在一起了`);
+  }
 });

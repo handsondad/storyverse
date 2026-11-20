@@ -99,7 +99,7 @@ async function pageCount(executablePath, base, id) {
   try {
     const page = await browser.newPage();
     await page.goto(`${base}?snap#/read/${id}/1`, { waitUntil: "networkidle0" });
-    const n = await page.evaluate(() => Number(document.querySelector("[data-pages]")?.getAttribute("data-pages") ?? 0));
+    const n = await page.evaluate(() => Number(document.querySelector(".reader [data-pages]")?.getAttribute("data-pages") ?? 0));
     if (!n) throw new Error(`找不到故事 ${id}，看看 src/stories/ 下的目录名`);
     return n;
   } finally {

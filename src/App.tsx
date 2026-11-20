@@ -15,7 +15,7 @@ function parseRoute(hash: string): Route {
   if (page === "cast") return { page: "cast", id: param && isCharacterId(param) ? param : "nian" };
   if (page === "read" && param && storyById(param)) {
     const n = Number(extra);
-    return { page: "read", id: param, n: Number.isFinite(n) ? n : 0 };
+    return { page: "read", id: param, n: Number.isInteger(n) ? n : 0 };
   }
   return { page: "shelf" };
 }

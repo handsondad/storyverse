@@ -76,7 +76,7 @@ export default story;
 const indexPath = join(root, "src/stories/index.ts");
 let index = (await import("node:fs")).readFileSync(indexPath, "utf8");
 if (!index.includes(`./${id}/story.ts`)) {
-  const importName = id.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+  const importName = id.split("-").filter(Boolean).map((part, i) => (i ? part[0].toUpperCase() + part.slice(1) : part)).join("");
   index = index.replace(
     /import type \{ Story \} from "\.\.\/story\/types\.ts";(\r?\n)/,
     (_m, eol) => `import type { Story } from "../story/types.ts";${eol}import ${importName} from "./${id}/story.ts";${eol}`,
