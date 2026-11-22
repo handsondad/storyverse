@@ -73,7 +73,7 @@ button, a { font-family: inherit; }
   background: linear-gradient(90deg, #ff9f43, #ff6b6b 50%, #5b8def);
   -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.hero p { margin: 6px 0 0; color: var(--text-secondary); font-size: 18px; }
+.hero p { margin: 6px 0 0; color: var(--text-secondary); font-size: 18px; text-wrap: balance; }
 
 /* 首页时间绳：位置在 src/pages/timeline.ts 里算好，这里只管样子 */
 .line {
@@ -187,7 +187,7 @@ button, a { font-family: inherit; }
 .preview-cover:hover { transform: rotate(-1deg) scale(1.02); }
 .preview-cover svg { display: block; width: 100%; height: auto; }
 .preview-info h2 { margin: 2px 0 6px; font-size: 32px; font-weight: 400; color: var(--ink); }
-.preview-info p { margin: 0 0 8px; color: var(--text-secondary); font-size: 17px; }
+.preview-info p { margin: 0 0 8px; color: var(--text-secondary); font-size: 17px; text-wrap: pretty; }
 .preview-info .when { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #e0702a; font-size: 18px; }
 .preview-info .chip { padding: 0 10px; border-radius: 999px; background: #ffe3c2; color: var(--ink); font-size: 14px; }
 .preview-info .ago { color: var(--text-muted); font-size: 15px; }

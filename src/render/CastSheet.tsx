@@ -28,9 +28,11 @@ export function CastSheet({ id, cols = 7 }: { id: CharacterId; cols?: number }) 
   const tallest = Math.max(height, 400, ...all.map((b) => -b.minY));
   const widest = Math.max(...all.map((b) => Math.max(-b.minX, b.maxX) * 2));
   const poseScale = Math.min((POSE_H - 100) / tallest, (CELL_W - 40) / widest);
-  const [hx, hy0] = stand.head.c;
-  const hy = hy0 - spec.body.headRy * 0.12;
+  const [hx, hy] = stand.head.c;
   const headBox = spec.body.headRx * 3.4;
+  // 上面留给「！」「？」「Zz」，下面露出下巴；按头高算，大人的长脸才不会被切掉下巴
+  const faceTop = hy - spec.body.headRy * 1.95;
+  const faceH = spec.body.headRy * 3.2;
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="sheet" data-snap role="img" aria-label={`${spec.name}的样张`}>
@@ -68,7 +70,7 @@ export function CastSheet({ id, cols = 7 }: { id: CharacterId; cols?: number }) 
           <g key={face}>
             <rect x={x + 8} y={top + 4} width={CELL_W - 16} height={FACE_H - 12} rx={18} fill="#fff" stroke="#ffe0cc" strokeWidth={3} />
             <svg x={x + 8} y={top + 4} width={CELL_W - 16} height={FACE_H - 60}
-              viewBox={`${hx - headBox / 2} ${hy - headBox * 0.62} ${headBox} ${headBox * 0.92}`} preserveAspectRatio="xMidYMid meet">
+              viewBox={`${hx - headBox / 2} ${faceTop} ${headBox} ${faceH}`} preserveAspectRatio="xMidYMid meet">
               <Figure spec={spec} face={face} />
             </svg>
             <text x={x + CELL_W / 2} y={top + FACE_H - 24} fontSize={26} textAnchor="middle" fill="#8b7a5c" className="story-font">{EXPRESSION_LABELS[face]} {face}</text>
