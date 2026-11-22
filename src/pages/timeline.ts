@@ -21,9 +21,9 @@ export type LineSize = {
   readonly rowH: number;
 };
 
-export const LINE: LineSize = { tagW: 168, yearW: 150, flagW: 84, gap: 26, pad: 64, sag: 36, top: 28, rowH: 314 };
+export const LINE: LineSize = { tagW: 168, yearW: 150, flagW: 84, gap: 26, pad: 64, sag: 36, top: 28, rowH: 384 };
 /** 手机上挂件小一号 */
-export const COMPACT: LineSize = { tagW: 132, yearW: 124, flagW: 72, gap: 14, pad: 40, sag: 24, top: 24, rowH: 274 };
+export const COMPACT: LineSize = { tagW: 132, yearW: 124, flagW: 72, gap: 14, pad: 40, sag: 24, top: 24, rowH: 308 };
 export const sizeFor = (room: number): LineSize => (room > 0 && room < 560 ? COMPACT : LINE);
 
 type Look = { readonly x: number; readonly y: number; readonly tilt: number; readonly color: string };

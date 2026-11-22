@@ -185,6 +185,7 @@ export function ShelfPage() {
                     <span className="peg" aria-hidden="true" />
                     <span className="card" style={{ background: it.color, ["--tilt" as string]: `${it.tilt}deg` }}>
                       <span className="day">{monthDay(it.story.when.date)}</span>
+                      <CoverView story={it.story} className="thumb" thumb />
                       {it.story.when.label && <span className="label">{it.story.when.label}</span>}
                       <span className="name">{it.story.title}</span>
                     </span>

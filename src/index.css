@@ -140,6 +140,7 @@ button, a { font-family: inherit; }
 }
 .tag:nth-child(odd) .card { animation-duration: 5.2s; animation-delay: -1.4s; }
 .tag .day { font-size: 26px; line-height: 1.1; color: #e0702a; }
+.tag .thumb { display: block; width: 112px; height: auto; border: 3px solid #fff; border-radius: 4px; background: #fff; box-shadow: 0 1px 0 rgba(61, 48, 39, 0.25); }
 .tag .label { font-size: 13px; padding: 0 8px; border-radius: 999px; background: #fff; border: 2px solid var(--ink); }
 .tag .name { font-size: 19px; line-height: 1.3; }
 .tag.on .card {
@@ -159,6 +160,7 @@ button, a { font-family: inherit; }
 .line.compact .tag .card { padding: 10px 8px 9px; }
 .line.compact .tag .day { font-size: 20px; }
 .line.compact .tag .name { font-size: 16px; }
+.line.compact .tag .thumb { width: 88px; }
 .line.compact .year-card .thumb { width: 84px; }
 .line.compact .year-card .name { font-size: 13px; }
 .line.compact .year-flag { height: 76px; }
