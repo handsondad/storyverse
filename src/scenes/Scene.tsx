@@ -1832,8 +1832,9 @@ function LearningPad({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
       <circle cx={L + w - b * 0.5} cy={T + h / 2} r={b * 0.22} fill="#ffffff" stroke={INK} strokeWidth={stroke} />
       <rect x={sx} y={sy} width={sw} height={sh} rx={w * 0.02} fill="#ffffff" stroke={INK} strokeWidth={stroke} />
       <rect x={sx} y={sy} width={sw} height={head} rx={w * 0.02} fill="#ff9f43" />
-      <text x={sx + sw * 0.06} y={sy + head / 2} fontSize={head * 0.62} dominantBaseline="central" fill="#ffffff" className="story-font">儿歌</text>
-      {PAD_ROWS.map((len, i) => {
+      <text x={sx + sw * 0.06} y={sy + head / 2} fontSize={head * 0.62} dominantBaseline="central" fill="#ffffff" className="story-font">{thing.game ? "认一认" : "儿歌"}</text>
+      {thing.game && <PadGame sx={sx} sy={sy + head} sw={sw} sh={sh - head} game={thing.game} stroke={stroke} />}
+      {!thing.game && PAD_ROWS.map((len, i) => {
         const cy = sy + head + rowH * (i + 0.5);
         return (
           <g key={i}>
@@ -1845,8 +1846,8 @@ function LearningPad({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
           </g>
         );
       })}
-      <rect x={sx + sw * 0.955} y={sy + head + rowH * 0.3} width={sw * 0.016} height={sh * 0.25} rx={sw * 0.008} fill="#c9d2dc" />
-      {pick !== undefined && (() => {
+      {!thing.game && <rect x={sx + sw * 0.955} y={sy + head + rowH * 0.3} width={sw * 0.016} height={sh * 0.25} rx={sw * 0.008} fill="#c9d2dc" />}
+      {pick !== undefined && !thing.game && (() => {
         const tip: Pt = [iconX + rowH * 0.4, sy + head + rowH * (pick + 0.8)];
         const fist: Pt = [tip[0] + rowH * 0.55, tip[1] + rowH * 1.1];
         const finger = `M ${tip[0]},${tip[1]} L ${fist[0]},${fist[1]}`;
@@ -1859,6 +1860,59 @@ function LearningPad({ x, bottom, w, thing }: { x: number; bottom: number; w: nu
           </g>
         );
       })()}
+    </g>
+  );
+}
+
+/** 一簇火苗：底在 (cx, base)，往上蹿 h 高 */
+function flame(cx: number, base: number, w: number, h: number): string {
+  return `M ${cx},${base} C ${cx - w * 0.62},${base} ${cx - w * 0.5},${base - h * 0.45} ${cx - w * 0.12},${base - h * 0.62} C ${cx - w * 0.16},${base - h * 0.8} ${cx},${base - h * 0.9} ${cx + w * 0.06},${base - h} C ${cx + w * 0.12},${base - h * 0.72} ${cx + w * 0.56},${base - h * 0.5} ${cx + w * 0.5},${base - h * 0.2} C ${cx + w * 0.48},${base} ${cx + w * 0.2},${base} ${cx},${base} Z`;
+}
+
+/** 学习机里拼音认物的小游戏：草地上一辆小红车（右上角写着拼音 qì chē）；play 只有小车，boom 冒火的炮弹正飞过来，fire 小车着火冒烟了 */
+function PadGame({ sx, sy, sw, sh, game, stroke }: { sx: number; sy: number; sw: number; sh: number; game: "play" | "boom" | "fire"; stroke: number }) {
+  const u = sh / 9;
+  const gy = sy + sh * 0.8;
+  const cx = sx + sw * 0.62;
+  const st = { stroke: INK, strokeWidth: stroke, strokeLinejoin: "round" as const };
+  const fire = game === "fire";
+  const ball: Pt = [sx + sw * 0.24, sy + sh * 0.34];
+  return (
+    <g>
+      <rect x={sx + stroke / 2} y={sy} width={sw - stroke} height={gy - sy} fill="#dff3ff" />
+      <rect x={sx + stroke / 2} y={gy} width={sw - stroke} height={sy + sh - gy - stroke / 2} fill="#9ed67b" />
+      <text x={sx + sw * 0.86} y={sy + u * 1.1} fontSize={u * 1.05} textAnchor="middle" dominantBaseline="central" fill="#3b6fb6" className="story-font">qì chē</text>
+      <rect x={cx - u * 2.3} y={gy - u * 2.1} width={u * 4.6} height={u * 1.4} rx={u * 0.35} fill="#ff5a5a" {...st} />
+      <path d={`M ${cx - u * 1.5},${gy - u * 2.1} L ${cx - u * 0.9},${gy - u * 3.1} L ${cx + u * 0.9},${gy - u * 3.1} L ${cx + u * 1.5},${gy - u * 2.1} Z`} fill="#ff5a5a" {...st} />
+      <path d={`M ${cx - u * 1.1},${gy - u * 2.2} L ${cx - u * 0.75},${gy - u * 2.85} L ${cx - u * 0.1},${gy - u * 2.85} L ${cx - u * 0.1},${gy - u * 2.2} Z M ${cx + u * 0.1},${gy - u * 2.2} L ${cx + u * 0.1},${gy - u * 2.85} L ${cx + u * 0.75},${gy - u * 2.85} L ${cx + u * 1.1},${gy - u * 2.2} Z`} fill="#bfe6ff" />
+      {[-1.35, 1.35].map((k) => (
+        <g key={k}>
+          <circle cx={cx + u * k} cy={gy - u * 0.6} r={u * 0.6} fill="#3d3d4d" {...st} />
+          <circle cx={cx + u * k} cy={gy - u * 0.6} r={u * 0.22} fill="#d9dde3" />
+        </g>
+      ))}
+      {fire ? (
+        <g>
+          {[[-1.6, 0.9], [-0.5, 1.15], [0.6, 1], [1.7, 0.8]].map(([k, r], i) => (
+            <circle key={i} cx={cx + u * k} cy={sy + u * (2.6 - i * 0.15)} r={u * r} fill="#b8bec7" opacity={0.85} />
+          ))}
+          {[[-1.2, 1.4, 2.4], [0, 1.8, 3.4], [1.2, 1.4, 2.6]].map(([k, w, h], i) => (
+            <g key={i}>
+              <path d={flame(cx + u * k, gy - u * 2.6, u * w, u * h)} fill="#ff7a1a" {...st} />
+              <path d={flame(cx + u * k, gy - u * 2.6, u * w * 0.5, u * h * 0.55)} fill="#ffd84d" />
+            </g>
+          ))}
+        </g>
+      ) : game === "boom" && (
+        <g>
+          <g transform={`rotate(-62 ${ball[0]} ${ball[1]})`}>
+            <path d={flame(ball[0], ball[1] + u * 0.2, u * 1.6, u * 2.6)} fill="#ff7a1a" {...st} />
+            <path d={flame(ball[0], ball[1] + u * 0.2, u * 0.9, u * 1.6)} fill="#ffd84d" />
+          </g>
+          <circle cx={ball[0]} cy={ball[1]} r={u * 0.75} fill="#3d3d4d" {...st} />
+          <circle cx={ball[0] - u * 0.25} cy={ball[1] - u * 0.25} r={u * 0.2} fill="#ffffff" opacity={0.6} />
+        </g>
+      )}
     </g>
   );
 }

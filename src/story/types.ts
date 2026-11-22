@@ -39,7 +39,7 @@ export type Actor = {
 
 /** 表情符号里没有的东西，由引擎画出来 */
 export type Thing = {
-  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面）；trampoline 小孩的圆蹦床；pad 小天才学习机，屏幕上是儿歌列表，每首歌后面一个小图片；sofa 小孩的单人小沙发（空的，人坐上去用演员的 seat: "sofa"）；highchair 宝宝的木头高脚餐椅（带小餐盘、保护带、垫子），宝宝坐上去写 rider；cushion 从餐椅上扯下来的垫子；sock 一只小蓝袜子（侧面，袜头朝右），写 worn 就是穿在脚上的特写；shoes 爸爸的一双棕皮鞋（侧面，鞋头朝右），并排摆得整整齐齐，写 messy 就东倒西歪；puddle 地上洒的一摊水；tissue 两张白纸巾；phone 手机特写（竖着，屏幕上在放动画片），见 show；jug 洗衣液大桶（蓝桶红盖，左边提手、右边瓶口），见 cap；puzzle 一板拼好的拼图（4×3 块，图上是蓝天、太阳、小山和一辆小红车），见 pieces */
+  /** pillow 乳胶枕；baby 小宝宝；band 宝宝手腕上的腕带（特写）；ball 红黄蓝三色小球；clipper 理发的电推子；box 药盒（label 写药名）；tub 空的大澡盆（大号洗脸盆）；steam 往上冒的热气；photo 妈妈小时候的老照片（发黄，小女孩骑在摩托车上）；board 拱形的大木板（平衡板），见 shape；trike 农用三轮车（车头朝右，后面一个斗）；screen 爸爸的电脑显示器，屏幕上一行行彩色代码；glasses 摘下来放着的一副眼镜（正面）；trampoline 小孩的圆蹦床；pad 小天才学习机，屏幕上是儿歌列表，每首歌后面一个小图片（写 game 就换成小游戏）；sofa 小孩的单人小沙发（空的，人坐上去用演员的 seat: "sofa"）；highchair 宝宝的木头高脚餐椅（带小餐盘、保护带、垫子），宝宝坐上去写 rider；cushion 从餐椅上扯下来的垫子；sock 一只小蓝袜子（侧面，袜头朝右），写 worn 就是穿在脚上的特写；shoes 爸爸的一双棕皮鞋（侧面，鞋头朝右），并排摆得整整齐齐，写 messy 就东倒西歪；puddle 地上洒的一摊水；tissue 两张白纸巾；phone 手机特写（竖着，屏幕上在放动画片），见 show；jug 洗衣液大桶（蓝桶红盖，左边提手、右边瓶口），见 cap；puzzle 一板拼好的拼图（4×3 块，图上是蓝天、太阳、小山和一辆小红车），见 pieces */
   readonly kind: ThingKind;
   /** 枕头鼓起来多少：0 扁扁的，1 是它本来该有的样子 */
   readonly puff?: number;
@@ -81,6 +81,8 @@ export type Thing = {
   readonly specs?: boolean;
   /** pad 学习机上小手指着第几首歌（0～5，从上往下），那一行亮起来 */
   readonly pick?: number;
+  /** pad 的屏幕换成拼音认物小游戏（草地上一辆小红车）：play 只有小车；boom 一个冒火的炮弹正飞向小车；fire 小车着火冒烟了 */
+  readonly game?: "play" | "boom" | "fire";
   /** stand 的宝宝踮着脚、两只小手举高往前够 */
   readonly reach?: boolean;
   /** crawl / sit 的宝宝嘟着小嘴吹气（吹蜡烛），嘴前面有几道风 */

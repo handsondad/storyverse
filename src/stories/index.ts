@@ -1,4 +1,5 @@
 import type { Story } from "../story/types.ts";
+import fireTruck from "./fire-truck/story.ts";
 import puzzleTime from "./puzzle-time/story.ts";
 import storyTime from "./story-time/story.ts";
 import smellFirst from "./smell-first/story.ts";
@@ -36,7 +37,7 @@ import highChair from "./high-chair/story.ts";
 import wrongMuseum from "./wrong-museum/story.ts";
 
 /** 书架上的故事，按发布先后排 */
-export const STORIES: readonly Story[] = [wrongMuseum, glowingBoots, highChair, latexPillow, born, bellyButton, kickBall, yummyToes, bedEdge, laoyeBirthday, firstCold, vaccine, crawlCourt, bathBasin, hotWater, littleRider, firstBirthday, littleGuitar, balanceBoard, littleDriver, littleCoder, bigGlasses, littleGenius, littleSofa, brokenChair, doItMyself, tidyGuard, littleHelper, bigName, watchAds, ning, strongHands, smellFirst, storyTime, puzzleTime];
+export const STORIES: readonly Story[] = [wrongMuseum, glowingBoots, highChair, latexPillow, born, bellyButton, kickBall, yummyToes, bedEdge, laoyeBirthday, firstCold, vaccine, crawlCourt, bathBasin, hotWater, littleRider, firstBirthday, littleGuitar, balanceBoard, littleDriver, littleCoder, bigGlasses, littleGenius, littleSofa, brokenChair, doItMyself, tidyGuard, littleHelper, bigName, watchAds, ning, strongHands, smellFirst, storyTime, puzzleTime, fireTruck];
 
 export function storyById(id: string): Story | undefined {
   return STORIES.find((s) => s.id === id);

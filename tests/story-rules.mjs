@@ -122,6 +122,8 @@ export function checkStory(story) {
       if (p.thing?.hat && !["party", "big", "grad"].includes(p.thing.hat)) say(where, "hat 只能是 party / big / grad");
       if (p.thing?.specs && !(p.thing.kind === "baby" && p.thing.move)) say(where, "specs 只给 crawl / sit / stand 的宝宝用");
       if (p.thing?.pick !== undefined && (p.thing.kind !== "pad" || ![0, 1, 2, 3, 4, 5].includes(p.thing.pick))) say(where, "pick 只给 pad 用，是 0～5");
+      if (p.thing?.game && (p.thing.kind !== "pad" || !["play", "boom", "fire"].includes(p.thing.game))) say(where, "game 只给 pad 用，只能是 play / boom / fire");
+      if (p.thing?.game && p.thing.pick !== undefined) say(where, "pad 写了 game 就没有儿歌列表，别再写 pick");
       if (p.thing?.reach && !(p.thing.kind === "baby" && p.thing.move === "stand")) say(where, "reach 只给 stand 的宝宝用");
       if ((p.thing?.sick || p.thing?.patch || p.thing?.color || p.thing?.blow) && !(p.thing.kind === "baby" && p.thing.move)) say(where, "sick、patch、color、blow 只给 crawl / sit 的宝宝用");
       if (p.thing?.kind === "box" && !p.thing.label) say(where, "药盒要写 label：盒子上的药名");
