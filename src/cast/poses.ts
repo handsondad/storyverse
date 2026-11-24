@@ -52,4 +52,5 @@ export const POSE_ANGLES: Record<Pose, PoseAngles> = {
   sniff: { armL: [-60, -110], armR: [70, 100], ...legs, tilt: 8 },
   wipe: { armL: [-30, -40], armR: [36, 8], legL: [58, -96], legR: [58, -96], lean: 34, tilt: -20, handR: "open" },
   tug: { armL: [-46, -20], armR: [54, -16], legL: [-76, 76], legR: [100, -50], lean: 28, tilt: -14, seat: true, thighScale: 0.82 },
+  pout: { armL: [26, -62], armR: [26, -62], ...legs, lean: -6, tilt: -16 },
 };

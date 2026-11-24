@@ -45,6 +45,7 @@ export const POSES = [
   "wipe",   // 蹲着往前探身，一只手按在前面的地上擦
   "rub",    // 两只手揉眼睛
   "sniff",  // 两手把东西举到鼻子前闻一闻（配合 hold 字段）
+  "pout",   // 两手叉腰、头往后仰，说「哼，生气！」的样子
 ] as const;
 export type Pose = (typeof POSES)[number];
 
